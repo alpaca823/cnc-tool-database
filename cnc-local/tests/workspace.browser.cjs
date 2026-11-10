@@ -63,7 +63,7 @@ async function assertChromeTheme(page,theme){
     if(await page.locator('#workspace').isHidden()){
       if(await page.locator('#loginCard').isHidden())await page.locator('#toggleView').click();
       if(await page.locator('#username').count())await page.locator('#username').fill('admin');
-      await page.locator('#password').fill('admin');await page.locator('#loginForm button[type="submit"]').click();
+      await page.locator('#password').fill('Feds201');await page.locator('#loginForm button[type="submit"]').click();
       await page.locator('#workspace').waitFor({state:'visible'});
     }
   }
@@ -107,7 +107,7 @@ async function assertChromeTheme(page,theme){
     const {page,rpc}=await open();
     await page.locator('.workspace-view[data-page="feeds"]').waitFor({state:'visible'});
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
-    assert.match(await page.locator('body').innerText(),/1\.14\.0/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.1/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
     for(const name of pages)await navigate(page,name);
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);

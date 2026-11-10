@@ -60,7 +60,7 @@ const setting = {mill:'001',material:'Aluminum 6061',rpm:'12000',feed:'800',dept
 
     await login('wrong');
     await page.waitForFunction(() => document.getElementById('loginStatus').textContent.includes('Incorrect'));
-    await login('admin');
+    await login('Feds201');
     await page.locator('#workspace').waitFor({state:'visible'}); await idle();
     await addMaterial(setting.material);
     await fill(setting); await page.locator('#saveSetting').click(); await status('saved'); await idle();
@@ -82,7 +82,7 @@ const setting = {mill:'001',material:'Aluminum 6061',rpm:'12000',feed:'800',dept
     assert.deepEqual(await rpc('getOptions'),[{mill:'001',materials:[setting.material]}]);
     console.log('PASS: public lookup units and leading-zero IDs survive reloading the file.');
 
-    await login('admin'); await page.locator('#workspace').waitFor({state:'visible'}); await idle();
+    await login('Feds201'); await page.locator('#workspace').waitFor({state:'visible'}); await idle();
     await page.locator('#settingList').getByRole('button',{name:'Edit',exact:true}).click();
     await fill({feed:'825'}); await page.locator('#saveSetting').click(); await status('saved'); await idle();
     assert.equal((await rpc('getSettings','001',setting.material)).feed,825);
@@ -128,7 +128,7 @@ const setting = {mill:'001',material:'Aluminum 6061',rpm:'12000',feed:'800',dept
     await assert.rejects(rpc('adminListSettings',auth.token),/AUTH_REQUIRED/);
     await login('shop-password-42'); await page.locator('#workspace').waitFor({state:'visible'}); await idle();
     await page.locator('#logout').click(); await page.locator('#workspace').waitFor({state:'hidden'});
-    await login('admin'); await page.locator('#workspace').waitFor({state:'visible'}); await idle();
+    await login('Feds201'); await page.locator('#workspace').waitFor({state:'visible'}); await idle();
     await page.locator('#logout').click(); await page.locator('#workspace').waitFor({state:'hidden'});
     console.log('PASS: added password persists across reload, existing sessions remain valid, permanent admin fallback and logout work.');
 

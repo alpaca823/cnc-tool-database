@@ -32,7 +32,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
   async function login(page){
     if(await page.locator('#workspace').isHidden()){
       if(await page.locator('#loginCard').isHidden())await page.locator('#toggleView').click();
-      await page.locator('#username').fill('admin');await page.locator('#password').fill('admin');
+      await page.locator('#username').fill('admin');await page.locator('#password').fill('Feds201');
       await page.locator('#loginForm button[type="submit"]').click();
       await page.locator('#workspace').waitFor({state:'visible'});
     }
@@ -88,7 +88,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     assert.deepEqual(await rpc('getRawMaterials'),[],'New installations start with no invented raw stock');
     assert.equal(await page.locator('#addRawMaterial').isVisible(),false);
     assert.equal(await page.locator('#rawMaterialForm').isVisible(),false);
-    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.0/);
+    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.1/);
     assert.match(await page.locator('#mentorNotice').innerText(),/mentor.*present/i);
     const draft={material:'Aluminum 6061',length:48,width:96,thickness:.75,quantity:4,location:'Sheet rack A',notes:'Full aluminum sheets'};
     await assert.rejects(rpc('adminSaveRawMaterial','forged',draft,null),/AUTH_REQUIRED/);

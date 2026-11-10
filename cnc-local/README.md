@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.0
+# CNC Tool Database — v1.14.1
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -75,7 +75,7 @@ Before upgrading, export a JSON backup. Replace the HTML at the same path and us
 
 Open **Settings → Admin passwords**. Every password uses username **admin**.
 
-- The permanent **admin / admin** fallback cannot be changed or removed. Anyone who knows it can edit this local database.
+- The permanent **admin / Feds201** fallback cannot be changed or removed. Anyone who knows it can edit this local database.
 - Add up to 20 labeled additional passwords of 8–128 characters. Labels are unique ignoring letter case; duplicate passwords are rejected.
 - Edit a label/password, or leave both password fields blank to change only the label.
 - Removing or editing a custom password signs out sessions using it; other sessions continue working. The fallback stays enabled.
@@ -93,6 +93,8 @@ Run `node tests/raw-materials.browser.cjs` for sheet CRUD, validation, material 
 
 ## Local and Google editions
 
-The Google Apps Script edition uses the same interface and data rules. Both editions use admin/admin and optional additional admin passwords for editing; visitors browse without app login. Both editions are built from the canonical source files, with a common version in `VERSION`. Run `python build-both.py` from the full source bundle root to regenerate both; `python build.py` inside this directory builds only the local edition. Future product changes should be checked in both editions.
+The Google Apps Script edition uses the same interface and data rules. Both editions use admin/Feds201 and optional additional admin passwords for editing; visitors browse without app login. Both editions are built from the canonical source files, with a common version in `VERSION`. Run `python build-both.py` from the full source bundle root to regenerate both; `python build.py` inside this directory builds only the local edition. Future product changes should be checked in both editions.
 
 The local edition continues to work offline with its existing browser storage. The Google edition uses a shared Google database and private Drive images. Its setup instructions are in the separate Google package. You can move data and photos between the editions using JSON exports/imports, and the Google edition can download an offline HTML snapshot. Their live databases remain independent. Admin passwords and appearance preferences are not transferred.
+
+As of v1.14.1, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.

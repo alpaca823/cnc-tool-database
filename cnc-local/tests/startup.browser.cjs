@@ -20,7 +20,7 @@ const root=path.resolve(__dirname,'..');
     let instance=await open(built);
     await instance.page.waitForFunction(()=>!document.getElementById('loginFields').disabled);
     await instance.page.locator('#toggleView').click();
-    await instance.page.locator('#password').fill('admin');
+    await instance.page.locator('#password').fill('Feds201');
     await instance.page.locator('#loginForm button').click();
     await instance.page.locator('#workspace').waitFor({state:'visible'});
     assert.deepEqual(instance.errors,[]);

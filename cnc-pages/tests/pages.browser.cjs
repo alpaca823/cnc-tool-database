@@ -23,7 +23,7 @@ const {fixture}=require('./shared-fixture.cjs');
   const page=await open();await page.evaluate(()=>cncLocal.ready);
   await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);
   assert.equal(await page.evaluate(()=>cncLocal.kind),'shared');assert.equal(await page.locator('.nav-button').count(),6);
-  await page.locator('#toggleView').click();await page.locator('#password').fill('admin');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});
+  await page.locator('#toggleView').click();await page.locator('#password').fill('Feds201');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});
   await page.waitForFunction(()=>!document.getElementById('materialFields').disabled);
   await page.locator('.nav-button[data-page=materials]').click();await page.locator('#manageMaterials').click();await page.locator('#materialName').fill('Shared aluminum');await page.locator('#saveMaterial').click();
   await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('Material saved'));

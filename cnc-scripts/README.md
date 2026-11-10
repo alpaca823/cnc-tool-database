@@ -1,3 +1,5 @@
+> Archived as of v1.14.1. Google Apps Script is no longer supported or rebuilt. Existing deployments and data are left intact. Use the GitHub Pages shared website or local HTML edition.
+
 # CNC Tool Database — Google Apps Script — v1.14.0
 
 This is the shared, online variant of CNC Tool Database. It uses the same interface and cutting-data rules as the standalone local version. Open the deployed web app through its link; saved shop data is shared between computers through Google Sheets and private image files in Google Drive. Internet access is required.

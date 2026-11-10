@@ -1,7 +1,3 @@
-# GitHub Pages v1.14.0 verification
+# v1.14.1 bug-fix verification
 
-All three new shared-backend tests passed using the generated canonical data/auth engine and a local database-service double: persistent records and session login across fresh requests, protected writes/custom passwords, exports without credentials, optimistic revision conflict protection, origin checks, and action allowlists.
-
-The exact Pages HTML passed Chromium integration: two separate browsers see the same material saved by admin, public controls remain read-only, browser database storage is not used, workspace reads are batched, and missing configuration reports a clear setup message. The separately labelled browser-only preview loads and accepts admin/admin. No sample inventory is published.
-
-All 18 project test commands passed (13 Chromium suites, 54 unit/backend cases). Local and Google editions remain available. Production Supabase provisioning, SQL execution, Edge Function deployment, and connection settings are still required; no live shared-database performance benchmark or data migration is claimed.
+Default login changed to admin/Feds201, accepting any capitalization. Shared backend unit tests and the Pages browser test verify login, shared data, protected edits, and persistence. Live API checks verify mixed-case default login and rejection of the previous default. The local HTML is generated from the same canonical authentication core. Google Apps Script is archived and excluded from supported builds. Existing data and credential records remain intact.

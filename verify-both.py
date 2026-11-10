@@ -21,12 +21,10 @@ if __name__ == '__main__':
     commands = [
         ['node', 'cnc-local/tests/inches.test.cjs'],
         ['node', '--test', 'cnc-local/tests/passwords.stress.cjs'],
-        ['node', '--test', 'cnc-scripts/tests/engine-parity.test.cjs'],
-        ['node', '--test', 'cnc-scripts/tests/server.test.cjs'],
         ['node', '--test', 'cnc-pages/tests/backend.test.cjs'],
     ]
     commands += [['node', str(file.relative_to(ROOT))]
-                 for folder in ['cnc-local/tests', 'cnc-scripts/tests', 'cnc-pages/tests']
+                 for folder in ['cnc-local/tests', 'cnc-pages/tests']
                  for file in sorted((ROOT / folder).glob('*.browser.cjs'))]
     failures = []
     with ThreadPoolExecutor(max_workers=4) as pool:

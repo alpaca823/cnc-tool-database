@@ -31,7 +31,7 @@ const legacySetting = {mill:'099',material:'Legacy material',rpm:'9000',feed:'10
   async function login(page) {
     if (await page.locator('#workspace').isHidden() && await page.locator('#adminPanel').isHidden()) await page.locator('#toggleView').click();
     if (await page.locator('#workspace').isHidden()) {
-      await page.locator('#password').fill('admin'); await page.locator('#loginForm button').click();
+      await page.locator('#password').fill('Feds201'); await page.locator('#loginForm button').click();
       await page.locator('#workspace').waitFor({state:'visible'});
     }
     await idle(page); await go(page,'feeds');
