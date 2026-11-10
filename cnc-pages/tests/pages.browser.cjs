@@ -22,7 +22,11 @@ const {fixture}=require('./shared-fixture.cjs');
   }
   const page=await open();await page.evaluate(()=>cncLocal.ready);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
-  await page.locator('.nav-button[data-page=settings]').click();
+  assert.equal(await page.locator('#mentorNotice').isVisible(),true);
+  for(const name of ['dashboard','mills','inventory','materials','settings']){
+   await page.locator('.nav-button[data-page='+name+']').click();
+   assert.equal(await page.locator('#mentorNotice').isVisible(),false);
+  }
   await page.locator('[data-theme-choice=light]').click();
   await page.reload();await page.evaluate(()=>cncLocal.ready);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'light','Saved preference survives reload');

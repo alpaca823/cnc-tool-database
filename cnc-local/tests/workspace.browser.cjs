@@ -109,9 +109,9 @@ async function assertChromeTheme(page,theme){
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Fresh browsers default to dark');
     await assertChromeTheme(page,'dark');
-    assert.match(await page.locator('body').innerText(),/1\.14\.3/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.4/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
-    for(const name of pages)await navigate(page,name);
+    for(const name of pages){await navigate(page,name);assert.equal(await page.locator('#mentorNotice').isVisible(),name==='feeds','Mentor notice belongs only to Feeds & Speeds');}
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);
     await navigate(page,'materials');assert.equal(await page.locator('#materialForm').isVisible(),false);
     await navigate(page,'inventory');assert.equal(await page.locator('#inventoryForm').isVisible(),false);

@@ -1,5 +1,5 @@
-# v1.14.3 small update
+# v1.14.4 bug fix
 
-Local workspace and GitHub Pages browser suites pass. Fresh browsers start in dark mode, saved light/dark/system preferences remain respected, and appearance persists on reload. Local coverage includes computed header/sidebar/search contrast, mobile layouts, inventory, exports, and data preservation.
+Local workspace and GitHub Pages browser suites pass. Both verify the mentor notice is visible on Feeds & Speeds and hidden on all five other tabs. Fresh browsers start dark and saved appearance preferences remain respected. Local integration also verifies rendered theme contrast, inventory, photos, cutting settings, backups, data preservation, and mobile layouts.
 
-Appearance-only update; database behavior and credentials are unchanged. Google Apps Script remains archived.
+No database or credential changes. Google Apps Script remains archived.
