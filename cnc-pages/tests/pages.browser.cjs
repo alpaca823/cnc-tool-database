@@ -21,6 +21,11 @@ const {fixture}=require('./shared-fixture.cjs');
    const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));await page.goto('http://localhost:31470/');return page;
   }
   const page=await open();await page.evaluate(()=>cncLocal.ready);
+  assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
+  await page.locator('.nav-button[data-page=settings]').click();
+  await page.locator('[data-theme-choice=light]').click();
+  await page.reload();await page.evaluate(()=>cncLocal.ready);
+  assert.equal(await page.locator('html').getAttribute('data-theme'),'light','Saved preference survives reload');
   await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);
   assert.equal(await page.evaluate(()=>cncLocal.kind),'shared');assert.equal(await page.locator('.nav-button').count(),6);
   await page.locator('#toggleView').click();await page.locator('#password').fill('Feds201');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});

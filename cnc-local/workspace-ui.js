@@ -3,7 +3,7 @@
   let wsMillOriginal = null, wsMillBase = null, wsMillPhoto = '', wsMillPhotoDirty = false, wsMillEditorOpen = false, wsInventoryOriginal = null, wsDataRevision = 0;
   const wsThemeKey = 'cnc-tool-theme-v1';
   const wsThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
-  let wsTheme = 'system', wsFeedSignature = '';
+  let wsTheme = 'dark', wsFeedSignature = '';
   let wsRawOriginal = null, wsRawEditorOpen = false, wsSelectedMaterialName = '';
   const wsPages = {
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],

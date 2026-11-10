@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.2
+# CNC Tool Database — v1.14.3
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -37,6 +37,8 @@ See each variant's **TEST-RESULTS.md** for completed validation. Keep numbered r
 
 The GitHub Pages edition is built in cnc-pages/. It uses Supabase for shared storage and keeps the same admin/Feds201 workflow, data validation, and backup format. See cnc-pages/README.md for setup. Until connected, the site offers an explicitly browser-only preview. Creating the repository or Pages site alone does not provision the database.
 
-As of v1.14.2, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+As of v1.14.3, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
 
-Small update v1.14.2: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
+Small update v1.14.3: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
+
+Small update v1.14.3: Dark mode is the default for a fresh browser. Saved Light, Dark, and System appearance preferences are preserved.

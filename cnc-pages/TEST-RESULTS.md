@@ -1,7 +1,5 @@
-# v1.14.2 small update
+# v1.14.3 small update
 
-Four shared-backend tests pass, including valid purchase URL persistence across inventory edits, backup export/import, and removal, plus atomic rejection of script/data URLs, credentials in URLs, invalid types, and oversized URLs.
+Local workspace and GitHub Pages browser suites pass. Fresh browsers start in dark mode, saved light/dark/system preferences remain respected, and appearance persists on reload. Local coverage includes computed header/sidebar/search contrast, mobile layouts, inventory, exports, and data preservation.
 
-The purchase browser suite passes against both local HTML and the shared Pages build: mill-form save, public mill details, low-inventory dashboard and table links, safe new tabs, reload persistence, and 390 px layout. Existing Pages and local workspace integration checks also pass.
-
-No database schema change is needed. The canonical mill validator supplies the same behavior to local and shared editions. Existing mills without links remain valid. Google Apps Script remains archived.
+Appearance-only update; database behavior and credentials are unchanged. Google Apps Script remains archived.
