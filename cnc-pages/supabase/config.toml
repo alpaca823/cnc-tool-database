@@ -1,0 +1,2 @@
+[functions.cnc-api]
+verify_jwt = false

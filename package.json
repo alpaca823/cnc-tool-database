@@ -1,0 +1,11 @@
+{
+  "name": "cnc-tool-database",
+  "private": true,
+  "scripts": {
+    "build": "python build-both.py",
+    "test": "python verify-both.py"
+  },
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>CNC Tool Database — v__CNC_VERSION__</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* WORKSPACE_CSS */</style></head>
+<body class="workspace-app">
+<header class="app-topbar"><button id="menuToggle" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div class="app-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2b8aff" d="M16 2l13 7v14l-13 7L3 23V9z"/><path fill="#143459" d="M16 7l8 4-8 4-8-4zm-8 8l6 3v8l-6-4zm10 3l6-3v7l-6 4z"/></svg></span><strong class="brand-name">CNC Tool Database</strong></div><label class="top-search"><span class="icon" aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search this workspace…" aria-label="Search the current page"><kbd>Ctrl K</kbd></label><div class="topbar-actions"><span class="offline-pill">Offline</span><button id="toggleView" type="button">Admin</button></div></header>
+<aside id="sidebar" class="app-sidebar" aria-label="Main navigation"><div class="sidebar-label">WORKSPACE</div><nav><button class="nav-button" type="button" data-page="dashboard"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>Dashboard</span></button><button class="nav-button active" type="button" data-page="feeds"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg><span>Feeds & Speeds</span></button><button class="nav-button" type="button" data-page="mills"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 3h6v7l-6 6v-6l6-6M9 16l6-6v7l-3 4-3-4"/></svg><span>Mills</span></button><button class="nav-button" type="button" data-page="inventory"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7l9-4 9 4-9 4-9-4v10l9 4 9-4V7M12 11v10M7 5l10 4"/></svg><span>Inventory</span></button><button class="nav-button" type="button" data-page="materials"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l9 5-9 5-9-5 9-5zM3 12l9 5 9-5M3 16l9 5 9-5"/></svg><span>Materials</span></button><button class="nav-button" type="button" data-page="settings"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="8" cy="6" r="2" fill="currentColor"/><circle cx="16" cy="12" r="2" fill="currentColor"/><circle cx="10" cy="18" r="2" fill="currentColor"/></svg><span>Settings</span></button></nav><div class="sidebar-summary"><span class="sidebar-label">YOUR DATABASE</span><p>Mills <strong id="sideMillCount">0</strong></p><p>Materials <strong id="sideMaterialCount">0</strong></p><p>Cutting settings <strong id="sideSettingCount">0</strong></p><p>Raw sheets <strong id="sideRawSheetCount">0</strong></p><div class="sidebar-storage"><span>●</span> Saved in this browser</div></div></aside>
+<main class="app-main"><div class="page-heading"><div><h1 id="pageTitle">Feeds &amp; Speeds</h1><p id="pageDescription">Find the saved cutting settings for your mill and material.</p></div><div id="workspace" class="auth-session-bar" hidden><span>Admin editing enabled</span><button id="logout" class="secondary small" type="button">Sign out</button></div></div>
+<aside id="mentorNotice" class="mentor-notice" role="note"><strong>Mentor required</strong><p>A mentor must be present for all CNC cutting.</p></aside><p id="adminStatus" class="status" role="status" aria-live="polite"></p><p id="sheetSyncStatus" class="status" role="status" aria-live="polite" hidden></p><section class="workspace-view" data-page="dashboard" hidden><div class="stats-grid" id="dashboardStats"></div><div class="admin-layout"><section class="card"><div class="toolbar"><h2>Inventory alerts</h2><button type="button" class="secondary small" data-go="inventory">View inventory</button></div><div id="dashboardStock"></div></section><section class="card"><h2>Quick access</h2><p class="hint">Your shop data, available offline.</p><div class="quick-links"><button type="button" data-go="feeds">Find feeds &amp; speeds →</button><button type="button" data-go="mills">Browse mill library →</button><button type="button" data-go="materials">Browse materials →</button></div></section></div></section><section class="workspace-view" data-page="feeds"><section id="calculator" class="card" aria-label="Cutting settings lookup"><h2>Find cutting settings</h2><p class="hint">Choose a mill number and material to view your shop's saved cutting settings.</p><div class="lookup-controls"><div><label for="mill">Mill number</label><select id="mill" disabled></select></div><div><label for="material">Material</label><select id="material" disabled></select></div><button id="show" class="full" type="button" disabled>Show settings</button></div><p id="status" class="status" role="status" aria-live="polite">Loading…</p><section id="result" hidden aria-live="polite">
+      <div id="resultImages" class="result-images" hidden>
+        <figure id="resultToolFigure" hidden><img id="resultToolImage" alt=""><figcaption id="resultToolCaption"></figcaption></figure>
+        <figure id="resultMaterialFigure" hidden><img id="resultMaterialImage" alt=""><figcaption id="resultMaterialCaption"></figcaption></figure>
+      </div>
+      <dl class="result-metrics"><div><dt>Spindle speed</dt><dd id="rpm"></dd></div><div><dt>Feed rate</dt><dd id="feed"></dd></div><div><dt>Plunge rate</dt><dd id="plungeRate"></dd></div><div><dt>Axial depth of cut</dt><dd id="depth"></dd></div><div><dt>Coolant mist</dt><dd id="coolantMist"></dd></div></dl>
+      <p id="notes"></p>
+      <p class="hint">Use with the tool, operation, machine, and setup specified by your shop. Confirm settings before cutting.</p>
+    </section>
+  </section><details id="cuttingDetails" class="card admin-only" hidden><summary>Manage cutting settings</summary><div class="admin-layout">
+        <section class="card">
+          <h2 id="editorTitle">Add mill / settings</h2>
+          <p class="hint">Save one setting per mill and material. A new mill appears in the user dropdown when you save its first setting.</p>
+          <form id="settingForm"><fieldset id="settingFields">
+            <label for="editMill">Mill number</label><input list="millSuggestions" id="editMill" name="mill" required maxlength="100" placeholder="e.g. 001">
+            <datalist id="millSuggestions"></datalist>
+            <label for="editMaterial">Material</label><select id="editMaterial" name="material" required aria-describedby="materialSelectHelp"><option value="">Select material</option></select>
+            <p id="materialSelectHelp" class="hint">Choose from your material library above.</p>
+            <img id="selectedMaterialPreview" alt="Selected material from your library" hidden>
+            <input id="editUnits" name="units" type="hidden" value="inch">
+            <label for="editRpm">Spindle speed (RPM)</label><input id="editRpm" name="rpm" required inputmode="decimal" pattern="([0-9]+(\.[0-9]*)?|\.[0-9]+)" title="Enter a positive decimal number without commas or unit labels.">
+            <label for="editFeed" id="feedLabel">Feed rate (inch/min)</label><input id="editFeed" name="feed" required inputmode="decimal" pattern="([0-9]+(\.[0-9]*)?|\.[0-9]+)" title="Enter a positive decimal number without commas or unit labels.">
+            <label for="editPlungeRate" id="plungeRateLabel">Plunge rate (inch/min, optional)</label><input id="editPlungeRate" name="plungeRate" inputmode="decimal" pattern="([0-9]+(\.[0-9]*)?|\.[0-9]+)" placeholder="Not specified" title="Enter a positive decimal number, or leave blank.">
+            <label for="editDepth" id="depthLabel">Axial depth of cut (inch)</label><input id="editDepth" name="depth" required inputmode="decimal" pattern="([0-9]+(\.[0-9]*)?|\.[0-9]+)" title="Enter a positive decimal number without commas or unit labels.">
+            <label for="editCoolantMist" class="check-row"><input id="editCoolantMist" name="coolantMist" type="checkbox" aria-describedby="coolantMistHelp">Coolant mist enabled</label>
+            <p id="coolantMistHelp" class="hint">Unchecked means coolant mist is disabled for this setting.</p>
+            <label for="editNotes">Notes (optional)</label><textarea id="editNotes" name="notes" maxlength="2000" placeholder="Tool, operation, coolant, or setup requirements"></textarea>
+            <div class="image-editor">
+              <label for="toolImageUpload">Tool image (optional)</label>
+              <input id="toolImageUpload" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-describedby="imageHelp">
+              <img id="toolImagePreview" alt="Selected tool image" hidden>
+              <button id="removeToolImage" class="secondary small" type="button" hidden>Remove tool image</button>
+              <p id="imageHelp" class="hint">Choose a JPG, PNG, or WebP photo up to 15 MB. Photos are resized to save space and included in your backups. Material images are managed in the shared library above.</p>
+            </div>
+            <div class="actions"><button id="saveSetting" type="submit">Save setting</button><button id="cancelEdit" class="secondary" type="button">Clear form</button></div>
+          </fieldset></form>
+        </section>
+        <section class="card">
+          <div class="toolbar"><h2>Saved settings</h2><button id="refreshList" class="secondary small" type="button">Refresh</button></div>
+          <p id="listStatus" class="hint" role="status" aria-live="polite"></p><div id="settingList"></div>
+        </section>
+      </div></details></section><section class="workspace-view" data-page="mills" hidden><div class="table-toolbar"><p id="millListCount" class="hint"></p><button id="addMill" class="admin-only" hidden type="button">+ Add mill</button></div><div class="workspace-split"><section class="table-card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Type</th><th>Diameter</th><th>Flutes</th><th>Stock</th><th>Quantity</th><th></th></tr></thead><tbody id="millListBody"></tbody></table></div><p id="millEmpty" class="empty-state" hidden>No mills yet. Add a mill or save cutting settings to start your library.</p></section><aside id="millDetails" class="detail-card"><p class="empty-state">Select a mill to view its details.</p></aside></div>
+<section id="millEditor" class="card admin-only" hidden><div class="toolbar"><h2 id="millEditorTitle">Add mill</h2></div><form id="millForm"><fieldset id="millFields"><div class="grid"><div><label for="millNumber">Mill number</label><input id="millNumber" required maxlength="100" placeholder="e.g. 001"></div><div><label for="millName">Tool name</label><input id="millName" maxlength="160" placeholder='e.g. 1/4 inch end mill'></div><div><label for="millType">Tool type</label><input id="millType" maxlength="80" placeholder="e.g. End mill"></div><div><label for="millDiameter">Diameter (inch, optional)</label><input id="millDiameter" inputmode="decimal" placeholder="e.g. 0.25"></div><div><label for="millFlutes">Flutes (optional)</label><input id="millFlutes" type="number" min="1" max="100" step="1"></div><div><label for="millCoating">Coating (optional)</label><input id="millCoating" maxlength="80" placeholder="e.g. TiAlN"></div></div><label for="millNotes">Tool notes</label><textarea id="millNotes" maxlength="2000"></textarea><div class="image-editor"><label for="millImageUpload">Tool image (optional)</label><input id="millImageUpload" type="file" accept="image/jpeg,image/png,image/webp"><img id="millImagePreview" alt="Mill image preview" hidden><button id="removeMillImage" class="secondary small" type="button" hidden>Remove tool image</button><p class="hint">Shared tool photos appear in cutting results when an entry has no separate photo.</p></div><div class="actions"><button id="saveMill" type="submit">Save mill</button><button id="cancelMillEdit" class="secondary" type="button">Cancel</button></div><p id="millFormStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="inventory" hidden><div class="stats-grid" id="inventoryStats"></div><section class="table-card"><div class="table-toolbar"><h2>Tool inventory</h2><p class="hint">Counts are entered by your shop. Uncounted tools remain untracked.</p><button id="refreshInventory" type="button" class="secondary small">Refresh inventory</button></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Quantity</th><th>Low-stock threshold</th><th>Location</th><th>Status</th><th></th></tr></thead><tbody id="inventoryListBody"></tbody></table></div><p id="inventoryEmpty" class="empty-state" hidden>No mills to track. Add a mill first.</p></section><section class="card admin-only" id="inventoryEditor" hidden><h2>Update stock</h2><form id="inventoryForm"><fieldset id="inventoryFields"><div class="grid"><div><label for="inventoryMill">Mill</label><select id="inventoryMill" required><option value="">Select mill</option></select></div><div><label for="inventoryQuantity">Quantity on hand</label><input id="inventoryQuantity" type="number" min="0" step="1" required></div><div><label for="inventoryReorderLevel">Low-stock threshold (optional)</label><input id="inventoryReorderLevel" type="number" min="0" step="1"></div><div><label for="inventoryLocation">Storage location</label><input id="inventoryLocation" maxlength="160" placeholder="e.g. Drawer A3"></div></div><div class="actions"><button id="saveInventory" type="submit">Save inventory</button></div><p id="inventoryStatus" class="status" role="status"></p></fieldset></form></section><p class="hint login-callout">Sign in as admin to change inventory counts.</p></section><section class="workspace-view" data-page="materials" hidden>
+<div class="materials-workspace">
+<section id="publicMaterials" class="card material-picker-card"><div class="toolbar"><h2>Materials</h2><button id="manageMaterials" type="button" class="secondary small admin-only" hidden>+ Add material</button></div><p class="hint">Select a material to see its sheets, sizes, and storage locations.</p><div id="publicMaterialList" class="material-choice-list"></div></section>
+<div id="materialDetailPane"><section class="card material-detail-header"><div class="material-detail-heading"><div><h2 id="materialDetailTitle">Select a material</h2><p id="selectedMaterialSummary" class="hint">Choose a material from the list to view its inventory.</p></div><img id="selectedMaterialPhoto" alt="" hidden></div><div class="actions"><button id="editSelectedMaterial" type="button" class="secondary small admin-only" hidden>Edit material</button></div></section>
+<p id="materialDetailEmpty" class="card empty-state" hidden>No materials yet. An admin can add the materials used in your shop.</p>
+<div id="materialSheetContent" hidden>
+<div class="stats-grid raw-material-stats" id="rawMaterialStats"></div>
+<div class="table-toolbar"><div><h2>Sheet inventory</h2><p class="hint" id="rawMaterialListCount"></p></div><button id="addRawMaterial" class="admin-only" type="button" hidden>+ Add sheet entry</button></div>
+<section class="table-card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Material</th><th>Sheet size (inch)</th><th>Thickness (inch)</th><th>Sheets</th><th>Storage location</th><th>Notes</th><th></th></tr></thead><tbody id="rawMaterialListBody"></tbody></table></div><p id="rawMaterialEmpty" class="empty-state" hidden>No sheet entries yet. An admin can record sheet inventory for this material.</p></section>
+<section id="rawMaterialEditor" class="card admin-only" hidden><h2 id="rawMaterialEditorTitle">Add sheet entry</h2><p class="hint">Use the shared material library. Record each sheet size or storage batch separately; all dimensions are inches.</p>
+<form id="rawMaterialForm"><fieldset id="rawMaterialFields"><div class="grid"><div><label for="rawMaterialMaterial">Material</label><select id="rawMaterialMaterial" required><option value="">Select material</option></select><p class="hint" id="rawMaterialSelectHelp">Choose a material from your shared library.</p></div><div><label for="rawMaterialQuantity">Number of sheets</label><input id="rawMaterialQuantity" type="number" min="0" step="1" required></div><div><label for="rawMaterialLength">Sheet length (inch)</label><input id="rawMaterialLength" inputmode="decimal" required pattern="(?!0*(\.0*)?$)([0-9]+(\.[0-9]*)?|\.[0-9]+)" placeholder="e.g. 96"></div><div><label for="rawMaterialWidth">Sheet width (inch)</label><input id="rawMaterialWidth" inputmode="decimal" required pattern="(?!0*(\.0*)?$)([0-9]+(\.[0-9]*)?|\.[0-9]+)" placeholder="e.g. 48"></div><div><label for="rawMaterialThickness">Thickness (inch, optional)</label><input id="rawMaterialThickness" inputmode="decimal" pattern="(?!0*(\.0*)?$)([0-9]+(\.[0-9]*)?|\.[0-9]+)" placeholder="e.g. 0.125"></div><div><label for="rawMaterialLocation">Storage location (optional)</label><input id="rawMaterialLocation" maxlength="160" placeholder="e.g. Sheet rack A"></div></div><label for="rawMaterialNotes">Notes (optional)</label><textarea id="rawMaterialNotes" maxlength="2000" placeholder="Batch, condition, or other details"></textarea><div class="actions"><button id="saveRawMaterial" type="submit">Save sheet entry</button><button id="cancelRawMaterialEdit" class="secondary" type="button">Cancel</button></div><p id="rawMaterialStatus" class="status" role="status" aria-live="polite"></p></fieldset></form></section>
+<p class="hint login-callout">Sign in as admin to add, edit, or remove sheet inventory.</p></div></div></div>
+<details id="materialManagement" class="card admin-only material-management" hidden><summary>Manage materials</summary>
+        <h2>Material library</h2>
+        <p class="hint">Create each material once, then select it for any mill. A material's image is shared across its mills.</p>
+        <div class="admin-layout">
+          <form id="materialForm"><fieldset id="materialFields">
+            <h3 id="materialEditorTitle">Add material</h3>
+            <label for="materialName">Material name</label><input id="materialName" name="materialName" required maxlength="200" placeholder="e.g. Aluminum 6061">
+            <div class="image-editor">
+              <label for="materialImageUpload">Material image (optional)</label>
+              <input id="materialImageUpload" type="file" accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" aria-describedby="materialImageHelp">
+              <img id="materialImagePreview" alt="Selected material image" hidden>
+              <button id="removeMaterialImage" class="secondary small" type="button" hidden>Remove material image</button>
+              <p id="materialImageHelp" class="hint">JPG, PNG, or WebP, up to 15 MB. Saving this material applies its name and image to every mill that uses it.</p>
+            </div>
+            <div class="actions"><button id="saveMaterial" type="submit">Save material</button><button id="cancelMaterialEdit" class="secondary" type="button">Clear form</button></div>
+          </fieldset></form>
+          <div><h3>Saved materials</h3><p id="materialListStatus" class="hint" role="status" aria-live="polite"></p><div id="materialList"></div></div>
+        </div>
+      </details></section><section class="workspace-view" data-page="settings" hidden><section class="card"><h2>Appearance</h2><p class="hint">Choose how this workspace looks. Your choice is remembered in this browser.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme-choice="light">☀ Light</button><button type="button" class="theme-choice" data-theme-choice="dark">☾ Dark</button><button type="button" class="theme-choice" data-theme-choice="system">◐ System</button></div><p id="themeStatus" class="hint" role="status"></p></section><section class="card login-callout"><h2>Admin settings</h2><p class="hint">Sign in to manage backups, data imports, and accepted admin passwords.</p><button type="button" data-login>Admin login</button></section><div class="admin-only" hidden><section class="card backup-card" aria-label="Save and move your data">
+        <h2>Back up &amp; move settings</h2>
+        <p class="hint">Settings and materials save in this browser on this computer. Download an updated HTML copy to take them with you, or export a JSON backup to restore later. Imports replace current settings, libraries, tool inventory, and raw sheets.</p>
+        <div class="actions">
+          <button id="downloadPortable" class="secondary" type="button">Download updated HTML</button>
+          <button id="exportBackup" class="secondary" type="button">Export JSON backup</button>
+          <button id="importBackup" class="secondary" type="button">Import JSON backup</button>
+          <input id="importFile" type="file" accept=".json,application/json" hidden>
+        </div>
+        <p class="hint">A copy opened in a fresh browser uses admin / admin. Additional admin passwords stay with this browser and are not included in data exports.</p>
+      </section><details id="passwordDetails" class="card password-card">
+        <summary>Admin passwords</summary>
+        <p class="hint">All passwords use the username <strong>admin</strong>. The fallback password <strong>admin</strong> is always enabled and cannot be changed or removed. Anyone who knows it can edit this database.</p>
+        <p id="passwordStatus" class="status" role="status" aria-live="polite"></p>
+        <div class="admin-layout">
+          <form id="addPasswordForm"><fieldset id="passwordFields">
+            <h3 id="passwordEditorTitle">Add admin password</h3>
+            <label for="passwordLabel">Name or label</label><input id="passwordLabel" required maxlength="80" placeholder="e.g. Mentor Jane" autocomplete="off">
+            <label for="newPassword">Password</label><input id="newPassword" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+            <label for="confirmPassword">Confirm password</label><input id="confirmPassword" type="password" autocomplete="new-password" required minlength="8" maxlength="128">
+            <p id="passwordFormHelp" class="hint">Use 8–128 characters. Add up to 20 additional passwords. Changing or removing a password signs out sessions using that password.</p>
+            <div class="actions"><button id="savePassword" type="submit">Add password</button><button id="cancelPasswordEdit" class="secondary" type="button">Clear form</button></div>
+          </fieldset></form>
+          <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
+        </div>
+      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version __CNC_VERSION__ · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: admin.</p>
+      <form id="loginForm"><fieldset id="loginFields">
+        <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
+        <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
+        <button class="full" type="submit">Sign in</button>
+      </fieldset></form>
+      <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
+    </section><button id="closeLogin" class="secondary small close-login" type="button">Cancel login</button></section><script id="cncEmbeddedData" type="application/json">{"format":"cnc-local-portable","schemaVersion":1,"settings":[]}</script><script>
+/* LOCAL_CORE */
+</script><script>
+  const el = id => document.getElementById(id);
+  // Capture the untouched page so portable copies open in the normal user view.
+  const portableTemplate = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  function localDatabase() {
+    const database = window.cncLocal;
+    if (!database || typeof database.call !== 'function') {
+      throw new Error('The local app could not start. Save and open the complete CNC-Tool-Database.html file in Chrome, Edge, or Firefox. If you downloaded a ZIP, extract it first. The developer file app-shell.html cannot run on its own.');
+    }
+    return database;
+  }
+  const rpc = async (name, ...args) => localDatabase().call(name, ...args);
+  let options = [], revision = 0, optionsRevision = 0;
+  let token = '', original = null, adminBusy = false, loginBusy = false;
+  const imageValues = {toolImage:''};
+  let materialCatalog = [], materialOriginal = null, materialPhoto = '';
+  let passwordOriginal = null;
+  const message = error => error && error.message ? error.message : String(error);
+  const formatValue = value => Number(value).toLocaleString(undefined, {
+    maximumSignificantDigits:12, notation:Number(value) < 0.00000001 ? 'scientific' : 'standard'
+  });
+
+  function showResultImages(data) {
+    [['Tool','toolImage','Tool · Mill ' + data.mill],['Material','materialImage','Material · ' + data.material]].forEach(([kind,key,label]) => {
+      const src = data[key] || '';
+      el('result' + kind + 'Figure').hidden = !src;
+      const img = el('result' + kind + 'Image');
+      if (src) {img.src = src; img.alt = label;} else {img.removeAttribute('src'); img.alt = '';}
+      el('result' + kind + 'Caption').textContent = label;
+    });
+    el('resultImages').hidden = !data.toolImage && !data.materialImage;
+  }
+  function refreshImageEditor() {
+    [['tool','toolImage','Tool']].forEach(([prefix,key,kind]) => {
+      const src = imageValues[key], img = el(prefix + 'ImagePreview');
+      img.hidden = !src; el('remove' + kind + 'Image').hidden = !src;
+      if (src) img.src = src; else img.removeAttribute('src');
+    });
+  }
+  function refreshMaterialImageEditor() {
+    const img = el('materialImagePreview');
+    img.hidden = !materialPhoto; el('removeMaterialImage').hidden = !materialPhoto;
+    if (materialPhoto) img.src = materialPhoto; else img.removeAttribute('src');
+  }
+  function updateSelectedMaterial() {
+    const entry = materialCatalog.find(item => item.name === el('editMaterial').value);
+    const img = el('selectedMaterialPreview');
+    img.hidden = !entry || !entry.materialImage;
+    if (entry && entry.materialImage) {img.src = entry.materialImage; img.alt = 'Material · ' + entry.name;} else img.removeAttribute('src');
+  }
+  function resetMaterialEditor() {
+    materialOriginal = null; materialPhoto = ''; el('materialForm').reset(); refreshMaterialImageEditor();
+    el('materialEditorTitle').textContent = 'Add material'; el('saveMaterial').textContent = 'Save material'; el('cancelMaterialEdit').textContent = 'Clear form';
+  }
+  async function prepareImage(file) {
+    if (!['image/jpeg','image/png','image/webp'].includes(file.type)) throw new Error('Choose a JPG, PNG, or WebP image.');
+    if (file.size > 15 * 1024 * 1024) throw new Error('Choose an image that is 15 MB or smaller.');
+    const url = URL.createObjectURL(file);
+    try {
+      const photo = new Image();
+      await new Promise((resolve,reject) => {
+        photo.onload = resolve;
+        photo.onerror = () => reject(new Error('This image could not be opened. Try another JPG, PNG, or WebP photo.'));
+        photo.src = url;
+      });
+      if (!photo.naturalWidth || !photo.naturalHeight) throw new Error('This image has no usable size.');
+      let maxSide = 800;
+      for (let attempt = 0; attempt < 4; attempt++) {
+        const scale = Math.min(1, maxSide / Math.max(photo.naturalWidth, photo.naturalHeight));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.max(1, Math.round(photo.naturalWidth * scale));
+        canvas.height = Math.max(1, Math.round(photo.naturalHeight * scale));
+        const context = canvas.getContext('2d');
+        if (!context) throw new Error('Photo processing is unavailable. Open this file in Chrome.');
+        context.fillStyle = '#ffffff'; context.fillRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(photo, 0, 0, canvas.width, canvas.height);
+        for (const quality of [0.82,0.7,0.58]) {
+          const data = canvas.toDataURL('image/jpeg', quality);
+          if (data.startsWith('data:image/jpeg;base64,') && data.length <= 240000) return data;
+        }
+        maxSide = Math.round(maxSide * 0.75);
+      }
+      throw new Error('This image is still too large to save. Try a smaller photo.');
+    } finally {URL.revokeObjectURL(url);}
+  }
+  [['tool','toolImage','Tool'],['material','materialImage','Material']].forEach(([prefix,key,kind]) => {
+    el(prefix + 'ImageUpload').addEventListener('change', async () => {
+      const input = el(prefix + 'ImageUpload'), file = input.files[0];
+      if (!file || !token || adminBusy) return;
+      const active = token; setBusy(true); el('adminStatus').textContent = 'Preparing ' + prefix + ' image…';
+      try {
+        const data = await prepareImage(file);
+        if (token !== active) return;
+        if (prefix === 'material') {materialPhoto = data; refreshMaterialImageEditor();}
+        else {imageValues[key] = data; refreshImageEditor();}
+        el('adminStatus').textContent = kind + ' image ready. Save the ' + (prefix === 'material' ? 'material' : 'setting') + ' to keep it.';
+      } catch (error) {if (token === active) adminError(error);}
+      finally {input.value = ''; if (token === active) setBusy(false);}
+    });
+    el('remove' + kind + 'Image').addEventListener('click', () => {
+      if (adminBusy) return;
+      if (prefix === 'material') {materialPhoto = ''; refreshMaterialImageEditor();}
+      else {imageValues[key] = ''; refreshImageEditor();}
+      el('adminStatus').textContent = kind + ' image removed from this form. Save the ' + (prefix === 'material' ? 'material' : 'setting') + ' to apply the change.';
+    });
+  });
+
+  function clearResult() {revision++; el('result').hidden = true; el('status').textContent = '';}
+  function fill(select, values, placeholder) {
+    const blank = document.createElement('option'); blank.value = ''; blank.textContent = placeholder;
+    select.replaceChildren(blank, ...values.map(value => {const option = document.createElement('option'); option.value = value; option.textContent = value; return option;}));
+  }
+  function materialsChanged() {clearResult(); el('show').disabled = !el('material').value;}
+  function millChanged(previousMaterial) {
+    clearResult();
+    const selected = options.find(x => x.mill === el('mill').value);
+    fill(el('material'), selected ? selected.materials : [], 'Select material');
+    if (selected && selected.materials.includes(previousMaterial)) el('material').value = previousMaterial;
+    el('material').disabled = !selected;
+    el('show').disabled = !el('material').value;
+  }
+  async function loadOptions() {
+    const request = ++optionsRevision;
+    const previousMill = el('mill').value, previousMaterial = el('material').value;
+    clearResult(); el('status').textContent = 'Loading mills…'; el('mill').disabled = true; el('material').disabled = true; el('show').disabled = true;
+    try {
+      const data = await rpc('getOptions'); if (request !== optionsRevision) return;
+      options = data; fill(el('mill'), data.map(x => x.mill), 'Select mill number');
+      if (data.some(x => x.mill === previousMill)) el('mill').value = previousMill;
+      el('mill').disabled = !data.length; millChanged(previousMaterial);
+      if (!data.length) el('status').textContent = 'No settings yet. Ask the admin to add a mill and material.';
+    } catch (error) {if (request === optionsRevision) el('status').textContent = message(error);}
+  }
+  el('mill').addEventListener('change', () => millChanged());
+  el('material').addEventListener('change', materialsChanged);
+  el('show').addEventListener('click', async () => {
+    if (!el('mill').value || !el('material').value) return;
+    clearResult(); const request = revision;
+    el('show').disabled = true; el('status').textContent = 'Loading settings…';
+    try {
+      const data = await rpc('getSettings', el('mill').value, el('material').value); if (request !== revision) return;
+      el('status').textContent = '';
+      el('rpm').textContent = data.rpm.toLocaleString(undefined,{maximumFractionDigits:8}) + ' RPM';
+      el('feed').textContent = formatValue(data.feed) + ' inch/min';
+      el('plungeRate').textContent = data.plungeRate == null ? 'Not specified' : formatValue(data.plungeRate) + ' inch/min';
+      el('depth').textContent = formatValue(data.depth) + ' inch';
+      el('coolantMist').textContent = typeof data.coolantMist === 'boolean' ? (data.coolantMist ? 'Enabled' : 'Disabled') : 'Not specified';
+      showResultImages(data);
+      el('notes').textContent = data.notes; el('result').hidden = false;
+    } catch (error) {if (request === revision) el('status').textContent = message(error);}
+    finally {if (request === revision) el('show').disabled = !el('material').value;}
+  });
+
+  function setBusy(busy) {
+    adminBusy = busy;
+    ['settingFields','materialFields','passwordFields','millFields','inventoryFields','rawMaterialFields','logout','refreshList','downloadPortable','exportBackup','importBackup'].forEach(id => el(id).disabled = busy);
+    el('settingList').querySelectorAll('button').forEach(button => button.disabled = busy);
+    el('materialList').querySelectorAll('button').forEach(button => button.disabled = busy);
+    el('manageMaterials').disabled = busy; el('editSelectedMaterial').disabled = busy;
+    el('passwordList').querySelectorAll('button').forEach(button => button.disabled = busy);
+    el('rawMaterialListBody').querySelectorAll('button').forEach(button => button.disabled = busy);
+  }
+  function updateUnitLabels() {
+    const unit = el('editUnits').value;
+    el('feedLabel').textContent = 'Feed rate (' + unit + '/min)'; el('depthLabel').textContent = 'Axial depth of cut (' + unit + ')';
+    el('plungeRateLabel').textContent = 'Plunge rate (' + unit + '/min, optional)';
+  }
+  function updateCoolantMistHelp() {
+    const checkbox = el('editCoolantMist');
+    el('coolantMistHelp').textContent = checkbox.indeterminate ? 'Not specified for this older setting. Click the checkbox to choose enabled or disabled.' : (checkbox.checked ? 'Coolant mist is enabled for this setting.' : 'Unchecked means coolant mist is disabled for this setting.');
+  }
+  el('editCoolantMist').addEventListener('change', updateCoolantMistHelp);
+  function resetEditor() {
+    original = null; el('settingForm').reset(); updateUnitLabels();
+    el('editCoolantMist').indeterminate = false; updateCoolantMistHelp();
+    imageValues.toolImage = ''; refreshImageEditor(); updateSelectedMaterial();
+    el('editorTitle').textContent = 'Add mill / settings'; el('saveSetting').textContent = 'Save setting'; el('cancelEdit').textContent = 'Clear form';
+  }
+  function endSession(text, showLogin = false) {
+    token = ''; original = null; setBusy(false); resetEditor(); resetMaterialEditor();
+    el('settingList').replaceChildren(); el('listStatus').textContent = ''; el('adminStatus').textContent = '';
+    materialCatalog = []; el('materialList').replaceChildren(); el('materialListStatus').textContent = ''; fill(el('editMaterial'), [], 'Select material');
+    updateSelectedMaterial();
+    el('workspace').hidden = true; el('loginCard').hidden = false;
+    el('password').value = ''; resetPasswordEditor(); el('passwordList').replaceChildren(); el('passwordListStatus').textContent = ''; el('passwordDetails').open = false;
+    el('loginStatus').textContent = text || '';
+    wsAuthChanged();
+    if (showLogin) wsRequestLogin(); else wsCloseLogin();
+  }
+  function adminError(error) {
+    if (message(error).includes('AUTH_REQUIRED')) endSession('Your admin session expired. Please sign in again.', true);
+    else el('adminStatus').textContent = message(error);
+  }
+  el('toggleView').addEventListener('click', () => {if (typeof wsRequestLogin !== 'function') {el('adminPanel').hidden = false; el('loginCard').hidden = false; return;} if (token) wsGo('settings'); else wsRequestLogin();});
+  el('loginForm').addEventListener('submit', async event => {
+    event.preventDefault(); if (loginBusy) return;
+    const username = el('username').value.trim(), password = el('password').value;
+    loginBusy = true; el('closeLogin').disabled = true; el('loginFields').disabled = true; el('loginStatus').textContent = 'Signing in…';
+    try {
+      const result = await rpc('adminLogin', username, password);
+      token = result.token; el('password').value = ''; el('loginStatus').textContent = '';
+      el('loginCard').hidden = true; el('workspace').hidden = false; resetEditor(); resetMaterialEditor(); resetPasswordEditor(); wsAuthChanged(); wsCloseLogin(); await refreshSettings(); wsCompleteLogin();
+    } catch (error) {el('loginStatus').textContent = message(error);}
+    finally {loginBusy = false; el('closeLogin').disabled = false; el('loginFields').disabled = false;}
+  });
+  el('logout').addEventListener('click', async () => {
+    if (!token || adminBusy) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Signing out…';
+    try {await rpc('adminLogout', active); if (token === active) endSession('Signed out.');}
+    catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  });
+  function renderSettings(items) {
+    el('settingList').replaceChildren();
+    el('listStatus').textContent = items.length ? items.length + (items.length === 1 ? ' saved setting' : ' saved settings') : 'No settings yet. Add your first mill and material.';
+    items.forEach(item => {
+      const card = document.createElement('article'); card.className = 'setting';
+      const heading = document.createElement('h3'); heading.textContent = 'Mill ' + item.mill + ' · ' + item.material;
+      const values = document.createElement('p'); values.className = 'hint';
+      values.textContent = item.rpm + ' RPM · ' + item.feed + ' ' + item.units + '/min · ' + item.depth + ' ' + item.units + ' depth';
+      const additional = document.createElement('p'); additional.className = 'hint';
+      additional.textContent = 'Plunge: ' + (item.plungeRate == null ? 'Not specified' : item.plungeRate + ' inch/min') + ' · Coolant mist: ' + (typeof item.coolantMist === 'boolean' ? (item.coolantMist ? 'Enabled' : 'Disabled') : 'Not specified');
+      const notes = document.createElement('p'); notes.className = 'hint setting-notes'; notes.textContent = item.notes;
+      const actions = document.createElement('div'); actions.className = 'actions';
+      const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary small'; edit.textContent = 'Edit';
+      edit.addEventListener('click', () => {
+        if (adminBusy) return;
+        original = {key:item.key,version:item.version};
+        const ids = {mill:'editMill',material:'editMaterial',rpm:'editRpm',feed:'editFeed',plungeRate:'editPlungeRate',depth:'editDepth',units:'editUnits',notes:'editNotes'};
+        Object.keys(ids).forEach(key => el(ids[key]).value = item[key] == null ? '' : item[key]); updateUnitLabels();
+        el('editCoolantMist').checked = item.coolantMist === true;
+        el('editCoolantMist').indeterminate = typeof item.coolantMist !== 'boolean'; updateCoolantMistHelp();
+        imageValues.toolImage = item.toolImage || ''; refreshImageEditor(); updateSelectedMaterial();
+        el('editorTitle').textContent = 'Edit setting'; el('saveSetting').textContent = 'Save changes'; el('cancelEdit').textContent = 'Cancel edit'; el('adminStatus').textContent = '';
+        el('editMill').focus();
+      });
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'danger small'; remove.textContent = 'Delete';
+      remove.addEventListener('click', () => deleteSetting(item));
+      actions.append(edit,remove); card.append(heading,values,additional,notes,actions); el('settingList').append(card);
+    });
+  }
+  function renderMaterials(items) {
+    const selected = el('editMaterial').value;
+    materialCatalog = items;
+    fill(el('editMaterial'), items.map(item => item.name), 'Select material');
+    if (items.some(item => item.name === selected)) el('editMaterial').value = selected;
+    el('editMaterial').disabled = !items.length;
+    el('materialSelectHelp').textContent = items.length ? 'Choose from your material library above.' : 'Add a material in the library above before saving mill settings.';
+    updateSelectedMaterial();
+    el('materialList').replaceChildren();
+    el('materialListStatus').textContent = items.length ? items.length + (items.length === 1 ? ' saved material' : ' saved materials') : 'No materials yet. Add your first material here.';
+    items.forEach(item => {
+      const card = document.createElement('article'); card.className = 'setting';
+      const heading = document.createElement('h3'); heading.textContent = item.name;
+      const usage = document.createElement('p'); usage.className = 'hint';
+      usage.textContent = item.usageCount + ' cutting settings · ' + (item.rawUsageCount || 0) + ' sheet entries';
+      card.append(heading,usage);
+      if (item.materialImage) {
+        const img = document.createElement('img'); img.className = 'material-thumb'; img.src = item.materialImage; img.alt = item.name; card.append(img);
+      }
+      const actions = document.createElement('div'); actions.className = 'actions';
+      const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary small'; edit.textContent = 'Edit';
+      edit.addEventListener('click', () => {
+        if (adminBusy) return;
+        materialOriginal = {name:item.name,version:item.version}; materialPhoto = item.materialImage || '';
+        el('materialName').value = item.name; refreshMaterialImageEditor();
+        el('materialEditorTitle').textContent = 'Edit material'; el('saveMaterial').textContent = 'Save material changes'; el('cancelMaterialEdit').textContent = 'Cancel edit';
+        el('adminStatus').textContent = ''; el('materialName').focus();
+      });
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'danger small'; remove.textContent = 'Delete';
+      remove.addEventListener('click', () => deleteMaterial(item));
+      actions.append(edit,remove); card.append(actions); el('materialList').append(card);
+    });
+  }
+  el('cancelMaterialEdit').addEventListener('click', () => {if (!adminBusy) resetMaterialEditor();});
+  el('materialForm').addEventListener('submit', async event => {
+    event.preventDefault(); if (!token || adminBusy) return;
+    const material = {name:el('materialName').value.trim(),materialImage:materialPhoto};
+    const oldName = materialOriginal && materialOriginal.name;
+    const selected = el('editMaterial').value;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Saving material…';
+    try {
+      await rpc('adminSaveMaterial', active, material, materialOriginal); if (token !== active) return;
+      wsSelectedMaterialName = material.name; el('globalSearch').value = '';
+      if (original && original.key.material === oldName) resetEditor();
+      resetMaterialEditor();
+      await Promise.all([fetchSettings(active),loadOptions()]);
+      if (token !== active) return;
+      if (!original && (!selected || selected === oldName || !oldName)) {el('editMaterial').value = material.name; updateSelectedMaterial();}
+      el('adminStatus').textContent = 'Material saved. Select it from the mill material dropdown. Its image is shared across all mills using it.';
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  });
+  async function deleteMaterial(item) {
+    if (!token || adminBusy) return;
+    if (item.usageCount || item.rawUsageCount) {el('adminStatus').textContent = 'This material is used by mill settings or raw sheet inventory. Change or delete those records before deleting the material.'; return;}
+    if (!window.confirm('Delete material ' + item.name + ' from your library?')) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Deleting material…';
+    try {
+      await rpc('adminDeleteMaterial', active, {name:item.name,version:item.version}); if (token !== active) return;
+      if (materialOriginal && materialOriginal.name === item.name) resetMaterialEditor();
+      await fetchSettings(active); el('adminStatus').textContent = 'Material deleted.';
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  }
+  async function fetchSettings(active) {
+    const [items, materials, passwords] = await Promise.all([rpc('adminListSettings', active),rpc('adminListMaterials', active),rpc('adminListPasswords', active)]);
+    if (token === active) {renderMaterials(materials); renderSettings(items); renderPasswords(passwords); await refreshWorkspaceData();}
+  }
+  async function refreshSettings() {
+    if (!token || adminBusy) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = ''; el('listStatus').textContent = 'Loading settings…';
+    try {await fetchSettings(active);}
+    catch (error) {if (token === active) {el('listStatus').textContent = 'Unable to load settings.'; adminError(error);}}
+    finally {if (token === active) setBusy(false);}
+  }
+  el('refreshList').addEventListener('click', refreshSettings);
+  el('editMaterial').addEventListener('change', updateSelectedMaterial);
+  el('editUnits').addEventListener('change', updateUnitLabels);
+  el('cancelEdit').addEventListener('click', () => {if (!adminBusy) resetEditor();});
+  el('settingForm').addEventListener('submit', async event => {
+    event.preventDefault(); if (!token || adminBusy) return;
+    const setting = {mill:el('editMill').value.trim(),material:el('editMaterial').value.trim(),rpm:el('editRpm').value.trim(),feed:el('editFeed').value.trim(),plungeRate:el('editPlungeRate').value.trim(),depth:el('editDepth').value.trim(),units:el('editUnits').value,notes:el('editNotes').value,...imageValues};
+    if (!el('editCoolantMist').indeterminate) setting.coolantMist = el('editCoolantMist').checked;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Saving…';
+    try {
+      await rpc('adminSaveSetting', active, setting, original); if (token !== active) return;
+      resetEditor(); el('adminStatus').textContent = 'Setting saved. The mill and material are available in the user view.';
+      await Promise.all([fetchSettings(active),loadOptions()]);
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  });
+  async function deleteSetting(item) {
+    if (!token || adminBusy || !window.confirm('Delete settings for mill ' + item.mill + ' / ' + item.material + '?')) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Deleting…';
+    try {
+      await rpc('adminDeleteSetting', active, {key:item.key,version:item.version}); if (token !== active) return;
+      if (original && original.key.mill === item.key.mill && original.key.material === item.key.material) resetEditor();
+      el('adminStatus').textContent = 'Setting deleted.'; await Promise.all([fetchSettings(active),loadOptions()]);
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  }
+  function passwordMessage(text) {el('adminStatus').textContent = text; el('passwordStatus').textContent = text;}
+  function resetPasswordEditor() {
+    passwordOriginal = null; el('addPasswordForm').reset();
+    el('newPassword').required = true; el('confirmPassword').required = true;
+    el('passwordEditorTitle').textContent = 'Add admin password'; el('savePassword').textContent = 'Add password'; el('cancelPasswordEdit').textContent = 'Clear form';
+    el('passwordFormHelp').textContent = 'Use 8–128 characters. Add up to 20 additional passwords. Changing or removing a password signs out sessions using that password.';
+    el('passwordStatus').textContent = '';
+  }
+  function renderPasswords(items) {
+    el('passwordList').replaceChildren();
+    const customCount = items.filter(item => !item.isDefault).length;
+    el('passwordListStatus').textContent = 'Permanent fallback + ' + customCount + (customCount === 1 ? ' additional password' : ' additional passwords');
+    items.forEach(item => {
+      const card = document.createElement('article'); card.className = 'setting';
+      const heading = document.createElement('h3'); heading.textContent = item.label;
+      const detail = document.createElement('p'); detail.className = 'hint';
+      detail.textContent = item.isDefault ? 'Username: admin · Password: admin · Always enabled' : 'Username: admin · Password is hidden';
+      card.append(heading,detail);
+      if (!item.isDefault) {
+        const actions = document.createElement('div'); actions.className = 'actions';
+        const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary small'; edit.textContent = 'Edit';
+        edit.addEventListener('click', () => {
+          if (adminBusy) return;
+          resetPasswordEditor(); passwordOriginal = item.id; el('passwordLabel').value = item.label;
+          el('newPassword').required = false; el('confirmPassword').required = false;
+          el('passwordEditorTitle').textContent = 'Edit admin password'; el('savePassword').textContent = 'Save password changes'; el('cancelPasswordEdit').textContent = 'Cancel edit';
+          el('passwordFormHelp').textContent = 'Leave both password fields blank to keep the current password. Saving signs out sessions using this password; admin / admin remains available.';
+          el('passwordLabel').focus();
+        });
+        const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'danger small'; remove.textContent = 'Remove';
+        remove.addEventListener('click', () => removePassword(item));
+        actions.append(edit,remove); card.append(actions);
+      }
+      el('passwordList').append(card);
+    });
+  }
+  el('cancelPasswordEdit').addEventListener('click', () => {if (!adminBusy) resetPasswordEditor();});
+  el('addPasswordForm').addEventListener('submit', async event => {
+    event.preventDefault(); if (!token || adminBusy) return;
+    if (el('newPassword').value !== el('confirmPassword').value) {passwordMessage('The passwords do not match.'); el('confirmPassword').focus(); return;}
+    const active = token, label = el('passwordLabel').value.trim(), password = el('newPassword').value, editing = passwordOriginal;
+    let saved = false;
+    setBusy(true); passwordMessage(editing ? 'Updating password…' : 'Adding password…');
+    try {
+      if (editing) await rpc('adminUpdatePassword', active, editing, label, password);
+      else await rpc('adminAddPassword', active, label, password);
+      saved = true; if (token !== active) return;
+      resetPasswordEditor();
+      const items = await rpc('adminListPasswords', active); if (token !== active) return;
+      renderPasswords(items); passwordMessage(editing ? 'Admin password updated. The admin / admin fallback is still enabled.' : 'Admin password added. The admin / admin fallback is still enabled.');
+    } catch (error) {
+      if (token !== active) return;
+      if (saved && message(error).includes('AUTH_REQUIRED')) endSession('Password updated. Sign in with an accepted admin password. The admin / admin fallback is available.', true);
+      else {adminError(error); if (token === active) el('passwordStatus').textContent = message(error);}
+    } finally {if (token === active) setBusy(false);}
+  });
+  async function removePassword(item) {
+    if (!token || adminBusy || item.isDefault || !window.confirm('Remove the admin password labeled "' + item.label + '"? Sessions using it will be signed out. The admin / admin fallback will stay available.')) return;
+    const active = token; let removed = false; setBusy(true); passwordMessage('Removing password…');
+    try {
+      await rpc('adminDeletePassword', active, item.id); removed = true; if (token !== active) return;
+      if (passwordOriginal === item.id) resetPasswordEditor();
+      const items = await rpc('adminListPasswords', active); if (token !== active) return;
+      renderPasswords(items); passwordMessage('Admin password removed. The admin / admin fallback is still enabled.');
+    } catch (error) {
+      if (token !== active) return;
+      if (removed && message(error).includes('AUTH_REQUIRED')) endSession('Password removed. Sign in with another accepted password or the admin / admin fallback.', true);
+      else {adminError(error); if (token === active) el('passwordStatus').textContent = message(error);}
+    } finally {if (token === active) setBusy(false);}
+  }
+
+  function saveDownload(contents, type, filename) {
+    const url = URL.createObjectURL(new Blob([contents], {type}));
+    const link = document.createElement('a');
+    link.href = url; link.download = filename; document.body.append(link); link.click(); link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+  el('exportBackup').addEventListener('click', async () => {
+    if (!token || adminBusy) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Creating backup…';
+    try {
+      const data = await rpc('adminExportBackup', active);
+      if (token !== active) return;
+      saveDownload(JSON.stringify(data, null, 2), 'application/json', 'cnc-settings-' + new Date().toISOString().slice(0,10) + '.json');
+      el('adminStatus').textContent = 'Backup downloaded. Keep it somewhere safe; it contains your cutting settings.';
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  });
+  el('downloadPortable').addEventListener('click', async () => {
+    if (!token || adminBusy) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Creating updated HTML…';
+    try {
+      const data = await rpc('adminPortableData', active);
+      if (token !== active) return;
+      const template = typeof localDatabase().offlineTemplate === 'function' ? localDatabase().offlineTemplate() : portableTemplate;
+      const copy = new DOMParser().parseFromString(template, 'text/html');
+      // Escape HTML-sensitive characters so notes stay data inside the JSON script.
+      copy.getElementById('cncEmbeddedData').textContent = JSON.stringify(data).replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026');
+      saveDownload('<!DOCTYPE html>\n' + copy.documentElement.outerHTML, 'text/html;charset=utf-8', 'CNC-Tool-Database.html');
+      el('adminStatus').textContent = 'Updated HTML downloaded with your current settings. Open it on another computer to use that saved copy.';
+    } catch (error) {if (token === active) adminError(error);}
+    finally {if (token === active) setBusy(false);}
+  });
+  el('importBackup').addEventListener('click', () => {
+    if (!token || adminBusy) return;
+    el('importFile').value = ''; el('importFile').click();
+  });
+  el('importFile').addEventListener('change', async () => {
+    const file = el('importFile').files[0];
+    if (!file || !token || adminBusy) return;
+    const active = token; setBusy(true); el('adminStatus').textContent = 'Reading backup…';
+    try {
+      if (file.size > 100 * 1024 * 1024) throw new Error('Backup files must be 100 MB or smaller.');
+      let data;
+      try {data = JSON.parse(await file.text());} catch (_) {throw new Error('Choose a valid CNC JSON backup file.');}
+      if (token !== active) return;
+      if (!data || data.format !== 'cnc-local-backup' || data.schemaVersion !== 1 || !Array.isArray(data.settings)) throw new Error('Choose a CNC settings backup exported by this app.');
+      if (!window.confirm('Replace all current cutting settings, materials, mills, and raw sheet inventory with this backup (' + data.settings.length + ' settings)? Export a backup first if you want to keep the current data.')) {
+        el('adminStatus').textContent = 'Import cancelled. Your settings are unchanged.'; return;
+      }
+      await rpc('adminImportBackup', active, data);
+      if (token !== active) return;
+      resetEditor(); resetMaterialEditor(); el('adminStatus').textContent = 'Backup imported. Your admin password is unchanged.';
+      await Promise.all([fetchSettings(active), loadOptions()]);
+    } catch (error) {if (token === active) adminError(error);}
+    finally {el('importFile').value = ''; if (token === active) setBusy(false);}
+  });
+
+  async function startApp() {
+    el('loginFields').disabled = true;
+    try {
+      await localDatabase().ready;
+      await loadOptions();
+      await refreshWorkspaceData();
+      el('loginFields').disabled = false;
+    } catch (error) {
+      const text = message(error);
+      el('status').textContent = text;
+      el('loginStatus').textContent = text;
+    }
+  }
+  /* WORKSPACE_UI */
+  if (typeof initWorkspace === 'function') initWorkspace();
+  startApp();
+</script></body></html>
