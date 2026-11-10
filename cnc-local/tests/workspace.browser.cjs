@@ -98,7 +98,9 @@ async function assertChromeTheme(page,theme){
     const row=page.locator('#inventoryListBody tr').filter({hasText:number});
     await row.getByRole('button',{name:/update stock|edit/i}).click();
     await field(page,'inventoryMill',number);await field(page,'inventoryQuantity',quantity);
-    await field(page,'inventoryReorderLevel',reorder);await field(page,'inventoryLocation',location);
+    await field(page,'inventoryReorderLevel',reorder);
+    assert.equal(await page.locator('#inventoryLocation').count(),0);
+    assert.equal(await page.locator('[data-page=inventory] th').filter({hasText:/location/i}).count(),0);
     await page.locator('#saveInventory').click();
     await eventually(page,'getMills',(records,arg)=>records.some(record=>record.number===arg.number&&record.quantity===arg.quantity&&record.reorderLevel===arg.reorder&&record.location===arg.location),{number,quantity,reorder,location});
     await page.waitForFunction(()=>!document.getElementById('inventoryFields').disabled&&document.getElementById('inventoryStatus').textContent==='Inventory saved.');
@@ -109,7 +111,7 @@ async function assertChromeTheme(page,theme){
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Fresh browsers default to dark');
     await assertChromeTheme(page,'dark');
-    assert.match(await page.locator('body').innerText(),/1\.14\.7/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.8/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
     for(const name of pages){await navigate(page,name);assert.equal(await page.locator('#mentorNotice').isVisible(),name==='feeds','Mentor notice belongs only to Feeds & Speeds');}
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);
@@ -185,6 +187,8 @@ async function assertChromeTheme(page,theme){
     assert.equal(await page.locator('#resultMaterialImage').getAttribute('src'),materialImage);
     console.log('PASS: Mills, material photos, shared material dropdowns, cutting settings, plunge rate, and coolant mist work together.');
 
+    for(const [number,location]of [['MX-101','Cabinet A / bin 4'],['MX-102','Cabinet B']]){const mill=(await rpc('getMills')).find(m=>m.number===number);await rpc('adminSetInventory',auth.token,number,0,0,location,mill.version);}
+    await page.evaluate(()=>refreshWorkspaceData());
     await stock(page,'MX-101',8,2,'Cabinet A / bin 4');
     assert.equal((await rpc('getMills')).find(mill=>mill.number==='MX-101').stockStatus,'in');
     await stock(page,'MX-101',2,2,'Cabinet A / bin 4');

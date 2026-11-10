@@ -1,5 +1,5 @@
-# v1.14.7 bug fix
+# v1.14.8 bug fix
 
-Local workspace, shared Pages integration, and modal browser suites pass. Checks cover automatic-move defaults, manual selection, undo restoring a drawn card, keyboard controls, mobile fit, and animation resets in both editions. Standalone rule tests verify foundation priority, legal run moves, exposed cards, king placement, unavailable moves, and no-op prevention. Existing inventory, backups, themes, mentor placement, and data preservation checks pass.
+Local workspace and local/shared inventory browser suites pass. Checks verify Location is absent from the inventory table, form, description, and search prompt. Count edits preserve existing locations, and the local suite verifies backup preservation, stock thresholds, stale updates, themes, mentor placement, and mobile layout. A build check confirms mismatched or missing current-version changelog entries are rejected.
 
-No database or credential changes. Google Apps Script remains archived.
+No database or credential changes. Material sheet locations are unchanged. Google Apps Script remains archived.

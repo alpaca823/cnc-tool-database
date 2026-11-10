@@ -10,6 +10,14 @@ const{fixture}=require('./shared-fixture.cjs');
   await page.evaluate(async()=>{const{token}=await cncLocal.call('adminLogin','admin','Feds201');const m=(await cncLocal.call('getMills'))[0];await cncLocal.call('adminSetInventory',token,m.number,1,2,'Rack',m.version);});
   await page.reload();await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);await page.locator('.nav-button[data-page=dashboard]').click();await page.locator('#dashboardStock .purchase-link').waitFor();
   await page.locator('.nav-button[data-page=inventory]').click();await page.locator('#inventoryListBody .purchase-link').waitFor();assert.equal(await page.locator('#inventoryListBody .purchase-link').getAttribute('target'),'_blank');
+  assert.equal(await page.locator('#inventoryLocation').count(),0);
+  assert.doesNotMatch(await page.locator('#pageDescription').textContent(),/location/i);
+  assert.doesNotMatch(await page.locator('#globalSearch').getAttribute('placeholder'),/location/i);
+  assert.equal(await page.locator('[data-page=inventory] th').filter({hasText:/location/i}).count(),0);
+  await page.locator('#toggleView').click();await page.locator('#password').fill('Feds201');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});
+  await page.locator('#inventoryListBody button').filter({hasText:'Update stock'}).first().click();await page.locator('#inventoryQuantity').fill('2');await page.locator('#saveInventory').click();
+  await page.waitForFunction(()=>document.getElementById('inventoryStatus').textContent==='Inventory saved.');
+  assert.equal(await page.evaluate(async()=>(await cncLocal.call('getMills'))[0].location),'Rack','Editing counts preserves existing location');
   await page.setViewportSize({width:390,height:844});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);assert.deepEqual(errors,[]);await context.close();
  }
  console.log('PASS: local/shared purchase-link editor, persisted details, public low-inventory dashboard/table buttons, safe new tabs, and mobile layout.');

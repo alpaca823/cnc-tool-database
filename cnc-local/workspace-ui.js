@@ -9,7 +9,7 @@
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],
     feeds:['Feeds & Speeds','Find the saved cutting settings for your mill and material.'],
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
-    inventory:['Inventory','Keep track of tool quantities, storage locations, and low stock.'],
+    inventory:['Inventory','Keep track of tool quantities and low stock.'],
     materials:['Materials','Select a material to see sheet quantities, sizes, and storage locations.'],
     settings:['Settings','Appearance, backups, and admin access for this workspace.']
   };
@@ -39,7 +39,7 @@
     });
     el('pageTitle').textContent = wsPages[page][0]; el('pageDescription').textContent = wsPages[page][1];
     el('globalSearch').disabled = page === 'dashboard' || page === 'settings';
-    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search tools or storage locations…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
+    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mill numbers, names, or tool types…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
     el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');
     wsRenderAll();
     if (window.cncLocal) refreshWorkspaceData().catch(error => {el('adminStatus').textContent = message(error);});
@@ -147,12 +147,12 @@
     detail.append(actions);
   }
   function wsRenderInventory() {
-    const items = wsFiltered(wsMills,['number','name','type','location']);
+    const items = wsFiltered(wsMills,['number','name','type']);
     el('inventoryListBody').replaceChildren(); el('inventoryEmpty').hidden = !!items.length;
     el('inventoryEmpty').textContent = wsMills.length ? 'No inventory records match your search.' : 'No mills to track. Add a mill first.';
     items.forEach(item => {
       const row = wsNode('tr'); const name = wsNode('td'); name.append(wsNode('strong',item.name || 'Mill ' + item.number),wsNode('small',item.number,'hint'));
-      row.append(name,wsNode('td',item.quantity == null ? 'Not counted' : item.quantity),wsNode('td',item.reorderLevel == null ? '—' : item.reorderLevel),wsNode('td',item.location || '—'));
+      row.append(name,wsNode('td',item.quantity == null ? 'Not counted' : item.quantity),wsNode('td',item.reorderLevel == null ? '—' : item.reorderLevel));
       const stock = wsNode('td'); stock.append(wsStock(item)); row.append(stock);
       const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
     });
@@ -222,9 +222,9 @@
     catch (error) {if (token === active) adminError(error);} finally {if (token === active) setBusy(false);}
   }
   function wsSelectInventory(number) {
-    const item = wsMills.find(mill => mill.number === number); if (!item) {wsInventoryOriginal = null; el('inventoryQuantity').value = ''; el('inventoryReorderLevel').value = ''; el('inventoryLocation').value = ''; return;}
-    el('inventoryMill').value = number; wsInventoryOriginal = {number:item.number,version:item.version};
-    el('inventoryQuantity').value = item.quantity == null ? '' : item.quantity; el('inventoryReorderLevel').value = item.reorderLevel == null ? '' : item.reorderLevel; el('inventoryLocation').value = item.location || '';
+    const item = wsMills.find(mill => mill.number === number); if (!item) {wsInventoryOriginal = null; el('inventoryQuantity').value = ''; el('inventoryReorderLevel').value = ''; return;}
+    el('inventoryMill').value = number; wsInventoryOriginal = {number:item.number,version:item.version,location:item.location || ''};
+    el('inventoryQuantity').value = item.quantity == null ? '' : item.quantity; el('inventoryReorderLevel').value = item.reorderLevel == null ? '' : item.reorderLevel;
     el('inventoryStatus').textContent = ''; if (wsPage === 'inventory') el('inventoryQuantity').focus();
   }
   function wsApplyTheme() {
@@ -273,7 +273,7 @@
       event.preventDefault(); if (!token || adminBusy) return;
       if (!wsInventoryOriginal || wsInventoryOriginal.number !== el('inventoryMill').value) {el('inventoryStatus').textContent = 'Select a mill before updating stock.'; return;}
       const active = token; setBusy(true); el('inventoryStatus').textContent = 'Saving inventory…';
-      try {await rpc('adminSetInventory',active,wsInventoryOriginal.number,el('inventoryQuantity').value,el('inventoryReorderLevel').value,el('inventoryLocation').value,wsInventoryOriginal.version); if (token !== active) return; const number = wsInventoryOriginal.number; await fetchSettings(active); wsSelectInventory(number); el('inventoryStatus').textContent = 'Inventory saved.';}
+      try {await rpc('adminSetInventory',active,wsInventoryOriginal.number,el('inventoryQuantity').value,el('inventoryReorderLevel').value,wsInventoryOriginal.location,wsInventoryOriginal.version); if (token !== active) return; const number = wsInventoryOriginal.number; await fetchSettings(active); wsSelectInventory(number); el('inventoryStatus').textContent = 'Inventory saved.';}
       catch (error) {if (token === active) {adminError(error); el('inventoryStatus').textContent = message(error);}} finally {if (token === active) setBusy(false);}
     });
     wsInitRawMaterials();

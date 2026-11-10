@@ -21,7 +21,7 @@ jobs:
       - name: Prepare static site
         run: |
           mkdir _site
-          cp index.html preview.html config.js .nojekyll _site/
+          cp index.html preview.html config.js CHANGELOG.md .nojekyll _site/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
