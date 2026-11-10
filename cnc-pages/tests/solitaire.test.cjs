@@ -13,3 +13,10 @@ state.waste=[card(3,1)];assert.equal(move(state,{kind:'waste'},{kind:'foundation
 state=empty();state.piles[0]=[card(13,0),card(12,0)];const before=JSON.stringify(state);assert.equal(move(state,{kind:'pile',index:0,at:0},{kind:'pile',index:1}),false,'Cannot move invalid runs');assert.equal(JSON.stringify(state),before);
 state.piles[0]=[card(13,1)];assert.equal(move(state,{kind:'pile',index:0,at:0},{kind:'pile',index:1}),true);
 console.log('PASS: Klondike deal uniqueness, stock recycling, legal runs, reveal, foundation rules and atomic invalid moves');
+const {autoMove}=sandbox.window.cncSolitaire;
+state=empty();state.waste=[card(1,1)];state.piles[0]=[card(2,0)];assert.equal(autoMove(state,{kind:'waste'}).kind,'foundation','Prefer a foundation over a tableau move');assert.equal(state.foundations[1].length,1);
+state=empty();state.piles[0]=[card(7,2,false),card(6,1),card(5,0)];state.piles[2]=[card(7,0)];assert.equal(autoMove(state,{kind:'pile',index:0,at:1}).index,2);assert.equal(state.piles[0][0].up,true,'Auto-moving a run exposes the next card');
+state=empty();state.piles[0]=[card(13,0)];const unchanged=JSON.stringify(state);assert.equal(autoMove(state,{kind:'pile',index:0,at:0}),null,'Do not shuffle kings between empty columns');assert.equal(JSON.stringify(state),unchanged);
+state.waste=[card(13,1)];assert.equal(autoMove(state,{kind:'waste'}).kind,'pile','Waste kings can fill an empty column');
+state=empty();state.waste=[card(7,0)];assert.equal(autoMove(state,{kind:'waste'}),null);assert.equal(state.moves,0,'An unavailable automatic move is free');
+console.log('PASS: automatic foundation priority, run moves, no-op prevention, king placement and unavailable moves');
