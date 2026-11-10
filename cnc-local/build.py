@@ -12,7 +12,7 @@ def render_shell(backend: str) -> str:
     if '</script' in backend.lower():
         raise ValueError('The backend must not contain an HTML script terminator.')
     built = shell.replace('/* LOCAL_CORE */', backend).replace('__CNC_VERSION__', version)
-    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* ARCADE_UI */', 'arcade.js')]:
+    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
         if built.count(token) != 1:
             raise ValueError('Missing or repeated workspace build marker: ' + token)
         built = built.replace(token, (ROOT / filename).read_text(encoding='utf-8'))

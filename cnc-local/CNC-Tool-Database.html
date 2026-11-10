@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.5</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
+<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.6</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
 :root,
 html[data-theme="light"] {
   color-scheme: light;
@@ -671,8 +671,8 @@ details[open] > summary { margin-bottom: 14px; }
 .arcade::backdrop { background: #000a; }
 .arcade-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
 .arcade-toolbar h2 { margin: 0; }
-.arcade-board { display: grid; grid-template-columns: repeat(var(--arcade-columns, 4), minmax(0, 1fr)); gap: 8px; touch-action: none; }
-.arcade .arcade-tile { display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; background: var(--surface-soft); color: var(--text-strong); border-radius: 8px; font-size: clamp(18px, 5vw, 28px); font-weight: 800; }
+.arcade-board { position: relative; display: grid; grid-template-columns: repeat(var(--arcade-columns, 4), minmax(0, 1fr)); gap: 8px; touch-action: none; }
+.arcade .arcade-tile { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; background: var(--surface-soft); color: var(--text-strong); border-radius: 8px; font-size: clamp(18px, 5vw, 28px); font-weight: 800; }
 .arcade-tile[data-value="2"], .arcade-tile[data-value="4"] { background: #d9e9fd; color: #183451; }
 .arcade-tile[data-value]:not([data-value="0"]):not([data-value="2"]):not([data-value="4"]) { background: #2359bc; color: white; }
 .arcade-controls { display: flex; gap: 8px; margin: 14px 0; }
@@ -681,6 +681,20 @@ details[open] > summary { margin-bottom: 14px; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+#arcadeStatus { min-height: 3em; }
+.solitaire-board { display: block; touch-action: pan-y; }
+.sol-top, .sol-piles { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+.sol-top { margin-bottom: 16px; }
+.sol-slot { height: 70px; position: relative; min-width: 0; border: 1px dashed var(--line); border-radius: 6px; font-size: 10px; text-align: center; }
+.sol-column { position: relative; min-width: 0; }
+.arcade .sol-card { position: absolute; left: 0; width: 100%; height: 70px; padding: 3px 2px; text-align: left; display: block; background: #fff; color: #162238; border: 1px solid #a9b4c6; border-radius: 5px; font-size: clamp(12px, 3.3vw, 17px); font-weight: 700; line-height: 1; box-shadow: 0 1px 3px #0003; }
+.arcade .sol-card.sol-red, .arcade .sol-red { color: #b72138; }
+.arcade .sol-back { opacity: 1; background: repeating-linear-gradient(45deg, #234783, #234783 4px, #365f9e 4px, #365f9e 8px); border: 2px solid #b2c6e4; }
+.arcade .sol-selected { outline: 3px solid #e8b52c; outline-offset: -3px; background: #fff7d7; }
+.arcade .sol-stock { padding: 3px; background: var(--surface-soft); color: var(--text); width: 100%; }
+.arcade .sol-foundation { width: 100%; height: 100%; padding: 3px 2px; background: var(--surface-soft); color: var(--text); font-size: clamp(12px, 3.3vw, 17px); }
+.sol-empty { width: 100%; background: transparent; color: var(--muted); padding: 0; }
 </style></head>
 <body class="workspace-app">
 <header class="app-topbar"><button id="menuToggle" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div class="app-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2b8aff" d="M16 2l13 7v14l-13 7L3 23V9z"/><path fill="#143459" d="M16 7l8 4-8 4-8-4zm-8 8l6 3v8l-6-4zm10 3l6-3v7l-6 4z"/></svg></span><strong class="brand-name">CNC Tool Database</strong></div><label class="top-search"><span class="icon" aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search this workspace…" aria-label="Search the current page"><kbd>Ctrl K</kbd></label><div class="topbar-actions"><span class="offline-pill">Offline</span><button id="toggleView" type="button">Admin</button></div></header>
@@ -783,7 +797,7 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
         </div>
-      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.5 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.6 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
       <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: Feds201.</p>
       <form id="loginForm"><fieldset id="loginFields">
         <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
@@ -2339,11 +2353,74 @@ details[open] > summary { margin-bottom: 14px; }
 
   if (typeof initWorkspace === 'function') initWorkspace();
   startApp();
+  /* Klondike draw-one. Standalone state, independent of shop records. */
+(() => {
+  const suits=['♠','♥','♣','♦'];
+  const red=card=>card.suit===1||card.suit===3;
+  const label=card=>(['','A','2','3','4','5','6','7','8','9','10','J','Q','K'][card.rank])+suits[card.suit];
+  function deal(random=Math.random){
+    const deck=suits.flatMap((_,suit)=>Array.from({length:13},(_,i)=>({suit,rank:i+1,up:false})));
+    for(let i=deck.length-1;i>0;i--){const j=Math.floor(random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
+    const state={stock:[],waste:[],piles:Array.from({length:7},()=>[]),foundations:Array.from({length:4},()=>[]),moves:0};
+    for(let i=0;i<7;i++){for(let j=0;j<=i;j++)state.piles[i].push(deck.pop());state.piles[i][i].up=true;}state.stock=deck;return state;
+  }
+  function draw(state){
+    if(state.stock.length){const card=state.stock.pop();card.up=true;state.waste.push(card);state.moves++;return true;}
+    if(state.waste.length){state.stock=state.waste.reverse();state.waste=[];state.stock.forEach(c=>c.up=false);state.moves++;return true;}return false;
+  }
+  function source(state,from){return from?.kind==='waste'?state.waste:from?.kind==='foundation'?state.foundations[from.index]:from?.kind==='pile'?state.piles[from.index]:null;}
+  function move(state,from,to){
+    const src=source(state,from),dest=source(state,to);if(!src||!dest||src===dest||!['pile','foundation'].includes(to.kind))return false;
+    const at=from.kind==='pile'?from.at:src.length-1;
+    if(!Number.isInteger(at)||at<0||at>=src.length)return false;
+    const cards=src.slice(at);if(cards.some(c=>!c.up))return false;
+    for(let i=1;i<cards.length;i++)if(cards[i-1].rank!==cards[i].rank+1||red(cards[i-1])===red(cards[i]))return false;
+    const card=cards[0],top=dest[dest.length-1];
+    if(to.kind==='foundation'){if(cards.length!==1||card.suit!==to.index||card.rank!==dest.length+1)return false;}
+    else if(top?(!top.up||top.rank!==card.rank+1||red(top)===red(card)):card.rank!==13)return false;
+    dest.push(...src.splice(at));if(from.kind==='pile'&&src.length)src[src.length-1].up=true;state.moves++;return true;
+  }
+  function create(){
+    let state=deal(),selected=null,board,status,feedback='';
+    function element(tag,text,cls){const n=document.createElement(tag);if(text!=null)n.textContent=text;if(cls)n.className=cls;return n;}
+    function button(text,fn,cls){const n=element('button',text,cls);n.type='button';n.addEventListener('click',fn);return n;}
+    function redraw(){render(board,status);}
+    function choose(from){
+      if(selected&&move(state,selected,{kind:from.kind,index:from.index})){selected=null;feedback='Card moved.';redraw();return;}
+      const cards=source(state,from),at=from.kind==='pile'?from.at:cards.length-1,card=cards[at];
+      if(!card?.up){selected=null;feedback='Select a face-up card first.';redraw();return;}
+      if(selected?.kind===from.kind&&selected.index===from.index&&selected.at===at){selected=null;feedback='Selection cleared.';}
+      else {selected={...from,at};feedback=label(card)+' selected. Choose a destination.';}redraw();
+    }
+    function destination(kind,index){if(selected&&move(state,selected,{kind,index})){selected=null;feedback='Card moved.';}else feedback=selected?'That move is not allowed.':'Select a card to move.';redraw();}
+    function cardButton(card,from,top){
+      const b=button(card.up?label(card):'',()=>choose(from),'sol-card'+(card.up?'':' sol-back')+(red(card)?' sol-red':''));
+      b.style.top=top+'px';b.disabled=!card.up;b.setAttribute('aria-label',card.up?label(card):'Face-down card');
+      const chosen=selected?.kind===from.kind&&selected.index===from.index&&from.at>=selected.at;b.classList.toggle('sol-selected',Boolean(chosen));b.setAttribute('aria-pressed',String(Boolean(chosen)));return b;
+    }
+    function render(target,message){board=target;status=message;board.replaceChildren();board.classList.add('solitaire-board');
+      const won=state.foundations.every(p=>p.length===13);status.textContent=won?'You won in '+state.moves+' moves!':'Moves: '+state.moves+' · '+(feedback||'Draw a card, then select a face-up card and its destination.');
+      const top=element('div',null,'sol-top'),stock=button(state.stock.length?'Draw ('+state.stock.length+')':'Recycle',()=>{selected=null;feedback=draw(state)?'':'No cards to draw.';redraw();},'sol-slot sol-stock');stock.disabled=!state.stock.length&&!state.waste.length;top.append(stock);
+      const waste=element('div',null,'sol-slot');waste.setAttribute('aria-label','Waste pile');if(state.waste.length)waste.append(cardButton(state.waste.at(-1),{kind:'waste',index:0,at:state.waste.length-1},0));else waste.textContent='Waste';top.append(waste,element('div'));
+      for(let i=0;i<4;i++){const slot=element('div',null,'sol-slot');slot.append(button(state.foundations[i].length?label(state.foundations[i].at(-1)):suits[i],()=>{if(selected)destination('foundation',i);else if(state.foundations[i].length)choose({kind:'foundation',index:i,at:state.foundations[i].length-1});},'sol-foundation'+(i%2?' sol-red':'')));slot.firstChild.setAttribute('aria-label',suits[i]+' foundation: '+state.foundations[i].length+' cards');top.append(slot);}
+      const piles=element('div',null,'sol-piles');state.piles.forEach((pile,index)=>{
+        const column=element('div',null,'sol-column');column.style.height=Math.max(70,(pile.length-1)*22+70)+'px';column.append(button('K',()=>destination('pile',index),'sol-slot sol-empty'));column.firstChild.setAttribute('aria-label','Empty column '+(index+1));column.firstChild.hidden=pile.length>0;
+        pile.forEach((card,at)=>column.append(cardButton(card,{kind:'pile',index,at},at*22)));piles.append(column);
+      });board.append(top,piles);
+    }
+    return {reset(){state=deal();selected=null;feedback='';},render};
+  }
+  window.cncSolitaire={deal,draw,move,create};
+})();
+
   /* Browser-only diversions; no inventory or authentication access. */
 (() => {
   const logo = document.querySelector('.brand-mark');
   logo.tabIndex = 0; logo.setAttribute('role','button'); logo.setAttribute('aria-label','CNC logo');
   let clicks = 0, last = 0, dialog, game = '2048', cells = [], score = 0, won = false, turn = 'X', first = null, locked = false, generation = 0;
+  let solitaire = null;
+  let moving = false, pending = [], animations = [];
+  function stopMotion(){moving=false;pending=[];animations.forEach(a=>a.cancel());animations=[];}
   function node(tag,text,cls) { const n=document.createElement(tag); if(text!=null)n.textContent=text;if(cls)n.className=cls;return n; }
   function button(text,fn) {const b=node('button',text,'secondary');b.type='button';b.addEventListener('click',fn);return b;}
   function activate() {const now=Date.now();clicks=now-last>2000?1:clicks+1;last=now;if(clicks===5){clicks=0;open();}}
@@ -2353,7 +2430,7 @@ details[open] > summary { margin-bottom: 14px; }
     if(!dialog){
       dialog=node('dialog',null,'arcade');dialog.setAttribute('aria-labelledby','arcadeTitle');
       const top=node('div',null,'arcade-toolbar'),title=node('h2','Break room');title.id='arcadeTitle';top.append(title,button('Close',()=>dialog.close()));
-      const tabs=node('div',null,'arcade-toolbar');for(const name of ['2048','Tic-tac-toe','Memory']){const b=button(name,()=>{game=name;reset();});b.dataset.game=name;tabs.append(b);}
+      const tabs=node('div',null,'arcade-toolbar');for(const name of ['2048','Tic-tac-toe','Memory','Solitaire']){const b=button(name,()=>{game=name;reset();});b.dataset.game=name;tabs.append(b);}
       const status=node('p');status.id='arcadeStatus';status.setAttribute('role','status');
       const board=node('div',null,'arcade-board');board.id='arcadeBoard';
       const controls=node('div',null,'arcade-controls');controls.id='arcadeControls';
@@ -2362,25 +2439,50 @@ details[open] > summary { margin-bottom: 14px; }
       dialog.addEventListener('keydown',e=>{if(game==='2048'&&e.key.startsWith('Arrow')){e.preventDefault();e.stopPropagation();move(e.key.slice(5).toLowerCase());}});
       let touch=null;board.addEventListener('touchstart',e=>{touch=[e.changedTouches[0].clientX,e.changedTouches[0].clientY];},{passive:true});
       board.addEventListener('touchend',e=>{if(!touch||game!=='2048')return;const dx=e.changedTouches[0].clientX-touch[0],dy=e.changedTouches[0].clientY-touch[1];touch=null;if(Math.max(Math.abs(dx),Math.abs(dy))>25)move(Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up'));},{passive:true});
+      dialog.addEventListener('close',()=>{generation++;stopMotion();});
       dialog.addEventListener('click',e=>{if(e.target===dialog){const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog.close();}});
     }
     reset();dialog.showModal();
   }
   function spawn(){const empty=cells.map((v,i)=>v===0?i:-1).filter(i=>i>=0);if(empty.length)cells[empty[Math.floor(Math.random()*empty.length)]]=Math.random()<.9?2:4;}
-  function reset(){generation++;score=0;won=false;turn='X';first=null;locked=false;
-    if(game==='2048'){cells=Array(16).fill(0);spawn();spawn();}
+  function reset(){generation++;stopMotion();score=0;won=false;turn='X';first=null;locked=false;
+    if(game==='Solitaire'){solitaire=solitaire||window.cncSolitaire.create();solitaire.reset();}
+    else if(game==='2048'){cells=Array(16).fill(0);spawn();spawn();}
     else if(game==='Tic-tac-toe')cells=Array(9).fill('');
     else {cells=Array.from({length:8},(_,i)=>i+1).flatMap(v=>[{value:v,up:false,matched:false},{value:v,up:false,matched:false}]);for(let i=cells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}}
     render();
   }
-  function move(dir){if(game!=='2048')return;const before=cells.join(',');
+  function move(dir){
+    if(game!=='2048'||!['left','right','up','down'].includes(dir))return;
+    if(moving){if(pending.length<3)pending.push(dir);return;}
+    const before=cells.join(','),tracks=[],pops=[];
     for(let line=0;line<4;line++){
       const ids=Array.from({length:4},(_,k)=>dir==='left'?line*4+k:dir==='right'?line*4+3-k:dir==='up'?k*4+line:(3-k)*4+line);
-      const values=ids.map(i=>cells[i]).filter(Boolean),merged=[];
-      for(let i=0;i<values.length;i++){if(values[i]===values[i+1]){const value=values[i]*2;merged.push(value);score+=value;i++;}else merged.push(values[i]);}
+      const values=ids.filter(i=>cells[i]).map(i=>({value:cells[i],from:i})),merged=[];
+      for(let i=0;i<values.length;i++){
+        const target=ids[merged.length],item=values[i];tracks.push({from:item.from,to:target});
+        if(item.value===values[i+1]?.value){const value=item.value*2;merged.push(value);score+=value;tracks.push({from:values[++i].from,to:target});pops.push(target);}
+        else merged.push(item.value);
+      }
       ids.forEach((id,i)=>cells[id]=merged[i]||0);
     }
-    if(before!==cells.join(','))spawn();render();
+    if(before===cells.join(',')){const next=pending.shift();if(next)move(next);return;}
+    const empty=cells.map((v,i)=>v===0?i:-1).filter(i=>i>=0);spawn();
+    const spawned=empty.find(i=>cells[i]);if(spawned!==undefined)pops.push(spawned);
+    const board=dialog?.open?document.getElementById('arcadeBoard'):null;
+    const reduced=board&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(!board||reduced){render();return;}
+    moving=true;const current=generation,tiles=Array.from(board.children);
+    animations=tracks.filter(t=>t.from!==t.to).map(t=>{
+      const tile=tiles[t.from],target=tiles[t.to];tile.style.zIndex='2';
+      return tile.animate([{transform:'translate(0, 0)'},{transform:'translate('+(target.offsetLeft-tile.offsetLeft)+'px, '+(target.offsetTop-tile.offsetTop)+'px)'}],{duration:135,easing:'cubic-bezier(.2,.7,.3,1)',fill:'forwards'});
+    });
+    Promise.all(animations.map(a=>a.finished.catch(()=>{}))).then(()=>{
+      if(current!==generation)return;
+      animations.forEach(a=>a.cancel());animations=[];render();
+      for(const i of pops){const tile=board.children[i];animations.push(tile.animate([{transform:'scale(.85)'},{transform:'scale(1.08)',offset:.65},{transform:'scale(1)'}],{duration:150,easing:'ease-out'}));}
+      moving=false;const next=pending.shift();if(next)requestAnimationFrame(()=>{if(current===generation)move(next);});
+    });
   }
   function result(){for(const [a,b,c]of [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]])if(cells[a]&&cells[a]===cells[b]&&cells[a]===cells[c])return cells[a]+' wins!';return cells.every(Boolean)?'Draw!':'';}
   function play(i){if(game==='Tic-tac-toe'){if(cells[i]||result())return;cells[i]=turn;turn=turn==='X'?'O':'X';render();return;}
@@ -2390,9 +2492,10 @@ details[open] > summary { margin-bottom: 14px; }
     if(cells[previous].value===cells[i].value){cells[previous].matched=cells[i].matched=true;render();}
     else {locked=true;render();const current=generation;setTimeout(()=>{if(current!==generation)return;cells[previous].up=cells[i].up=false;locked=false;render();},750);}
   }
-  function render(){const board=document.getElementById('arcadeBoard'),status=document.getElementById('arcadeStatus');board.replaceChildren();board.style.setProperty('--arcade-columns',game==='Tic-tac-toe'?3:4);document.getElementById('arcadeControls').hidden=game!=='2048';
+  function render(){const board=document.getElementById('arcadeBoard'),status=document.getElementById('arcadeStatus');board.replaceChildren();board.classList.remove('solitaire-board');board.style.setProperty('--arcade-columns',game==='Tic-tac-toe'?3:4);document.getElementById('arcadeControls').hidden=game!=='2048';
     dialog.querySelectorAll('[data-game]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.game===game)));
-    if(game==='2048'){
+    if(game==='Solitaire'){solitaire.render(board,status);}
+    else if(game==='2048'){
       const stuck=cells.every(Boolean)&&cells.every((v,i)=>(i%4===3||v!==cells[i+1])&&(i>=12||v!==cells[i+4]));
       won=won||cells.some(v=>v>=2048);status.textContent='Score: '+score+' · '+(stuck?'Game over. Start a new game.':won?'2048! Keep going.':'Merge tiles with arrow keys, swipes, or the buttons.');
       cells.forEach(v=>{const tile=node('div',v||'', 'arcade-tile');tile.dataset.value=v;tile.setAttribute('aria-label',v?String(v):'Empty');board.append(tile);});

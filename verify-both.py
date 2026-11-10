@@ -20,6 +20,7 @@ if __name__ == '__main__':
     subprocess.run([sys.executable, str(ROOT / 'build-both.py')], check=True)
     commands = [
         ['node', 'cnc-local/tests/inches.test.cjs'],
+        ['node', 'cnc-pages/tests/solitaire.test.cjs'],
         ['node', '--test', 'cnc-local/tests/passwords.stress.cjs'],
         ['node', '--test', 'cnc-pages/tests/backend.test.cjs'],
     ]

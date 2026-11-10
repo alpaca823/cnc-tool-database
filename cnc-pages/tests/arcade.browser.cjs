@@ -36,6 +36,33 @@ const {fixture}=require('./shared-fixture.cjs');
   await page.setViewportSize({width:1440,height:1000});
   const search=page.locator('#globalSearch');await search.fill('old search');await page.keyboard.press('Control+k');await page.keyboard.type('new');assert.equal(await search.inputValue(),'new');
   await logo.focus();for(let i=0;i<5;i++)await page.keyboard.press('Enter');await page.locator('dialog[open]').waitFor();await page.getByRole('button',{name:'Close',exact:true}).click();
+  await page.emulateMedia({reducedMotion:'no-preference'});
+  for(let i=0;i<5;i++)await logo.click();
+  await page.getByRole('button',{name:'2048',exact:true}).click();
+  let animated=false;
+  for(const key of ['ArrowLeft','ArrowDown','ArrowRight','ArrowUp']){
+   await page.keyboard.press(key);
+   animated=animated||await page.locator('#arcadeBoard').evaluate(b=>b.getAnimations({subtree:true}).some(a=>a.effect.getTiming().duration>=100));
+   await page.waitForTimeout(300);
+  }
+  assert.equal(animated,true,'Tiles slide using real compositor animations');
+  for(const key of ['ArrowLeft','ArrowDown','ArrowRight','ArrowUp','ArrowLeft'])await page.keyboard.press(key);
+  await page.getByRole('button',{name:'New game',exact:true}).click();await page.waitForTimeout(650);
+  assert.equal(await page.locator('#arcadeBoard .arcade-tile').evaluateAll(nodes=>nodes.filter(n=>n.textContent).length),2,'Reset cancels in-flight animations and queued moves');
+  await page.keyboard.press('ArrowRight');await page.getByRole('button',{name:'Memory',exact:true}).click();await page.waitForTimeout(300);
+  assert.equal(await page.locator('#arcadeBoard button').count(),16,'Switching games cancels old moves');
+  await page.setViewportSize({width:390,height:844});
+  await page.getByRole('button',{name:'Solitaire',exact:true}).click();
+  assert.equal(await page.locator('.sol-column').count(),7);
+  assert.equal(await page.locator('.sol-card:not(.sol-back)').count(),7);
+  await page.getByRole('button',{name:'Draw (24)',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'Draw (23)',exact:true}).count(),1);
+  assert.equal(await page.locator('.sol-card:not(.sol-back)').count(),8);
+  await page.locator('.sol-column .sol-card:not(.sol-back)').first().click();
+  assert.match(await page.locator('#arcadeStatus').textContent(),/selected/);
+  assert.ok(await page.locator('dialog').evaluate(n=>n.scrollWidth<=n.clientWidth),'Solitaire fits mobile');
+  await page.getByRole('button',{name:'New game',exact:true}).click();
+  assert.equal(await page.getByRole('button',{name:'Draw (24)',exact:true}).count(),1);
   assert.deepEqual(errors,[]);await context.close();console.log('PASS: '+mode+' modal, unlock, all games, reset timers, keyboard, mobile and search regression');
  }}finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1;});

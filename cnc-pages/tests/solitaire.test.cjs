@@ -1,0 +1,15 @@
+const assert=require('node:assert/strict'),vm=require('node:vm'),fs=require('node:fs'),path=require('node:path');
+const sandbox={window:{}};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../../cnc-local/solitaire.js'),'utf8'),sandbox);const{deal,draw,move}=sandbox.window.cncSolitaire;
+const card=(rank,suit,up=true)=>({rank,suit,up});
+const empty=()=>({stock:[],waste:[],piles:Array.from({length:7},()=>[]),foundations:Array.from({length:4},()=>[]),moves:0});
+const s=deal(()=>.5);assert.deepEqual(Array.from(s.piles,p=>p.length),[1,2,3,4,5,6,7]);assert.equal(s.stock.length,24);assert.equal(s.piles.flat().filter(c=>c.up).length,7);
+assert.equal(new Set([...s.stock,...s.piles.flat()].map(c=>c.suit+':'+c.rank)).size,52);
+const order=s.stock.map(c=>c.suit+':'+c.rank);for(let i=0;i<24;i++)assert.equal(draw(s),true);assert.equal(s.stock.length,0);draw(s);assert.deepEqual(Array.from(s.stock,c=>c.suit+':'+c.rank),Array.from(order));assert.ok(s.stock.every(c=>!c.up));
+let state=empty();state.piles[0]=[card(4,0,false),card(12,1),card(11,0)];state.piles[1]=[card(13,0)];
+assert.equal(move(state,{kind:'pile',index:0,at:1},{kind:'pile',index:1}),true);assert.equal(state.piles[1].length,3);assert.equal(state.piles[0][0].up,true,'Reveal exposed card');
+assert.equal(move(state,{kind:'pile',index:1,at:1},{kind:'pile',index:2}),false,'Only kings fill empty columns');
+state.waste=[card(1,1)];assert.equal(move(state,{kind:'waste'},{kind:'foundation',index:0}),false,'Suit must match');assert.equal(move(state,{kind:'waste'},{kind:'foundation',index:1}),true);
+state.waste=[card(3,1)];assert.equal(move(state,{kind:'waste'},{kind:'foundation',index:1}),false,'Foundation ranks must ascend');
+state=empty();state.piles[0]=[card(13,0),card(12,0)];const before=JSON.stringify(state);assert.equal(move(state,{kind:'pile',index:0,at:0},{kind:'pile',index:1}),false,'Cannot move invalid runs');assert.equal(JSON.stringify(state),before);
+state.piles[0]=[card(13,1)];assert.equal(move(state,{kind:'pile',index:0,at:0},{kind:'pile',index:1}),true);
+console.log('PASS: Klondike deal uniqueness, stock recycling, legal runs, reveal, foundation rules and atomic invalid moves');
