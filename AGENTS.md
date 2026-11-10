@@ -13,3 +13,5 @@ The user wants both the local HTML and Google Apps Script variants maintained. T
 - The legacy `cnc-feeds-speeds/` project is separate from the current Apps Script variant. Do not silently overwrite its spreadsheet or assume its schema is compatible.
 - A source build does not update an already deployed Apps Script web app. Document the required new deployment version and do not claim a Google deployment occurred unless it actually did.
 - Google uses server-validated password sessions. Public browsing requires no app login; editing requires admin/admin or an additional saved admin password. Deploy as Me with visitor access chosen by the owner.
+
+- Also maintain the GitHub Pages/Supabase edition in cnc-pages. Reuse the canonical interface and server data/auth core. Keep Supabase credential/session tables private with RLS and access only through the server API. The browser config may contain only the project URL and publishable/public key. Never silently replace shared storage with browser-only storage: prototype preview must remain clearly labelled. Deploying GitHub Pages does not provision or deploy Supabase.

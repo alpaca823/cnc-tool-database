@@ -33,6 +33,7 @@ def build_pages():
  preview=offline.replace('<span class="offline-pill">Offline</span>','<span class="offline-pill">Prototype preview</span>')
  preview=preview.replace('<aside id="mentorNotice"','<aside class="mentor-notice" role="note"><strong>Prototype preview</strong><p>Changes save only in this browser. The shared database is not connected yet. Export JSON if you want to keep your preview data.</p></aside><aside id="mentorNotice"',1)
  (public/'preview.html').write_text(preview)
+ if (ROOT/'config.js').exists():(public/'config.js').write_text((ROOT/'config.js').read_text())
  if not (public/'config.js').exists():(public/'config.js').write_text('window.CNC_CONFIG = { supabaseUrl: "", publicKey: "" };\n')
  core=(ROOT/'cnc-local/local-core.js').read_text()
  if core.count('const sessions = new Map();')!=1:raise ValueError('Canonical session adapter changed')

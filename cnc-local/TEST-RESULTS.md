@@ -4,6 +4,8 @@ Shared UI loads Google workspace data through one request when supported; the lo
 
 New shared-database tests check persistent sessions, protected writes, backups, revision conflicts, and origin/action boundaries. Chromium checks verify two browser contexts share data and unconfigured database setup is explicit. New GitHub code uses local service doubles; production Supabase remains to be configured.
 
+Current verification: all 18 test commands passed, including 13 Chromium suites and 54 unit/backend cases. The Pages shared-data browser check uses the real handler with a local database double; production Supabase is not yet configured.
+
 Earlier checks:
 
 # Version 1.13.0 verification
