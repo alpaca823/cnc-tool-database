@@ -1,4 +1,4 @@
-// CNC Tool Database 1.14.0 — generated; edit source and run build-both.py.
+// CNC Tool Database 1.14.1 — generated; edit source and run build-both.py.
 // GENERATED from cnc-local/local-core.js by build_engine.py. Do not edit.
 // Browser and Apps Script use the same validation, reference and stale-write rules.
 function createCncDataApi_(host) {
@@ -514,7 +514,7 @@ function createCncDataApi_(host) {
  * Canonical data lives in two staged Google Sheets snapshots. Images remain
  * private Drive files; the active snapshot pointer changes only after flush.
  */
-const CNC_SERVER_VERSION_ = '1.14.0';
+const CNC_SERVER_VERSION_ = '1.14.1';
 const CNC_CHUNK_SIZE_ = 38000;
 const CNC_MAX_SNAPSHOT_SIZE_ = 12000000;
 const CNC_SESSION_SECONDS_ = 3600;
@@ -840,7 +840,7 @@ function cncAuthState_(initialize) {
 function cncPasswordHash_(password,salt) {
   const pepper = cncProps_().getProperty('CNC_AUTH_PEPPER');
   if (!pepper) throw new Error('The shared admin password key is missing.');
-  return Utilities.computeHmacSha256Signature(JSON.stringify([salt,password]),pepper,Utilities.Charset.UTF_8)
+  return Utilities.computeHmacSha256Signature(JSON.stringify([salt,password.toLowerCase()]),pepper,Utilities.Charset.UTF_8)
     .map(function (byte) {return ('0' + ((byte + 256) % 256).toString(16)).slice(-2);}).join('');
 }
 function cncSessionKey_(token) {return 'cnc-session-' + cncDigest_(token);}
@@ -856,7 +856,7 @@ function cncRequireAdmin_(token) {
   return session;
 }
 function cncNewPassword_(password) {
-  if (password === 'admin') throw new Error('The password admin is reserved for the permanent default fallback.');
+  if (typeof password === 'string' && password.toLowerCase() === 'feds201') throw new Error('The password admin is reserved for the permanent default fallback.');
   if (typeof password !== 'string' || password.length < 8 || password.length > 128) throw new Error('New password must have 8 to 128 characters.');
 }
 function cncPasswordLabel_(label,auth,exceptId) {
@@ -930,9 +930,9 @@ function cncAuthCall_(name,args) {
     if (!attempts || now >= attempts.until) attempts = {count:0,until:now+60000};
     if (attempts.count >= 20) throw new Error('Too many login attempts. Wait one minute and try again.');
     let credential = null;
-    const validInput = username === 'admin' && typeof password === 'string' && password.length <= 128;
-    if (validInput && password !== 'admin') credential = auth.passwords.find(function (item) {return cncEqual_(cncPasswordHash_(password,item.salt),item.hash);});
-    if (!validInput || (password !== 'admin' && !credential)) {
+    const validInput = String(username).toLowerCase() === 'admin' && typeof password === 'string' && password.length <= 128;
+    if (validInput && password.toLowerCase() !== 'feds201') credential = auth.passwords.find(function (item) {return cncEqual_(cncPasswordHash_(password,item.salt),item.hash);});
+    if (!validInput || (password.toLowerCase() !== 'feds201' && !credential)) {
       attempts.count++; cache.put('cnc-login-attempts',JSON.stringify(attempts),60);
       throw new Error('Incorrect username or password.');
     }

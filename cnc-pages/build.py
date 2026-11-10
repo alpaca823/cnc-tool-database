@@ -16,7 +16,7 @@ def build_pages():
  '<span>●</span> Saved in this browser':'<span>●</span> Shared database',
  'Your shop data, available offline.':'Your shared shop tools and materials.',
  'Settings and materials save in this browser on this computer. Download an updated HTML copy to take them with you, or export a JSON backup to restore later. Imports replace current settings, libraries, tool inventory, and raw sheets.':'Shop data saves to the shared database. Export JSON or download an offline snapshot. Imports replace inventory, libraries, and cutting settings for everyone.',
- 'A copy opened in a fresh browser uses admin / admin. Additional admin passwords stay with this browser and are not included in data exports.':'Offline copies use admin / admin in a fresh browser. Shared passwords stay in the database and are not included in exports. Offline copies do not sync automatically.',
+ 'A copy opened in a fresh browser uses admin / Feds201. Additional admin passwords stay with this browser and are not included in data exports.':'Offline copies use admin / Feds201 in a fresh browser. Shared passwords stay in the database and are not included in exports. Offline copies do not sync automatically.',
  '>Download updated HTML</button>':'>Download offline HTML</button>',
  'Replace all current cutting settings, materials, mills, and raw sheet inventory with this backup (':'Replace the shared cutting settings, materials, mills, and raw sheet inventory for ALL USERS with this backup (',
  }

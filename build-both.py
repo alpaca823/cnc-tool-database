@@ -35,8 +35,8 @@ def build_both():
         ('>Download updated HTML</button>', '>Download offline HTML</button>'),
         ('Replace all current cutting settings, materials, mills, and raw sheet inventory with this backup (',
          'Replace the shared cutting settings, materials, mills, and raw sheet inventory for ALL USERS with this backup ('),
-        ('A copy opened in a fresh browser uses admin / admin. Additional admin passwords stay with this browser and are not included in data exports.',
-         'Offline copies use admin / admin in a fresh browser. Additional passwords stay in this Google project and are not included in data exports. Offline copies do not sync with the shared database.'),
+        ('A copy opened in a fresh browser uses admin / Feds201. Additional admin passwords stay with this browser and are not included in data exports.',
+         'Offline copies use admin / Feds201 in a fresh browser. Additional passwords stay in this Google project and are not included in data exports. Offline copies do not sync with the shared database.'),
         ('The local app could not start. Save and open the complete CNC-Tool-Database.html file in Chrome, Edge, or Firefox. If you downloaded a ZIP, extract it first. The developer file app-shell.html cannot run on its own.',
          'The Google app could not start. Open the deployed Apps Script web app link. Rebuild and redeploy the complete Google edition if the problem continues.'),
     ]

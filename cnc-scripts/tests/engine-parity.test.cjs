@@ -21,7 +21,7 @@ async function pair() {
     document:{getElementById:()=>({textContent:JSON.stringify(seed)})}};
   vm.createContext(local);vm.runInContext(localSource,local);await local.window.cncLocal.ready;
   const rpc = (name,...args) => local.window.cncLocal.call(name,...args);
-  const {token} = await rpc('adminLogin','admin','admin');
+  const {token} = await rpc('adminLogin','admin','Feds201');
   let state = {format:'cnc-local-database',schemaVersion:1,revision:0,settings:[],materials:[],mills:[],rawMaterials:[]};
   const context = {};vm.createContext(context);vm.runInContext(generated,context);
   const server = context.createCncDataApi_({

@@ -138,7 +138,7 @@ async function assertChromeTheme(page,theme){
     await assertChromeTheme(page,'light');
     console.log('PASS: rendered sidebar, header, navigation, and search colors follow light/dark/system themes, persist on reload, and keep readable text.');
 
-    await login(page);let auth=await rpc('adminLogin','admin','admin');
+    await login(page);let auth=await rpc('adminLogin','admin','Feds201');
     await addMill(page,'MX-101','Quarter-inch aluminum end mill');
     await addMill(page,'MX-102','Spare finishing end mill',{millDiameter:'.125',millFlutes:'4',millCoating:'TiAlN'});
     let mills=await rpc('getMills');
@@ -213,7 +213,7 @@ async function assertChromeTheme(page,theme){
     await assert.rejects(rpc('adminListSettings',auth.token),/AUTH_REQUIRED/);
     assert.equal((await rpc('getMills')).find(mill=>mill.number==='MX-201').quantity,6);
     assert.ok((await rpc('adminLogin','admin','Workshop-Mentor-2026')).token);
-    await login(page);auth=await rpc('adminLogin','admin','admin');
+    await login(page);auth=await rpc('adminLogin','admin','Feds201');
     await navigate(page,'settings');
     const jsonEvent=page.waitForEvent('download');await page.locator('#exportBackup').click();
     const jsonDownload=await jsonEvent,backupPath=path.join(temp,'workspace.json');await jsonDownload.saveAs(backupPath);
@@ -228,7 +228,7 @@ async function assertChromeTheme(page,theme){
     const htmlEvent=page.waitForEvent('download');await page.locator('#downloadPortable').click();
     const htmlDownload=await htmlEvent,portablePath=path.join(temp,'workspace.html');await htmlDownload.saveAs(portablePath);
     const portable=await open(fs.readFileSync(portablePath,'utf8'));
-    const portableAuth=await portable.rpc('adminLogin','admin','admin');
+    const portableAuth=await portable.rpc('adminLogin','admin','Feds201');
     const received=await portable.rpc('adminExportBackup',portableAuth.token);
     for(const key of ['mills','materials','settings','rawMaterials'])assert.deepEqual(received[key],backup[key],'Portable '+key);
     assert.equal((await portable.rpc('adminListPasswords',portableAuth.token)).length,1);
@@ -254,7 +254,7 @@ async function assertChromeTheme(page,theme){
     assert.equal(migrated.number,'LEGACY-7');assert.equal(migrated.toolImage,image);assert.equal(migrated.stockStatus,'untracked');assert.equal(Object.hasOwn(migrated,'quantity'),false);
     const migratedSetting=await legacy.rpc('getSettings','LEGACY-7','Legacy aluminum');
     assert.equal(migratedSetting.feed,10);assert.equal(migratedSetting.depth,1);assert.equal(migratedSetting.materialImage,materialImage);
-    const legacyAuth=await legacy.rpc('adminLogin','admin','admin');
+    const legacyAuth=await legacy.rpc('adminLogin','admin','Feds201');
     await legacy.rpc('adminImportBackup',legacyAuth.token,{format:'cnc-local-backup',schemaVersion:1,settings:[{...oldSetting,mill:'LEGACY-8'}]});
     assert.equal((await legacy.rpc('getMills'))[0].number,'LEGACY-8');assert.equal((await legacy.rpc('getMills'))[0].stockStatus,'untracked');
     console.log('PASS: pre-library browser data and old backups derive mills, convert metric cutting data, retain photos, and leave stock untracked.');

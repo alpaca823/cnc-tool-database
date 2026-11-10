@@ -96,7 +96,7 @@ const setting = {mill:'001',material:'Aluminum 6061',rpm:'12000',feed:'800',dept
     assert.equal(await page.locator('#settingList .setting').count(),1);
     console.log('PASS: edit and confirmed delete update persistent settings.');
 
-    const auth = await rpc('adminLogin','admin','admin');
+    const auth = await rpc('adminLogin','admin','Feds201');
     for (const method of ['adminListSettings','adminListMaterials','adminExportBackup','adminPortableData'])
       await assert.rejects(rpc(method,'forged-token'),/AUTH_REQUIRED/);
     const backup = await rpc('adminExportBackup',auth.token);

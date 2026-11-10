@@ -280,7 +280,7 @@
   }
   async function createAuth(password) {
     const salt = uid();
-    return {salt,hash:await hashPassword(password,salt),version:uid(),iterations:ITERATIONS};
+    return {salt,hash:await hashPassword(password.toLowerCase(),salt),version:uid(),iterations:ITERATIONS};
   }
   function validCredential(credential) {
     return !!credential && typeof credential === 'object' && !Array.isArray(credential) &&
@@ -312,7 +312,7 @@
     return result;
   }
   function validateNewPassword(password) {
-    if (password === 'admin') throw new Error('The password admin is reserved for the permanent default fallback.');
+    if (typeof password === 'string' && password.toLowerCase() === 'feds201') throw new Error('The password admin is reserved for the permanent default fallback.');
     if (typeof password !== 'string' || password.length < 8 || password.length > 128) throw new Error('New password must have 8 to 128 characters.');
   }
   function customPassword(state,id) {
@@ -454,7 +454,7 @@
       try {seed = element ? JSON.parse(element.textContent) : {format:'cnc-local-portable',schemaVersion:1,settings:[]};}
       catch (_) {throw new Error('The settings embedded in this file are invalid. No data has been saved.');}
       const data = portable(seed);
-      const auth = {...await createAuth('admin'),passwords:[]};
+      const auth = {...await createAuth('Feds201'),passwords:[]};
       // Another tab may have initialized the shared browser store while hashing.
       if (storageRead() != null) {await migratePasswords(); return;}
       storageWrite({format:'cnc-local-database',schemaVersion:1,revision:0,...data,auth});
@@ -493,11 +493,11 @@
     },
     async adminLogin(username,password) {
       const state = readState();
-      if (username !== 'admin' || typeof password !== 'string' || password.length > 128) throw new Error('Incorrect username or password.');
+      if (String(username).toLowerCase() !== 'admin' || typeof password !== 'string' || password.length > 128) throw new Error('Incorrect username or password.');
       let credential = null;
-      if (password !== 'admin') {
+      if (password.toLowerCase() !== 'feds201') {
         for (const item of state.auth.passwords) {
-          if (passwordsEqual(await hashPassword(password,item.salt),item.hash)) {credential = item; break;}
+          if ((passwordsEqual(await hashPassword(password,item.salt),item.hash) || passwordsEqual(await hashPassword(password.toLowerCase(),item.salt),item.hash))) {credential = item; break;}
         }
         if (!credential) throw new Error('Incorrect username or password.');
       }

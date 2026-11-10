@@ -31,7 +31,7 @@ test('saved mixed units migrate once; identifiers, credentials, RPM, notes, and 
   assert.equal(actual.settings[0].rpm,'12000'); assert.equal(actual.settings[0].notes,metric.notes);
   assert.notEqual(actual.settings[0].version,metric.version);
   assert.deepEqual(actual.settings[1],inch);
-  const auth=await migrated.api.call('adminLogin','admin','admin');
+  const auth=await migrated.api.call('adminLogin','admin','Feds201');
   await assert.rejects(migrated.api.call('adminSaveSetting',auth.token,{...metric,units:'inch'}, {key:{mill:metric.mill,material:metric.material},version:metric.version}),/changed after/);
   const reloaded=app(actual); await reloaded.api.ready;
   assert.deepEqual(reloaded.read(),actual);
@@ -40,7 +40,7 @@ test('saved mixed units migrate once; identifiers, credentials, RPM, notes, and 
 test('metric backups and portable seeds normalize to inches, and export/import does not convert again',async()=>{
   const portable={format:'cnc-local-portable',schemaVersion:1,settings:[metric,inch]};
   const seeded=app(null,portable); await seeded.api.ready;
-  const auth=await seeded.api.call('adminLogin','admin','admin');
+  const auth=await seeded.api.call('adminLogin','admin','Feds201');
   const exported=await seeded.api.call('adminExportBackup',auth.token);
   assert.ok(exported.settings.every(row=>row.units==='inch'));
   assert.equal(exported.settings[0].feed,'10'); assert.equal(exported.settings[0].depth,'1');
@@ -61,7 +61,7 @@ test('a bad row prevents any migration write; failed imports also leave all save
   await assert.rejects(broken.api.ready,/cannot be read/);
   assert.equal(broken.store.get(KEY),JSON.stringify(old));
   const valid=app(); await valid.api.ready;
-  const auth=await valid.api.call('adminLogin','admin','admin');
+  const auth=await valid.api.call('adminLogin','admin','Feds201');
   const before=valid.store.get(KEY);
   await assert.rejects(valid.api.call('adminImportBackup',auth.token,{format:'cnc-local-backup',schemaVersion:1,settings:[metric,{...inch,depth:0}]}));
   assert.equal(valid.store.get(KEY),before);

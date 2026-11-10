@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.0</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
+<html lang="en"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.1</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
 :root,
 html[data-theme="light"] {
   color-scheme: light;
@@ -747,7 +747,7 @@ details[open] > summary { margin-bottom: 14px; }
           <button id="importBackup" class="secondary" type="button">Import JSON backup</button>
           <input id="importFile" type="file" accept=".json,application/json" hidden>
         </div>
-        <p class="hint">A copy opened in a fresh browser uses admin / admin. Additional admin passwords stay with this browser and are not included in data exports.</p>
+        <p class="hint">A copy opened in a fresh browser uses admin / Feds201. Additional admin passwords stay with this browser and are not included in data exports.</p>
       </section><details id="passwordDetails" class="card password-card">
         <summary>Admin passwords</summary>
         <p class="hint">All passwords use the username <strong>admin</strong>. The fallback password <strong>admin</strong> is always enabled and cannot be changed or removed. Anyone who knows it can edit this database.</p>
@@ -763,8 +763,8 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
         </div>
-      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.0 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
-      <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: admin.</p>
+      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.1 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: Feds201.</p>
       <form id="loginForm"><fieldset id="loginFields">
         <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
         <label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" required maxlength="128">
@@ -1054,7 +1054,7 @@ details[open] > summary { margin-bottom: 14px; }
   }
   async function createAuth(password) {
     const salt = uid();
-    return {salt,hash:await hashPassword(password,salt),version:uid(),iterations:ITERATIONS};
+    return {salt,hash:await hashPassword(password.toLowerCase(),salt),version:uid(),iterations:ITERATIONS};
   }
   function validCredential(credential) {
     return !!credential && typeof credential === 'object' && !Array.isArray(credential) &&
@@ -1086,7 +1086,7 @@ details[open] > summary { margin-bottom: 14px; }
     return result;
   }
   function validateNewPassword(password) {
-    if (password === 'admin') throw new Error('The password admin is reserved for the permanent default fallback.');
+    if (typeof password === 'string' && password.toLowerCase() === 'feds201') throw new Error('The password admin is reserved for the permanent default fallback.');
     if (typeof password !== 'string' || password.length < 8 || password.length > 128) throw new Error('New password must have 8 to 128 characters.');
   }
   function customPassword(state,id) {
@@ -1228,7 +1228,7 @@ details[open] > summary { margin-bottom: 14px; }
       try {seed = element ? JSON.parse(element.textContent) : {format:'cnc-local-portable',schemaVersion:1,settings:[]};}
       catch (_) {throw new Error('The settings embedded in this file are invalid. No data has been saved.');}
       const data = portable(seed);
-      const auth = {...await createAuth('admin'),passwords:[]};
+      const auth = {...await createAuth('Feds201'),passwords:[]};
       // Another tab may have initialized the shared browser store while hashing.
       if (storageRead() != null) {await migratePasswords(); return;}
       storageWrite({format:'cnc-local-database',schemaVersion:1,revision:0,...data,auth});
@@ -1267,11 +1267,11 @@ details[open] > summary { margin-bottom: 14px; }
     },
     async adminLogin(username,password) {
       const state = readState();
-      if (username !== 'admin' || typeof password !== 'string' || password.length > 128) throw new Error('Incorrect username or password.');
+      if (String(username).toLowerCase() !== 'admin' || typeof password !== 'string' || password.length > 128) throw new Error('Incorrect username or password.');
       let credential = null;
-      if (password !== 'admin') {
+      if (password.toLowerCase() !== 'feds201') {
         for (const item of state.auth.passwords) {
-          if (passwordsEqual(await hashPassword(password,item.salt),item.hash)) {credential = item; break;}
+          if ((passwordsEqual(await hashPassword(password,item.salt),item.hash) || passwordsEqual(await hashPassword(password.toLowerCase(),item.salt),item.hash))) {credential = item; break;}
         }
         if (!credential) throw new Error('Incorrect username or password.');
       }
@@ -1834,7 +1834,7 @@ details[open] > summary { margin-bottom: 14px; }
       const card = document.createElement('article'); card.className = 'setting';
       const heading = document.createElement('h3'); heading.textContent = item.label;
       const detail = document.createElement('p'); detail.className = 'hint';
-      detail.textContent = item.isDefault ? 'Username: admin · Password: admin · Always enabled' : 'Username: admin · Password is hidden';
+      detail.textContent = item.isDefault ? 'Username: admin · Password: Feds201 · Always enabled' : 'Username: admin · Password is hidden';
       card.append(heading,detail);
       if (!item.isDefault) {
         const actions = document.createElement('div'); actions.className = 'actions';
@@ -1844,7 +1844,7 @@ details[open] > summary { margin-bottom: 14px; }
           resetPasswordEditor(); passwordOriginal = item.id; el('passwordLabel').value = item.label;
           el('newPassword').required = false; el('confirmPassword').required = false;
           el('passwordEditorTitle').textContent = 'Edit admin password'; el('savePassword').textContent = 'Save password changes'; el('cancelPasswordEdit').textContent = 'Cancel edit';
-          el('passwordFormHelp').textContent = 'Leave both password fields blank to keep the current password. Saving signs out sessions using this password; admin / admin remains available.';
+          el('passwordFormHelp').textContent = 'Leave both password fields blank to keep the current password. Saving signs out sessions using this password; admin / Feds201 remains available.';
           el('passwordLabel').focus();
         });
         const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'danger small'; remove.textContent = 'Remove';
@@ -1867,24 +1867,24 @@ details[open] > summary { margin-bottom: 14px; }
       saved = true; if (token !== active) return;
       resetPasswordEditor();
       const items = await rpc('adminListPasswords', active); if (token !== active) return;
-      renderPasswords(items); passwordMessage(editing ? 'Admin password updated. The admin / admin fallback is still enabled.' : 'Admin password added. The admin / admin fallback is still enabled.');
+      renderPasswords(items); passwordMessage(editing ? 'Admin password updated. The admin / Feds201 fallback is still enabled.' : 'Admin password added. The admin / Feds201 fallback is still enabled.');
     } catch (error) {
       if (token !== active) return;
-      if (saved && message(error).includes('AUTH_REQUIRED')) endSession('Password updated. Sign in with an accepted admin password. The admin / admin fallback is available.', true);
+      if (saved && message(error).includes('AUTH_REQUIRED')) endSession('Password updated. Sign in with an accepted admin password. The admin / Feds201 fallback is available.', true);
       else {adminError(error); if (token === active) el('passwordStatus').textContent = message(error);}
     } finally {if (token === active) setBusy(false);}
   });
   async function removePassword(item) {
-    if (!token || adminBusy || item.isDefault || !window.confirm('Remove the admin password labeled "' + item.label + '"? Sessions using it will be signed out. The admin / admin fallback will stay available.')) return;
+    if (!token || adminBusy || item.isDefault || !window.confirm('Remove the admin password labeled "' + item.label + '"? Sessions using it will be signed out. The admin / Feds201 fallback will stay available.')) return;
     const active = token; let removed = false; setBusy(true); passwordMessage('Removing password…');
     try {
       await rpc('adminDeletePassword', active, item.id); removed = true; if (token !== active) return;
       if (passwordOriginal === item.id) resetPasswordEditor();
       const items = await rpc('adminListPasswords', active); if (token !== active) return;
-      renderPasswords(items); passwordMessage('Admin password removed. The admin / admin fallback is still enabled.');
+      renderPasswords(items); passwordMessage('Admin password removed. The admin / Feds201 fallback is still enabled.');
     } catch (error) {
       if (token !== active) return;
-      if (removed && message(error).includes('AUTH_REQUIRED')) endSession('Password removed. Sign in with another accepted password or the admin / admin fallback.', true);
+      if (removed && message(error).includes('AUTH_REQUIRED')) endSession('Password removed. Sign in with another accepted password or the admin / Feds201 fallback.', true);
       else {adminError(error); if (token === active) el('passwordStatus').textContent = message(error);}
     } finally {if (token === active) setBusy(false);}
   }

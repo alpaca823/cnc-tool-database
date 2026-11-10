@@ -133,7 +133,7 @@ const URL='http://localhost:31460/images.html';
     assert.equal((await rpc('getSettings','001','Test material')).toolImage,both.toolImage);
     console.log('PASS: removing one image preserves the other; JSON import restores the embedded images.');
 
-    const auth=await rpc('adminLogin','admin','admin');
+    const auth=await rpc('adminLogin','admin','Feds201');
     const before=await rpc('adminExportBackup',auth.token);
     for(const invalid of ['https://example.com/tool.jpg','data:image/svg+xml;base64,PHN2Zz48L3N2Zz4=']) {
       await assert.rejects(rpc('adminImportBackup',auth.token,{...before,settings:[{...before.settings[0],toolImage:invalid}]}),/image|JPEG|PNG|WebP/i);

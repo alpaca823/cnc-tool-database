@@ -164,7 +164,7 @@ test('JSON/portable data retains shared records and images, imports preserve cre
   const other=environment();other.ok('adminImportBackup',other.token,backup);
   assert.deepEqual(data(other.ok('adminExportBackup',other.token)),data(backup));
   other.bad('adminLogin',['admin','cloud-mentor-password'],/incorrect/i);
-  assert.ok(other.ok('adminLogin','admin','admin').token);balanced(mock);balanced(other.mock);
+  assert.ok(other.ok('adminLogin','admin','Feds201').token);balanced(mock);balanced(other.mock);
 });
 
 test('failed snapshot writes and pointer commits leave the complete previous revision readable',()=>{
@@ -286,7 +286,7 @@ test('auth chunk and pointer failures preserve old credentials, while corrupt au
   }
   const pointer=JSON.parse(active),key='CNC_AUTH_'+pointer.slot+'_0',part=mock.state.properties.get(key);
   mock.state.properties.set(key,part+'corrupt');
-  bad('adminLogin',['admin','admin'],/integrity|invalid|incomplete/i);
+  bad('adminLogin',['admin','Feds201'],/integrity|invalid|incomplete/i);
   bad('adminAddPassword',[token,'Must not save','must-not-save-password'],/integrity|invalid|incomplete/i);
   assert.throws(()=>server.setupDatabase(),/integrity|invalid|incomplete/i);
   assert.equal(mock.state.properties.get('CNC_AUTH_ACTIVE'),active);assert.equal(mock.state.properties.get(key),part+'corrupt');
@@ -339,7 +339,7 @@ test('password restoration preserves existing data and inactive Google-account c
  assert.equal(JSON.parse(mock.state.properties.get('CNC_EDITORS'))[0].email,'editor@example.com');
  assert.deepEqual(data(ok('adminExportBackup',token)),before);
  bad('adminSaveMaterial',['forged-token',{name:'Blocked'},null],/AUTH_REQUIRED/);
- assert.ok(ok('adminLogin','admin','admin').token);balanced(mock);
+ assert.ok(ok('adminLogin','admin','Feds201').token);balanced(mock);
 });
 
 test('Mills and Material Stock show separate readable inventories with literal IDs and numeric counts',()=>{

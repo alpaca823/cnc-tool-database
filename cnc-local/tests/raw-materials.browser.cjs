@@ -96,7 +96,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     assert.deepEqual(await rpc('getRawMaterials'),[]);
     console.log('PASS: operators can open Materials; writes require authentication, with the current version and mentor notice visible.');
 
-    await login(page);let auth=await rpc('adminLogin','admin','admin');
+    await login(page);let auth=await rpc('adminLogin','admin','Feds201');
     let image=await page.evaluate(()=>{
       const canvas=document.createElement('canvas');canvas.width=64;canvas.height=48;
       const paint=canvas.getContext('2d');paint.fillStyle='#b3bac6';paint.fillRect(0,0,64,48);
@@ -155,7 +155,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     assert.equal(await page.locator('#addRawMaterial').isVisible(),false,'Reload returns to the read-only operator view');
     assert.equal(await row(page,'Sheet rack A').getByRole('button',{name:'Edit',exact:true}).isVisible(),false);
     await assert.rejects(rpc('adminSaveRawMaterial',auth.token,{...draft,quantity:99},null),/AUTH_REQUIRED/);
-    await login(page);auth=await rpc('adminLogin','admin','admin');
+    await login(page);auth=await rpc('adminLogin','admin','Feds201');
     console.log('PASS: UI create/edit/cancel, duplicate-size batches, optional thickness, zero quantities, photos, search, and reload persistence work.');
 
     await navigate(page,'materials');await page.locator('#addRawMaterial').click();
@@ -191,7 +191,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     const zeroMaterial=(await rpc('adminListMaterials',auth.token)).find(item=>item.name==='Zero reference only');
     assert.equal(zeroMaterial.usageCount,0);assert.equal(zeroMaterial.rawUsageCount,1);
     await unchangedAfter(rpc,auth.token,()=>rpc('adminDeleteMaterial',auth.token,{name:zeroMaterial.name,version:zeroMaterial.version}),/raw|sheet|used|reference/i);
-    await page.reload();await page.evaluate(()=>window.cncLocal.ready);await login(page);auth=await rpc('adminLogin','admin','admin');
+    await page.reload();await page.evaluate(()=>window.cncLocal.ready);await login(page);auth=await rpc('adminLogin','admin','Feds201');
     await navigate(page,'materials');await selectMaterial(page,'Zero reference only');
     await row(page,'Zero-only fixture').getByRole('button',{name:'Delete',exact:true}).click();
     await waitRecords(page,records=>!records.some(record=>record.location==='Zero-only fixture'));
@@ -214,7 +214,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     const htmlEvent=page.waitForEvent('download');await page.locator('#downloadPortable').click();
     const htmlDownload=await htmlEvent,htmlPath=path.join(temporary,'raw-materials.html');await htmlDownload.saveAs(htmlPath);
     const portable=await open(fs.readFileSync(htmlPath,'utf8'));
-    const portableAuth=await portable.rpc('adminLogin','admin','admin');
+    const portableAuth=await portable.rpc('adminLogin','admin','Feds201');
     const portableBackup=await portable.rpc('adminExportBackup',portableAuth.token);
     for(const key of arrayKeys)assert.deepEqual(portableBackup[key],backup[key],'Portable HTML retains '+key);
     await navigate(portable.page,'materials');
@@ -225,7 +225,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     await imported.page.locator('#importFile').setInputFiles(jsonPath);
     await waitRecords(imported.page,records=>records.length===2&&records.some(record=>record.material==='Aluminum 6061-T6'));
     await imported.page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('Backup imported'));
-    const importedAuth=await imported.rpc('adminLogin','admin','admin');
+    const importedAuth=await imported.rpc('adminLogin','admin','Feds201');
     const importedBackup=await imported.rpc('adminExportBackup',importedAuth.token);
     for(const key of arrayKeys)assert.deepEqual(importedBackup[key],backup[key],'Downloaded JSON imports '+key);
     for(const malformed of [
@@ -237,7 +237,7 @@ const arrayKeys=['settings','materials','mills','rawMaterials'];
     ])await unchangedAfter(imported.rpc,importedAuth.token,()=>imported.rpc('adminImportBackup',importedAuth.token,malformed),/material|raw|sheet|length|quantity|duplicate|same|unique|positive|whole|number|list|array/i);
     console.log('PASS: actual JSON/HTML downloads reopen in fresh browsers with raw counts, dimensions, IDs, and shared photos; invalid imports are atomic.');
 
-    const legacy=await open();const legacyAuth=await legacy.rpc('adminLogin','admin','admin');
+    const legacy=await open();const legacyAuth=await legacy.rpc('adminLogin','admin','Feds201');
     const oldBackup={...backup};delete oldBackup.rawMaterials;
     await legacy.rpc('adminImportBackup',legacyAuth.token,oldBackup);
     assert.deepEqual(await legacy.rpc('getRawMaterials'),[],'Old backups do not invent physical sheet inventory');

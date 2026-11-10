@@ -89,7 +89,7 @@ const legacySetting = {mill:'099',material:'Legacy material',rpm:'9000',feed:'10
     await edit(page,'001'); await page.locator('#editCoolantMist').check(); await save(page);
     console.log('PASS: plunge rate and mist enabled/disabled display correctly and survive edit, resave, and reload.');
 
-    const auth = await rpc(page,'adminLogin','admin','admin');
+    const auth = await rpc(page,'adminLogin','admin','Feds201');
     const before = await rpc(page,'adminExportBackup',auth.token);
     for (const change of [{plungeRate:'0'},{plungeRate:'-1'},{plungeRate:'many'},{plungeRate:'Infinity'},{coolantMist:'false'},{coolantMist:1}]) {
       const item = (await rpc(page,'adminListSettings',auth.token))[0];
@@ -144,14 +144,14 @@ const legacySetting = {mill:'099',material:'Legacy material',rpm:'9000',feed:'10
     assert.equal((await rpc(old,'getSettings','099','Legacy material')).coolantMist,true);
     console.log('PASS: old settings remain unspecified; editing unrelated fields preserves the unknown mist state until explicitly selected.');
 
-    const oldAuth = await rpc(old,'adminLogin','admin','admin');
+    const oldAuth = await rpc(old,'adminLogin','admin','Feds201');
     const metric = {...legacySetting,mill:'098',material:'Metric legacy',units:'mm',feed:'254',depth:'25.4',plungeRate:'254',coolantMist:false};
     await rpc(old,'adminImportBackup',oldAuth.token,{format:'cnc-local-backup',schemaVersion:1,settings:[metric]});
     const converted = await rpc(old,'getSettings','098','Metric legacy');
     assert.equal(converted.feed,10); assert.equal(converted.depth,1); assert.equal(Number(converted.plungeRate),10); assert.equal(converted.coolantMist,false);
     await old.reload(); await old.evaluate(() => window.cncLocal.ready);
     assert.equal(Number((await rpc(old,'getSettings','098','Metric legacy')).plungeRate),10);
-    const conversionAuth = await rpc(old,'adminLogin','admin','admin');
+    const conversionAuth = await rpc(old,'adminLogin','admin','Feds201');
     const convertedBackup = await rpc(old,'adminExportBackup',conversionAuth.token);
     assert.equal(convertedBackup.settings[0].plungeRate,'10'); assert.equal(convertedBackup.settings[0].units,'inch');
     console.log('PASS: metric plunge rates convert to inch/min once, while explicit false coolant mist stays false.');

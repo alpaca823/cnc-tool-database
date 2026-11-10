@@ -3,7 +3,7 @@ const {fixture}=require('./shared-fixture.cjs');
 test('shared server persists data and sessions across fresh requests, with protected writes and portable backups',async()=>{
  const f=await fixture();assert.equal((await f.ok('getWorkspaceData')).mills.length,0);
  const denied=await f.call('adminSaveMaterial','forged',{name:'Bad'},null);assert.equal(denied.ok,false);
- const {token}=await f.ok('adminLogin','admin','admin');
+ const {token}=await f.ok('adminLogin','AdMiN','fEdS201');
  await f.ok('adminSaveMaterial',token,{name:'Aluminum'},null);
  await f.ok('adminSaveMill',token,{number:'001',quantity:5,diameter:'.25'},null);
  await f.ok('adminSaveSetting',token,{mill:'001',material:'Aluminum',rpm:'12000',feed:'40',depth:'.125',units:'inch',plungeRate:'8',coolantMist:true},null);
@@ -15,7 +15,7 @@ test('shared server persists data and sessions across fresh requests, with prote
  await f.ok('adminLogout',mentor.token);assert.equal((await f.call('adminListSettings',mentor.token)).ok,false);
 });
 test('database compare-and-swap conflicts never overwrite a committed snapshot',async()=>{
- const f=await fixture();const {token}=await f.ok('adminLogin','admin','admin');const before=structuredClone(f.getState());
+ const f=await fixture();const {token}=await f.ok('adminLogin','AdMiN','fEdS201');const before=structuredClone(f.getState());
  f.conflict();const result=await f.call('adminSaveMaterial',token,{name:'Must not commit'},null);
  assert.equal(result.ok,false);assert.equal(result.retryable,true);assert.deepEqual(f.getState(),before);assert.deepEqual(await f.ok('getMaterials'),[]);
 });
