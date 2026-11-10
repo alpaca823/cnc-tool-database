@@ -205,6 +205,13 @@
         result[name] = typeof mill[name] === 'string' ? mill[name].trim() : '';
         if (result[name].length > max) throw new Error(label + ' must be at most ' + max + ' characters.');
       }
+      if (mill.purchaseUrl != null && typeof mill.purchaseUrl !== 'string') throw new Error('Purchase link must be a website URL.');
+      const purchaseUrl = typeof mill.purchaseUrl === 'string' ? mill.purchaseUrl.trim() : '';
+      if (purchaseUrl) {
+        if (purchaseUrl.length > 2048 || !/^https?:\/\/[a-z0-9](?:[a-z0-9.-]*[a-z0-9])?(?::\d{1,5})?(?:[/?#][^\s<>"']*)?$/i.test(purchaseUrl))
+          throw new Error('Purchase link must be a full http:// or https:// website URL.');
+        result.purchaseUrl = purchaseUrl;
+      }
       if (mill.diameter != null && !(typeof mill.diameter === 'string' && !mill.diameter.trim())) {
         const diameter = typeof mill.diameter === 'string' || typeof mill.diameter === 'number' ? String(mill.diameter).trim() : '';
         if (diameter.length > 400 || !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(diameter) || !Number.isFinite(Number(diameter)) || Number(diameter) <= 0)

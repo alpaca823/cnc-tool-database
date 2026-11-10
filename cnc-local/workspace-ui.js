@@ -91,6 +91,12 @@
       if (note) card.append(wsNode('span',note,'hint')); return card;
     }));
   }
+  function wsPurchaseLink(item) {
+    const link = wsNode('a','Buy this mill','purchase-link');
+    link.href = item.purchaseUrl; link.target = '_blank'; link.rel = 'noopener noreferrer';
+    link.setAttribute('aria-label','Buy this mill: ' + (item.name || item.number));
+    return link;
+  }
   function wsRenderDashboard() {
     wsStats('dashboardStats', [['Mills',wsDashboard.mills,'Tools in your library'],['Materials',wsDashboard.materials,'Shared material records'],['Cutting settings',wsDashboard.settings,'Saved mill/material pairs'],['Tools on hand',wsDashboard.unitsInStock,'From counted tools']]);
     const stock = wsMills.filter(item => item.stockStatus === 'low' || item.stockStatus === 'out');
@@ -98,6 +104,7 @@
     if (!stock.length) el('dashboardStock').append(wsNode('p',wsDashboard.trackedMills ? 'No counted tools are low or out of stock.' : 'No tool counts yet. Record quantities in Inventory to track tool availability.','empty-state'));
     stock.slice(0,8).forEach(item => {
       const row = wsNode('div',null,'stock-attention'); row.append(wsNode('span',(item.name || 'Mill ' + item.number) + ' · ' + item.quantity + ' on hand'),wsStock(item));
+      if (item.purchaseUrl) row.append(wsPurchaseLink(item));
       row.append(wsButton('View',() => {wsGo('inventory'); if (token) wsSelectInventory(item.number);})); el('dashboardStock').append(row);
     });
     wsStats('inventoryStats',[['Counted mills',wsDashboard.trackedMills],['Units on hand',wsDashboard.unitsInStock],['Low stock',wsDashboard.lowStock],['Out of stock',wsDashboard.outOfStock]]);
@@ -136,6 +143,7 @@
       const edit = wsButton('Edit mill',() => wsOpenMill(item)); edit.id = 'editSelectedMill'; actions.append(edit);
       actions.append(wsButton('Delete',() => wsDeleteMill(item),'danger small'));
     }
+    if (item.purchaseUrl) actions.append(wsPurchaseLink(item));
     detail.append(actions);
   }
   function wsRenderInventory() {
@@ -146,7 +154,7 @@
       const row = wsNode('tr'); const name = wsNode('td'); name.append(wsNode('strong',item.name || 'Mill ' + item.number),wsNode('small',item.number,'hint'));
       row.append(name,wsNode('td',item.quantity == null ? 'Not counted' : item.quantity),wsNode('td',item.reorderLevel == null ? '—' : item.reorderLevel),wsNode('td',item.location || '—'));
       const stock = wsNode('td'); stock.append(wsStock(item)); row.append(stock);
-      const actions = wsNode('td'); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
+      const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
     });
   }
   function wsRenderMaterials() {
@@ -200,7 +208,7 @@
     wsRequireAdmin(() => {
       wsGo('mills'); wsMillEditorOpen = true; el('millEditor').hidden = false; el('millForm').reset(); el('millFormStatus').textContent = '';
       wsMillOriginal = item ? {number:item.number,version:item.version} : null; wsMillBase = item ? {...item} : {};
-      const fields = {number:'millNumber',name:'millName',type:'millType',diameter:'millDiameter',flutes:'millFlutes',coating:'millCoating',notes:'millNotes'};
+      const fields = {number:'millNumber',name:'millName',type:'millType',diameter:'millDiameter',flutes:'millFlutes',coating:'millCoating',purchaseUrl:'millPurchaseUrl',notes:'millNotes'};
       Object.entries(fields).forEach(([key,id]) => el(id).value = item && item[key] != null ? item[key] : '');
       wsMillPhoto = item && item.toolImage ? item.toolImage : ''; wsMillPhotoDirty = false; wsShowMillPhoto();
       el('millEditorTitle').textContent = item ? 'Edit mill' : 'Add mill'; el('millNumber').focus();
@@ -249,7 +257,7 @@
     el('removeMillImage').addEventListener('click',() => {if (!adminBusy) {wsMillPhoto = ''; wsMillPhotoDirty = true; wsShowMillPhoto();}});
     el('millForm').addEventListener('submit',async event => {
       event.preventDefault(); if (!token || adminBusy) return;
-      const mill = {...wsMillBase,number:el('millNumber').value.trim(),name:el('millName').value.trim(),type:el('millType').value.trim(),diameter:el('millDiameter').value.trim(),flutes:el('millFlutes').value,coating:el('millCoating').value.trim(),notes:el('millNotes').value};
+      const mill = {...wsMillBase,number:el('millNumber').value.trim(),name:el('millName').value.trim(),type:el('millType').value.trim(),diameter:el('millDiameter').value.trim(),flutes:el('millFlutes').value,coating:el('millCoating').value.trim(),purchaseUrl:el('millPurchaseUrl').value.trim(),notes:el('millNotes').value};
       delete mill.toolImage; if (wsMillPhotoDirty || !wsMillOriginal) mill.toolImage = wsMillPhoto;
       const active = token; setBusy(true); el('millFormStatus').textContent = 'Saving mill…';
       try {await rpc('adminSaveMill',active,mill,wsMillOriginal); if (token !== active) return; wsSelectedMill = mill.number; wsMillEditorOpen = false; el('millEditor').hidden = true; await Promise.all([fetchSettings(active),loadOptions()]); el('adminStatus').textContent = 'Mill saved.';}

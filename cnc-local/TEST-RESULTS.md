@@ -1,3 +1,7 @@
-# v1.14.1 bug-fix verification
+# v1.14.2 small update
 
-Default login changed to admin/Feds201, accepting any capitalization. Shared backend unit tests and the Pages browser test verify login, shared data, protected edits, and persistence. Live API checks verify mixed-case default login and rejection of the previous default. The local HTML is generated from the same canonical authentication core. Google Apps Script is archived and excluded from supported builds. Existing data and credential records remain intact.
+Four shared-backend tests pass, including valid purchase URL persistence across inventory edits, backup export/import, and removal, plus atomic rejection of script/data URLs, credentials in URLs, invalid types, and oversized URLs.
+
+The purchase browser suite passes against both local HTML and the shared Pages build: mill-form save, public mill details, low-inventory dashboard and table links, safe new tabs, reload persistence, and 390 px layout. Existing Pages and local workspace integration checks also pass.
+
+No database schema change is needed. The canonical mill validator supplies the same behavior to local and shared editions. Existing mills without links remain valid. Google Apps Script remains archived.

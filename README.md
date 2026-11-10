@@ -1,21 +1,42 @@
-# CNC Tool Database — v1.14.0
+# CNC Tool Database — v1.14.2
 
-Prototype: https://alpaca823.github.io/cnc-tool-database/preview.html
+This workspace maintains two variants of the same CNC tool and material database:
 
-Shared website: https://alpaca823.github.io/cnc-tool-database/
+| Variant | Open it with | Data storage | Sharing |
+| --- | --- | --- | --- |
+| [Local](cnc-local/README.md) | Extracted `CNC-Tool-Database.html` in Chrome, Edge, or Firefox | This browser/profile on this computer | JSON backups or portable HTML snapshots |
+| [Google Apps Script](cnc-scripts/README.md) | Deployed web app URL | Shared Google Sheets and private Drive images | One online shop database |
 
-The browser-only prototype is available immediately. Its data stays in that browser; it is clearly labeled. The main website uses Supabase for shared inventory and needs the owner to connect a new project before it can be used by everyone. GitHub Pages hosts the interface; Apps Script is not used by this edition.
+Both variants have Dashboard, Feeds & Speeds, Mills, Inventory, one combined Materials tab, and Settings. They share inches throughout, optional plunge and coolant mist settings, tool/material photos, tool and sheet counts, themes, the mentor notice, and a common release version. Both editions use admin/Feds201 and optional additional admin passwords for editing. Visitors browse without app login.
 
-## Connect the shared database
+The Google variant is supplied as a deployable package. It has not been installed or deployed to a Google account in this workspace. See its README for the setup and deployment steps.
 
-Follow [the setup guide](cnc-pages/README.md). Run [schema.sql](cnc-pages/supabase/schema.sql) in Supabase SQL Editor, configure the two repository Actions secrets described in the guide, and run Deploy shared database API from Actions. Fill root config.js with the Supabase Project URL and publishable/public key. Server credentials stay in Supabase; never place a service-role key in config.js.
+## Shared development
 
-Editing uses admin/admin or additional saved passwords. Public browsing needs no login. Mills, materials, inventory, photos, plunge/mist, themes, inch units, version footer, and the mentor notice are preserved. Move old Google or local data using JSON export/import. Nothing has been migrated automatically.
+The interface and data rules have one canonical source:
 
-## Supported editions
+- `cnc-local/app-shell.html`: shared markup and established UI handlers.
+- `cnc-local/workspace-ui.js` and `workspace.css`: shared navigation, library views, inventory UI, and appearance.
+- `cnc-local/local-core.js`: local storage/authentication plus canonical record validation and operations.
+- `cnc-scripts/build_engine.py`: generates the server data engine from those canonical record rules and operations.
+- `cnc-scripts/`: Google transport, server storage/authentication, deployment manifest, and generated deployment files.
 
-- cnc-local: standalone offline HTML.
-- cnc-scripts: Google Apps Script and existing spreadsheet storage.
-- cnc-pages: GitHub Pages frontend and Supabase shared database API.
+Run `python build-both.py` to build both variants after a source change. Check the local and Google variants before releasing them with the same version. Apps Script deployment files must then be installed in the existing Google project and published as a new deployment version; local users install the matching HTML release.
 
-Run python build-both.py to regenerate all editions. For GitHub Pages copy cnc-pages/public/ contents into the repository root. Run python verify-both.py for checks. The new backend tests use local service doubles; verify production after Supabase is configured. Local and Google data remain independent and available.
+The common release number is stored in `cnc-local/VERSION`. Run `python verify-both.py` to rebuild and run both test sets. This requires Python 3, Node.js, Playwright, and Chromium. Install the browser test dependency with `npm install`; set `CHROMIUM_PATH` when Chromium is not at `/usr/bin/chromium`. The verification runner uses intercepted loopback pages so it does not require a web server or a Google account. Google-service tests use local mocks; verify the deployed link in Google after installation.
+
+After verification, run `python package-both.py` to create matching local, Google, combined, and source ZIPs. The packager refuses to replace a numbered release with changed contents; use a new version for a changed release.
+
+The variants share features and backup formats, but each has its own live data. JSON import/export moves a snapshot between them. An offline HTML download from the Google app is an independent local copy. They do not automatically synchronize after a snapshot is copied.
+
+The older `cnc-feeds-speeds/` directory is a legacy project. Use a fresh Apps Script project for the current variant, then import a compatible JSON backup through the app.
+
+See each variant's **TEST-RESULTS.md** for completed validation. Keep numbered release ZIPs unchanged so an earlier release remains available.
+
+## GitHub Pages prototype and shared database
+
+The GitHub Pages edition is built in cnc-pages/. It uses Supabase for shared storage and keeps the same admin/Feds201 workflow, data validation, and backup format. See cnc-pages/README.md for setup. Until connected, the site offers an explicitly browser-only preview. Creating the repository or Pages site alone does not provision the database.
+
+As of v1.14.2, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+
+Small update v1.14.2: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.

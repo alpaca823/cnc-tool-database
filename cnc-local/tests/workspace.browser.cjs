@@ -107,7 +107,7 @@ async function assertChromeTheme(page,theme){
     const {page,rpc}=await open();
     await page.locator('.workspace-view[data-page="feeds"]').waitFor({state:'visible'});
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
-    assert.match(await page.locator('body').innerText(),/1\.14\.1/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.2/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
     for(const name of pages)await navigate(page,name);
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);

@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.1
+# CNC Tool Database — v1.14.2
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -97,4 +97,6 @@ The Google Apps Script edition uses the same interface and data rules. Both edit
 
 The local edition continues to work offline with its existing browser storage. The Google edition uses a shared Google database and private Drive images. Its setup instructions are in the separate Google package. You can move data and photos between the editions using JSON exports/imports, and the Google edition can download an offline HTML snapshot. Their live databases remain independent. Admin passwords and appearance preferences are not transferred.
 
-As of v1.14.1, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+As of v1.14.2, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+
+Small update v1.14.2: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.

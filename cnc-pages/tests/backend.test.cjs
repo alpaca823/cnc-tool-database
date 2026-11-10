@@ -24,3 +24,18 @@ test('origins and action allowlist fail closed; public responses exclude credent
  for(const name of ['__proto__','constructor','storageRead'])assert.equal((await f.call(name)).ok,false);
  const value=await f.ok('getWorkspaceData');assert.equal(JSON.stringify(value).includes('auth'),false);assert.equal('auth' in f.getState().data,true);
 });
+
+test('purchase links persist through inventory changes and backups; unsafe links reject atomically',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','ADMIN','feds201');
+ const url='https://supplier.example/end-mill?size=0.25&flutes=2';
+ await f.ok('adminSaveMill',token,{number:'BUY-001',purchaseUrl:url,quantity:1,reorderLevel:2},null);
+ let mill=(await f.ok('getMills'))[0];assert.equal(mill.purchaseUrl,url);
+ await f.ok('adminSetInventory',token,mill.number,0,2,'Drawer',mill.version);
+ assert.equal((await f.ok('getMills'))[0].purchaseUrl,url);
+ const backup=await f.ok('adminExportBackup',token);assert.equal(backup.mills[0].purchaseUrl,url);
+ for(const invalid of ['javascript:alert(1)','data:text/html,bad','https://user:pass@host.example/',{},'https://','https://supplier.example/'+ 'x'.repeat(2048)]){
+  const before=structuredClone(f.getState());const result=await f.call('adminSaveMill',token,{number:'Invalid',purchaseUrl:invalid},null);assert.equal(result.ok,false);assert.deepEqual(f.getState(),before);
+ }
+ await f.ok('adminImportBackup',token,backup);mill=(await f.ok('getMills'))[0];assert.equal(mill.purchaseUrl,url);
+ await f.ok('adminSaveMill',token,{...mill,purchaseUrl:''},{number:mill.number,version:mill.version});assert.equal((await f.ok('getMills'))[0].purchaseUrl,undefined);
+});

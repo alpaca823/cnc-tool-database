@@ -660,3 +660,7 @@ details[open] > summary { margin-bottom: 14px; }
 @media(max-width:1150px){.materials-workspace{grid-template-columns:235px minmax(0,1fr)}}
 @media(max-width:950px){.materials-workspace{grid-template-columns:minmax(0,1fr)}.material-choice-list{grid-template-columns:repeat(auto-fit,minmax(160px,1fr));max-height:310px}}
 @media(max-width:600px){.material-choice-list{grid-template-columns:repeat(2,minmax(0,1fr))}.material-detail-heading{gap:10px}.material-detail-heading>div{min-width:0}#selectedMaterialPhoto{width:90px;height:80px}.material-choice{padding:10px}}
+
+.purchase-link {display:inline-flex;align-items:center;justify-content:center;min-height:33px;padding:7px 11px;border:1px solid var(--blue-line);border-radius:7px;background:var(--blue-soft);color:var(--blue-text);font-size:12px;font-weight:600;text-decoration:none}
+.purchase-link:hover {background:var(--surface-hover);text-decoration:underline}
+.data-table .purchase-link {margin-right:8px;margin-bottom:4px}
