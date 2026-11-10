@@ -27,10 +27,12 @@ Run python build-both.py from the full source root to build all supported editio
 
 Tests use a local database-service double and Chromium; live Supabase connection, billing-plan limits, and production deployment must be verified separately. Free hosting/database plans have provider limits. Do not describe the browser-only preview as shared storage.
 
-As of v1.14.4, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+As of v1.14.5, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
 
-Small update v1.14.4: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
+Small update v1.14.5: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
 
-Small update v1.14.4: Dark mode is the default for a fresh browser. Saved Light, Dark, and System appearance preferences are preserved.
+Small update v1.14.5: Dark mode is the default for a fresh browser. Saved Light, Dark, and System appearance preferences are preserved.
 
-Bug fix v1.14.4: The mentor-required notice appears only on Feeds & Speeds. Dark remains the default appearance.
+Bug fix v1.14.5: The mentor-required notice appears only on Feeds & Speeds. Dark remains the default appearance.
+
+Bug fix v1.14.5: The search shortcut selects existing text for replacement. Reduced-motion preferences now disable interface transitions and animations.

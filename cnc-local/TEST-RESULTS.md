@@ -1,5 +1,5 @@
-# v1.14.4 bug fix
+# v1.14.5 bug fix
 
-Local workspace and GitHub Pages browser suites pass. Both verify the mentor notice is visible on Feeds & Speeds and hidden on all five other tabs. Fresh browsers start dark and saved appearance preferences remain respected. Local integration also verifies rendered theme contrast, inventory, photos, cutting settings, backups, data preservation, and mobile layouts.
+Local workspace and GitHub Pages integration suites pass. Search shortcut replacement, reduced-motion preferences, modal keyboard controls, mobile layout, focus restoration, and reset behavior pass in both editions. Existing inventory, backup, theme, mentor-notice placement, and data preservation checks pass.
 
 No database or credential changes. Google Apps Script remains archived.

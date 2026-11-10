@@ -246,7 +246,7 @@
     el('closeLogin').addEventListener('click',() => {if (!loginBusy) {wsAfterLogin = null; wsCloseLogin();}});
     el('menuToggle').addEventListener('click',() => {const open = el('sidebar').classList.toggle('mobile-open'); el('menuToggle').setAttribute('aria-expanded',String(open));});
     el('globalSearch').addEventListener('input',wsRenderAll);
-    window.addEventListener('keydown',event => {if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {event.preventDefault(); el('globalSearch').focus();} if (event.key === 'Escape' && !loginBusy) {wsCloseLogin(); el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');}});
+    window.addEventListener('keydown',event => {if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {event.preventDefault(); el('globalSearch').focus(); el('globalSearch').select();} if (event.key === 'Escape' && !loginBusy) {wsCloseLogin(); el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');}});
     el('addMill').addEventListener('click',() => wsOpenMill(null));
     el('cancelMillEdit').addEventListener('click',() => {if (!adminBusy) {wsMillEditorOpen = false; el('millEditor').hidden = true;}});
     el('millImageUpload').addEventListener('change',async () => {

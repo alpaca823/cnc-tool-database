@@ -664,3 +664,19 @@ details[open] > summary { margin-bottom: 14px; }
 .purchase-link {display:inline-flex;align-items:center;justify-content:center;min-height:33px;padding:7px 11px;border:1px solid var(--blue-line);border-radius:7px;background:var(--blue-soft);color:var(--blue-text);font-size:12px;font-weight:600;text-decoration:none}
 .purchase-link:hover {background:var(--surface-hover);text-decoration:underline}
 .data-table .purchase-link {margin-right:8px;margin-bottom:4px}
+
+/* Modal surfaces follow the selected appearance. */
+.arcade { color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 18px; width: min(470px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); overflow: auto; padding: 20px; }
+.arcade::backdrop { background: #000a; }
+.arcade-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.arcade-toolbar h2 { margin: 0; }
+.arcade-board { display: grid; grid-template-columns: repeat(var(--arcade-columns, 4), minmax(0, 1fr)); gap: 8px; touch-action: none; }
+.arcade .arcade-tile { display: grid; place-items: center; aspect-ratio: 1; min-width: 0; padding: 0; background: var(--surface-soft); color: var(--text-strong); border-radius: 8px; font-size: clamp(18px, 5vw, 28px); font-weight: 800; }
+.arcade-tile[data-value="2"], .arcade-tile[data-value="4"] { background: #d9e9fd; color: #183451; }
+.arcade-tile[data-value]:not([data-value="0"]):not([data-value="2"]):not([data-value="4"]) { background: #2359bc; color: white; }
+.arcade-controls { display: flex; gap: 8px; margin: 14px 0; }
+.arcade-controls[hidden] { display: none; }
+.brand-mark[role="button"] { cursor: pointer; user-select: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
