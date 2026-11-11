@@ -279,9 +279,10 @@ export function createDatabase(host) {
       if (typeof record.id !== 'string' || !record.id || record.id.length > 100 || ids.has(record.id)) throw new Error('The cut ID is invalid or duplicated.');
       if (keepVersions && (typeof record.version !== 'string' || !record.version)) throw new Error('The cut version is invalid.');
       if (record.completed !== undefined && typeof record.completed !== 'boolean') throw new Error('Completed must be true or false.');
+      if (record.priority !== undefined && !['low','normal','high','urgent'].includes(record.priority)) throw new Error('Choose Low, Normal, High, or Urgent priority.');
       const quantity = optionalInteger(record.quantity,'Cut quantity',1,1000000);
       if (quantity === undefined) throw new Error('Enter a cut quantity.');
-      const item = {id:record.id,title:record.title.trim(),quantity,completed:record.completed === true,version:keepVersions ? record.version : uid()};
+      const item = {id:record.id,title:record.title.trim(),quantity,priority:record.priority || 'normal',completed:record.completed === true,version:keepVersions ? record.version : uid()};
       for (const [name,max] of [['material',200],['notes',2000]]) {
         if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
         item[name] = (record[name] || '').trim();
@@ -531,9 +532,23 @@ export function createDatabase(host) {
     adminSaveCut(token,record,original) {
       const state = readState(); requireAdmin(token,state);
       const index = original == null ? -1 : cutIndex(state.cuts,original);
-      const item = validateCuts([{...record,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
-      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.unshift(item);} else state.cuts[index] = item;
+      const item = validateCuts([{...record,priority:record?.priority === undefined && index >= 0 ? state.cuts[index].priority : record?.priority,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
+      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);} else state.cuts[index] = item;
       commit(state); return true;
+    },
+    adminSetCutPriority(token,original,priority) {
+      const state = readState(); requireAdmin(token,state);
+      if (!['low','normal','high','urgent'].includes(priority)) throw new Error('Choose Low, Normal, High, or Urgent priority.');
+      const item = state.cuts[cutIndex(state.cuts,original)];item.priority = priority;item.version = uid();commit(state);return true;
+    },
+    adminMoveCut(token,original,neighbor) {
+      const state = readState(); requireAdmin(token,state);
+      const index = cutIndex(state.cuts,original), other = cutIndex(state.cuts,neighbor);
+      if (state.cuts[index].completed || state.cuts[other].completed) throw new Error('Only pending cuts can be reordered.');
+      const pending = state.cuts.filter(item=>!item.completed), position = pending.findIndex(item=>item.id === original.id), target = pending.findIndex(item=>item.id === neighbor.id);
+      if (Math.abs(position-target) !== 1) throw new Error('The cut order changed. Refresh and try again.');
+      [state.cuts[index],state.cuts[other]] = [state.cuts[other],state.cuts[index]];
+      state.cuts[index].version = uid();state.cuts[other].version = uid();commit(state);return true;
     },
     adminSetCutCompleted(token,original,completed) {
       const state = readState(); requireAdmin(token,state);
@@ -801,7 +816,7 @@ export function createDatabase(host) {
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; commit(state); return true;
     }
   };
-  const writes = new Set(['adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

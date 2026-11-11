@@ -709,3 +709,12 @@ details[open] > summary { margin-bottom: 14px; }
 .pinned-note { border-color:var(--blue-line); }
 .pinned-note h3, .shop-note > .badge + h3 { margin-top:10px; }
 #remainderFields[hidden] { display:none; }
+
+#cutList .badge { margin-right:6px; }
+#cutList h3 { margin-top:10px; }
+.cut-priority-label { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; margin:12px 0; }
+.cut-priority-label select { width:auto; min-width:100px; }
+.priority-urgent { background:#ffdae0; color:#82192d; }
+.priority-high { background:#ffe7c2; color:#714300; }
+.priority-normal { background:var(--blue-soft); color:var(--blue-text); }
+.priority-low { background:var(--surface-soft); color:var(--muted); }

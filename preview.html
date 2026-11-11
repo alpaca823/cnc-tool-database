@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.11</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
+<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.12</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
 :root,
 html[data-theme="light"] {
   color-scheme: light;
@@ -710,6 +710,15 @@ details[open] > summary { margin-bottom: 14px; }
 .pinned-note { border-color:var(--blue-line); }
 .pinned-note h3, .shop-note > .badge + h3 { margin-top:10px; }
 #remainderFields[hidden] { display:none; }
+
+#cutList .badge { margin-right:6px; }
+#cutList h3 { margin-top:10px; }
+.cut-priority-label { display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12px; margin:12px 0; }
+.cut-priority-label select { width:auto; min-width:100px; }
+.priority-urgent { background:#ffdae0; color:#82192d; }
+.priority-high { background:#ffe7c2; color:#714300; }
+.priority-normal { background:var(--blue-soft); color:var(--blue-text); }
+.priority-low { background:var(--surface-soft); color:var(--muted); }
 </style></head>
 <body class="workspace-app">
 <header class="app-topbar"><button id="menuToggle" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div class="app-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2b8aff" d="M16 2l13 7v14l-13 7L3 23V9z"/><path fill="#143459" d="M16 7l8 4-8 4-8-4zm-8 8l6 3v8l-6-4zm10 3l6-3v7l-6 4z"/></svg></span><strong class="brand-name">CNC Tool Database</strong></div><label class="top-search"><span class="icon" aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search this workspace…" aria-label="Search the current page"><kbd>Ctrl K</kbd></label><div class="topbar-actions"><span class="offline-pill">Prototype preview</span><button id="toggleView" type="button">Admin</button></div></header>
@@ -787,7 +796,7 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Saved materials</h3><p id="materialListStatus" class="hint" role="status" aria-live="polite"></p><div id="materialList"></div></div>
         </div>
-      </details></section><section class="workspace-view" data-page="cuts" hidden><section class="card"><div class="toolbar"><h2>Cut List</h2><button id="addCut" class="admin-only" type="button" hidden>+ Add cut</button></div><p class="hint">Plan the parts that need to be cut. Completing an item does not deduct material; use Record cut in Materials to update a piece.</p><label for="cutFilter">Show</label><select id="cutFilter"><option value="pending">To do</option><option value="all">All cuts</option><option value="completed">Completed</option></select><p id="cutCount" class="hint"></p><div id="cutList" class="note-list"></div><p id="cutsEmpty" class="empty-state">No cuts to show.</p><p class="hint login-callout">Sign in as admin to manage the cut list.</p></section><section id="cutEditor" class="card" hidden><h2 id="cutEditorTitle">Add cut</h2><form id="cutForm"><fieldset id="cutFields"><div class="grid"><div><label for="cutTitle">Part / job name</label><input id="cutTitle" required maxlength="120"></div><div><label for="cutMaterial">Material (optional)</label><input id="cutMaterial" list="cutMaterialChoices" maxlength="200"></div><div><label for="cutQuantity">Quantity</label><input id="cutQuantity" type="number" min="1" max="1000000" step="1" required value="1"></div><div><label for="cutLength">Length (inch, optional)</label><input id="cutLength" inputmode="decimal"></div><div><label for="cutWidth">Width (inch, optional)</label><input id="cutWidth" inputmode="decimal"></div><div><label for="cutThickness">Thickness (inch, optional)</label><input id="cutThickness" inputmode="decimal"></div></div><datalist id="cutMaterialChoices"></datalist><label for="cutNotes">Details (optional)</label><textarea id="cutNotes" maxlength="2000" rows="3"></textarea><div class="actions"><button type="submit">Save cut</button><button id="cancelCut" class="secondary" type="button">Cancel</button></div><p id="cutStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="notes" hidden><section class="card"><div class="toolbar"><h2>Shop notes</h2><button id="addNote" class="admin-only" type="button" hidden>+ Add note</button></div><p class="hint">Reminders and information for everyone in the shop.</p><div id="noteList" class="note-list"></div><p id="notesEmpty" class="empty-state">No notes yet.</p><p class="hint login-callout">Sign in as admin to add, edit, or delete notes.</p></section><section id="noteEditor" class="card" hidden><h2 id="noteEditorTitle">Add note</h2><form id="noteForm"><fieldset id="noteFields"><label for="noteTitle">Title</label><input id="noteTitle" maxlength="120" required><label for="noteBody">Note</label><textarea id="noteBody" maxlength="10000" rows="7" required></textarea><div class="actions"><button type="submit">Save note</button><button id="cancelNote" class="secondary" type="button">Cancel</button></div><p id="noteStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="settings" hidden><section class="card"><h2>Appearance</h2><p class="hint">Choose how this workspace looks. Your choice is remembered in this browser.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme-choice="light">☀ Light</button><button type="button" class="theme-choice" data-theme-choice="dark">☾ Dark</button><button type="button" class="theme-choice" data-theme-choice="system">◐ System</button></div><p id="themeStatus" class="hint" role="status"></p></section><section class="card login-callout"><h2>Admin settings</h2><p class="hint">Sign in to manage backups, data imports, and accepted admin passwords.</p><button type="button" data-login>Admin login</button></section><div class="admin-only" hidden><section class="card backup-card" aria-label="Save and move your data">
+      </details></section><section class="workspace-view" data-page="cuts" hidden><section class="card"><div class="toolbar"><h2>Cut List</h2><button id="addCut" class="admin-only" type="button" hidden>+ Add cut</button></div><p class="hint">Plan the parts that need to be cut. Completing an item does not deduct material; use Record cut in Materials to update a piece.</p><label for="cutFilter">Show</label><select id="cutFilter"><option value="pending">To do</option><option value="all">All cuts</option><option value="completed">Completed</option></select><label for="cutSort">Order</label><select id="cutSort"><option value="planned">Planned cutting order</option><option value="priority">Priority first</option></select><p class="hint">Move up/down sets the pending cutting order. New cuts are added at the end. Switch to Planned cutting order and clear search to reorder. Priority first changes only the view.</p><p id="cutCount" class="hint"></p><div id="cutList" class="note-list"></div><p id="cutsEmpty" class="empty-state">No cuts to show.</p><p class="hint login-callout">Sign in as admin to manage the cut list.</p></section><section id="cutEditor" class="card" hidden><h2 id="cutEditorTitle">Add cut</h2><form id="cutForm"><fieldset id="cutFields"><div class="grid"><div><label for="cutTitle">Part / job name</label><input id="cutTitle" required maxlength="120"></div><div><label for="cutMaterial">Material (optional)</label><input id="cutMaterial" list="cutMaterialChoices" maxlength="200"></div><div><label for="cutPriority">Priority</label><select id="cutPriority"><option value="low">Low</option><option value="normal" selected>Normal</option><option value="high">High</option><option value="urgent">Urgent</option></select></div><div><label for="cutQuantity">Quantity</label><input id="cutQuantity" type="number" min="1" max="1000000" step="1" required value="1"></div><div><label for="cutLength">Length (inch, optional)</label><input id="cutLength" inputmode="decimal"></div><div><label for="cutWidth">Width (inch, optional)</label><input id="cutWidth" inputmode="decimal"></div><div><label for="cutThickness">Thickness (inch, optional)</label><input id="cutThickness" inputmode="decimal"></div></div><datalist id="cutMaterialChoices"></datalist><label for="cutNotes">Details (optional)</label><textarea id="cutNotes" maxlength="2000" rows="3"></textarea><div class="actions"><button type="submit">Save cut</button><button id="cancelCut" class="secondary" type="button">Cancel</button></div><p id="cutStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="notes" hidden><section class="card"><div class="toolbar"><h2>Shop notes</h2><button id="addNote" class="admin-only" type="button" hidden>+ Add note</button></div><p class="hint">Reminders and information for everyone in the shop.</p><div id="noteList" class="note-list"></div><p id="notesEmpty" class="empty-state">No notes yet.</p><p class="hint login-callout">Sign in as admin to add, edit, or delete notes.</p></section><section id="noteEditor" class="card" hidden><h2 id="noteEditorTitle">Add note</h2><form id="noteForm"><fieldset id="noteFields"><label for="noteTitle">Title</label><input id="noteTitle" maxlength="120" required><label for="noteBody">Note</label><textarea id="noteBody" maxlength="10000" rows="7" required></textarea><div class="actions"><button type="submit">Save note</button><button id="cancelNote" class="secondary" type="button">Cancel</button></div><p id="noteStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="settings" hidden><section class="card"><h2>Appearance</h2><p class="hint">Choose how this workspace looks. Your choice is remembered in this browser.</p><div class="theme-options"><button type="button" class="theme-choice" data-theme-choice="light">☀ Light</button><button type="button" class="theme-choice" data-theme-choice="dark">☾ Dark</button><button type="button" class="theme-choice" data-theme-choice="system">◐ System</button></div><p id="themeStatus" class="hint" role="status"></p></section><section class="card login-callout"><h2>Admin settings</h2><p class="hint">Sign in to manage backups, data imports, and accepted admin passwords.</p><button type="button" data-login>Admin login</button></section><div class="admin-only" hidden><section class="card backup-card" aria-label="Save and move your data">
         <h2>Back up &amp; move settings</h2>
         <p class="hint">Settings and materials save in this browser on this computer. Download an updated HTML copy to take them with you, or export a JSON backup to restore later. Imports replace current settings, libraries, tool inventory, raw sheets, notes, and the cut list.</p>
         <div class="actions">
@@ -812,7 +821,7 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
         </div>
-      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.11 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.12 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
       <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: Feds201.</p>
       <form id="loginForm"><fieldset id="loginFields">
         <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
@@ -1096,9 +1105,10 @@ details[open] > summary { margin-bottom: 14px; }
       if (typeof record.id !== 'string' || !record.id || record.id.length > 100 || ids.has(record.id)) throw new Error('The cut ID is invalid or duplicated.');
       if (keepVersions && (typeof record.version !== 'string' || !record.version)) throw new Error('The cut version is invalid.');
       if (record.completed !== undefined && typeof record.completed !== 'boolean') throw new Error('Completed must be true or false.');
+      if (record.priority !== undefined && !['low','normal','high','urgent'].includes(record.priority)) throw new Error('Choose Low, Normal, High, or Urgent priority.');
       const quantity = optionalInteger(record.quantity,'Cut quantity',1,1000000);
       if (quantity === undefined) throw new Error('Enter a cut quantity.');
-      const item = {id:record.id,title:record.title.trim(),quantity,completed:record.completed === true,version:keepVersions ? record.version : uid()};
+      const item = {id:record.id,title:record.title.trim(),quantity,priority:record.priority || 'normal',completed:record.completed === true,version:keepVersions ? record.version : uid()};
       for (const [name,max] of [['material',200],['notes',2000]]) {
         if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
         item[name] = (record[name] || '').trim();
@@ -1348,9 +1358,23 @@ details[open] > summary { margin-bottom: 14px; }
     adminSaveCut(token,record,original) {
       const state = readState(); requireAdmin(token,state);
       const index = original == null ? -1 : cutIndex(state.cuts,original);
-      const item = validateCuts([{...record,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
-      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.unshift(item);} else state.cuts[index] = item;
+      const item = validateCuts([{...record,priority:record?.priority === undefined && index >= 0 ? state.cuts[index].priority : record?.priority,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
+      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);} else state.cuts[index] = item;
       commit(state); return true;
+    },
+    adminSetCutPriority(token,original,priority) {
+      const state = readState(); requireAdmin(token,state);
+      if (!['low','normal','high','urgent'].includes(priority)) throw new Error('Choose Low, Normal, High, or Urgent priority.');
+      const item = state.cuts[cutIndex(state.cuts,original)];item.priority = priority;item.version = uid();commit(state);return true;
+    },
+    adminMoveCut(token,original,neighbor) {
+      const state = readState(); requireAdmin(token,state);
+      const index = cutIndex(state.cuts,original), other = cutIndex(state.cuts,neighbor);
+      if (state.cuts[index].completed || state.cuts[other].completed) throw new Error('Only pending cuts can be reordered.');
+      const pending = state.cuts.filter(item=>!item.completed), position = pending.findIndex(item=>item.id === original.id), target = pending.findIndex(item=>item.id === neighbor.id);
+      if (Math.abs(position-target) !== 1) throw new Error('The cut order changed. Refresh and try again.');
+      [state.cuts[index],state.cuts[other]] = [state.cuts[other],state.cuts[index]];
+      state.cuts[index].version = uid();state.cuts[other].version = uid();commit(state);return true;
     },
     adminSetCutCompleted(token,original,completed) {
       const state = readState(); requireAdmin(token,state);
@@ -1618,7 +1642,7 @@ details[open] > summary { margin-bottom: 14px; }
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; commit(state); return true;
     }
   };
-  const writes = new Set(['adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {
@@ -2512,21 +2536,37 @@ details[open] > summary { margin-bottom: 14px; }
     try {await rpc(name,active,...args);if(token===active)await refreshWorkspaceData();}
     catch(error){if(token===active)adminError(error);}finally{if(token===active)setBusy(false);}
   }
+  const wsPriorities = {low:'Low',normal:'Normal',high:'High',urgent:'Urgent'};
   function wsRenderCuts() {
-    const filter=el('cutFilter').value;
-    const cuts=wsFiltered(wsCuts,['title','material','notes','length','width','thickness']).filter(item=>filter==='all'||(filter==='completed')===item.completed).sort((a,b)=>Number(a.completed)-Number(b.completed));
+    const filter=el('cutFilter').value,priorityFirst=el('cutSort').value==='priority',query=el('globalSearch').value.trim(),rank={urgent:0,high:1,normal:2,low:3};
+    const pending=wsCuts.filter(item=>!item.completed);
+    const cuts=wsFiltered(wsCuts,['title','material','notes','length','width','thickness','priority']).filter(item=>filter==='all'||(filter==='completed')===item.completed).sort((a,b)=>Number(a.completed)-Number(b.completed)||(priorityFirst?rank[a.priority]-rank[b.priority]:0));
     el('cutList').replaceChildren();el('cutsEmpty').hidden=cuts.length>0;
-    el('cutCount').textContent=wsCuts.filter(item=>!item.completed).length+' to do · '+wsCuts.filter(item=>item.completed).length+' completed';
+    el('cutCount').textContent=pending.length+' to do · '+wsCuts.filter(item=>item.completed).length+' completed';
     cuts.forEach(item=>{
-      const card=wsNode('article',null,'shop-note');card.append(wsNode('span',item.completed?'Completed':'To do','badge '+(item.completed?'in':'low')),wsNode('h3',item.title));
+      const position=pending.findIndex(cut=>cut.id===item.id),card=wsNode('article',null,'shop-note');card.dataset.cutId=item.id;
+      card.append(wsNode('span',item.completed?'Completed':'To do','badge '+(item.completed?'in':'low')),wsNode('span',wsPriorities[item.priority]||'Normal','badge priority-'+(item.priority||'normal')),wsNode('h3',item.title));
+      if(!item.completed)card.append(wsNode('p','Planned order: #'+(position+1),'hint'));
       const size=['length','width','thickness'].map(key=>item[key]||'—').join(' × ');
       card.append(wsNode('p','Quantity: '+item.quantity+' · Material: '+(item.material||'Not specified')),wsNode('p','Size: '+size+' inch','hint'));if(item.notes)card.append(wsNode('p',item.notes,'note-body'));
-      if(token){const original={id:item.id,version:item.version},actions=wsNode('div',null,'actions');actions.append(wsButton(item.completed?'Reopen':'Mark done',()=>wsSaveAction('adminSetCutCompleted',original,!item.completed)),wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);}el('cutList').append(card);
+      if(token){
+        const original={id:item.id,version:item.version},actions=wsNode('div',null,'actions');
+        const label=wsNode('label','Priority','cut-priority-label'),priority=wsNode('select');priority.setAttribute('aria-label','Priority for '+item.title);
+        for(const [value,text] of Object.entries(wsPriorities)){const option=wsNode('option',text);option.value=value;priority.append(option);}priority.value=item.priority||'normal';
+        priority.addEventListener('change',async()=>{await wsSaveAction('adminSetCutPriority',original,priority.value);wsRenderCuts();});label.append(priority);card.append(label);
+        if(!item.completed)for(const [text,offset]of [['Move up',-1],['Move down',1]]){
+          const neighbor=pending[position+offset],button=wsButton(text,async()=>{
+            await wsSaveAction('adminMoveCut',original,{id:neighbor.id,version:neighbor.version});
+            const updated=Array.from(el('cutList').children).find(node=>node.dataset.cutId===item.id);const control=updated&&Array.from(updated.querySelectorAll('button')).find(node=>node.textContent===text);if(control&&!control.disabled)control.focus();
+          });button.disabled=!neighbor||priorityFirst||!!query;button.setAttribute('aria-label',text+' '+item.title);actions.append(button);
+        }
+        actions.append(wsButton(item.completed?'Reopen':'Mark done',()=>wsSaveAction('adminSetCutCompleted',original,!item.completed)),wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);
+      }el('cutList').append(card);
     });
   }
   function wsOpenCut(item) {
     if(!token||adminBusy)return;wsCutOriginal=item?{id:item.id,version:item.version}:null;
-    for(const name of ['title','material','quantity','length','width','thickness','notes'])el('cut'+name[0].toUpperCase()+name.slice(1)).value=item?.[name]??(name==='quantity'?'1':'');
+    for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])el('cut'+name[0].toUpperCase()+name.slice(1)).value=item?.[name]??(name==='quantity'?'1':name==='priority'?'normal':'');
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
@@ -2538,10 +2578,10 @@ details[open] > summary { margin-bottom: 14px; }
     for(const id of ['remainderLength','remainderWidth']){el(id).required=keep;el(id).disabled=!keep;}
   }
   function wsInitCuts() {
-    el('addCut').addEventListener('click',()=>wsOpenCut(null));el('cutFilter').addEventListener('change',wsRenderCuts);
+    el('addCut').addEventListener('click',()=>wsOpenCut(null));el('cutFilter').addEventListener('change',wsRenderCuts);el('cutSort').addEventListener('change',wsRenderCuts);
     el('cancelCut').addEventListener('click',()=>{if(!adminBusy){el('cutEditor').hidden=true;wsCutOriginal=null;}});
     el('cutForm').addEventListener('submit',async event=>{
-      event.preventDefault();if(!token||adminBusy)return;const active=token,record={};for(const name of ['title','material','quantity','length','width','thickness','notes'])record[name]=el('cut'+name[0].toUpperCase()+name.slice(1)).value;
+      event.preventDefault();if(!token||adminBusy)return;const active=token,record={};for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])record[name]=el('cut'+name[0].toUpperCase()+name.slice(1)).value;
       setBusy(true);el('cutFields').disabled=true;el('cutStatus').textContent='Saving cut…';
       try {await rpc('adminSaveCut',active,record,wsCutOriginal);if(token!==active)return;if(!wsCutOriginal)el('cutFilter').value='pending';el('globalSearch').value='';el('cutEditor').hidden=true;wsCutOriginal=null;await refreshWorkspaceData();}
       catch(error){if(token===active)el('cutStatus').textContent=message(error);}finally{el('cutFields').disabled=false;if(token===active)setBusy(false);}

@@ -395,21 +395,37 @@
     try {await rpc(name,active,...args);if(token===active)await refreshWorkspaceData();}
     catch(error){if(token===active)adminError(error);}finally{if(token===active)setBusy(false);}
   }
+  const wsPriorities = {low:'Low',normal:'Normal',high:'High',urgent:'Urgent'};
   function wsRenderCuts() {
-    const filter=el('cutFilter').value;
-    const cuts=wsFiltered(wsCuts,['title','material','notes','length','width','thickness']).filter(item=>filter==='all'||(filter==='completed')===item.completed).sort((a,b)=>Number(a.completed)-Number(b.completed));
+    const filter=el('cutFilter').value,priorityFirst=el('cutSort').value==='priority',query=el('globalSearch').value.trim(),rank={urgent:0,high:1,normal:2,low:3};
+    const pending=wsCuts.filter(item=>!item.completed);
+    const cuts=wsFiltered(wsCuts,['title','material','notes','length','width','thickness','priority']).filter(item=>filter==='all'||(filter==='completed')===item.completed).sort((a,b)=>Number(a.completed)-Number(b.completed)||(priorityFirst?rank[a.priority]-rank[b.priority]:0));
     el('cutList').replaceChildren();el('cutsEmpty').hidden=cuts.length>0;
-    el('cutCount').textContent=wsCuts.filter(item=>!item.completed).length+' to do · '+wsCuts.filter(item=>item.completed).length+' completed';
+    el('cutCount').textContent=pending.length+' to do · '+wsCuts.filter(item=>item.completed).length+' completed';
     cuts.forEach(item=>{
-      const card=wsNode('article',null,'shop-note');card.append(wsNode('span',item.completed?'Completed':'To do','badge '+(item.completed?'in':'low')),wsNode('h3',item.title));
+      const position=pending.findIndex(cut=>cut.id===item.id),card=wsNode('article',null,'shop-note');card.dataset.cutId=item.id;
+      card.append(wsNode('span',item.completed?'Completed':'To do','badge '+(item.completed?'in':'low')),wsNode('span',wsPriorities[item.priority]||'Normal','badge priority-'+(item.priority||'normal')),wsNode('h3',item.title));
+      if(!item.completed)card.append(wsNode('p','Planned order: #'+(position+1),'hint'));
       const size=['length','width','thickness'].map(key=>item[key]||'—').join(' × ');
       card.append(wsNode('p','Quantity: '+item.quantity+' · Material: '+(item.material||'Not specified')),wsNode('p','Size: '+size+' inch','hint'));if(item.notes)card.append(wsNode('p',item.notes,'note-body'));
-      if(token){const original={id:item.id,version:item.version},actions=wsNode('div',null,'actions');actions.append(wsButton(item.completed?'Reopen':'Mark done',()=>wsSaveAction('adminSetCutCompleted',original,!item.completed)),wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);}el('cutList').append(card);
+      if(token){
+        const original={id:item.id,version:item.version},actions=wsNode('div',null,'actions');
+        const label=wsNode('label','Priority','cut-priority-label'),priority=wsNode('select');priority.setAttribute('aria-label','Priority for '+item.title);
+        for(const [value,text] of Object.entries(wsPriorities)){const option=wsNode('option',text);option.value=value;priority.append(option);}priority.value=item.priority||'normal';
+        priority.addEventListener('change',async()=>{await wsSaveAction('adminSetCutPriority',original,priority.value);wsRenderCuts();});label.append(priority);card.append(label);
+        if(!item.completed)for(const [text,offset]of [['Move up',-1],['Move down',1]]){
+          const neighbor=pending[position+offset],button=wsButton(text,async()=>{
+            await wsSaveAction('adminMoveCut',original,{id:neighbor.id,version:neighbor.version});
+            const updated=Array.from(el('cutList').children).find(node=>node.dataset.cutId===item.id);const control=updated&&Array.from(updated.querySelectorAll('button')).find(node=>node.textContent===text);if(control&&!control.disabled)control.focus();
+          });button.disabled=!neighbor||priorityFirst||!!query;button.setAttribute('aria-label',text+' '+item.title);actions.append(button);
+        }
+        actions.append(wsButton(item.completed?'Reopen':'Mark done',()=>wsSaveAction('adminSetCutCompleted',original,!item.completed)),wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);
+      }el('cutList').append(card);
     });
   }
   function wsOpenCut(item) {
     if(!token||adminBusy)return;wsCutOriginal=item?{id:item.id,version:item.version}:null;
-    for(const name of ['title','material','quantity','length','width','thickness','notes'])el('cut'+name[0].toUpperCase()+name.slice(1)).value=item?.[name]??(name==='quantity'?'1':'');
+    for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])el('cut'+name[0].toUpperCase()+name.slice(1)).value=item?.[name]??(name==='quantity'?'1':name==='priority'?'normal':'');
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
@@ -421,10 +437,10 @@
     for(const id of ['remainderLength','remainderWidth']){el(id).required=keep;el(id).disabled=!keep;}
   }
   function wsInitCuts() {
-    el('addCut').addEventListener('click',()=>wsOpenCut(null));el('cutFilter').addEventListener('change',wsRenderCuts);
+    el('addCut').addEventListener('click',()=>wsOpenCut(null));el('cutFilter').addEventListener('change',wsRenderCuts);el('cutSort').addEventListener('change',wsRenderCuts);
     el('cancelCut').addEventListener('click',()=>{if(!adminBusy){el('cutEditor').hidden=true;wsCutOriginal=null;}});
     el('cutForm').addEventListener('submit',async event=>{
-      event.preventDefault();if(!token||adminBusy)return;const active=token,record={};for(const name of ['title','material','quantity','length','width','thickness','notes'])record[name]=el('cut'+name[0].toUpperCase()+name.slice(1)).value;
+      event.preventDefault();if(!token||adminBusy)return;const active=token,record={};for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])record[name]=el('cut'+name[0].toUpperCase()+name.slice(1)).value;
       setBusy(true);el('cutFields').disabled=true;el('cutStatus').textContent='Saving cut…';
       try {await rpc('adminSaveCut',active,record,wsCutOriginal);if(token!==active)return;if(!wsCutOriginal)el('cutFilter').value='pending';el('globalSearch').value='';el('cutEditor').hidden=true;wsCutOriginal=null;await refreshWorkspaceData();}
       catch(error){if(token===active)el('cutStatus').textContent=message(error);}finally{el('cutFields').disabled=false;if(token===active)setBusy(false);}

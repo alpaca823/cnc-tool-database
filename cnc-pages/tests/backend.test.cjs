@@ -99,3 +99,20 @@ test('recording a sheet cut atomically decrements stock and creates a smaller re
  await f.ok('adminCutRawMaterial',token,rows.find(x=>x.id===left.id),{length:40,width:30});rows=await f.ok('getRawMaterials');assert.equal(rows.length,3,'A rotated leftover can fit');
  const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);assert.equal((await f.ok('getRawMaterials')).reduce((n,x)=>n+x.quantity,0),1);
 });
+
+test('cut priorities and planned order survive updates and backups with stale-move protection',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');
+ for(const title of ['First','Second','Third'])await f.ok('adminSaveCut',token,{title,quantity:1},null);
+ let cuts=await f.ok('getCuts');assert.deepEqual(cuts.map(c=>c.title),['First','Second','Third']);assert.ok(cuts.every(c=>c.priority==='normal'));
+ const original=cuts[1];assert.equal((await f.call('adminSetCutPriority','bad',original,'urgent')).ok,false);await f.ok('adminSetCutPriority',token,original,'urgent');
+ assert.equal((await f.call('adminSetCutPriority',token,original,'low')).ok,false);
+ cuts=await f.ok('getCuts');await f.ok('adminSaveCut',token,{title:'Second',quantity:2},cuts[1]);cuts=await f.ok('getCuts');assert.equal(cuts[1].priority,'urgent','Older clients preserve an existing priority');
+ const before=JSON.stringify(f.getState());assert.equal((await f.call('adminMoveCut','bad',cuts[1],cuts[0])).ok,false);assert.equal((await f.call('adminSetCutPriority',token,cuts[1],'critical')).ok,false);assert.equal((await f.call('adminMoveCut',token,cuts[0],cuts[2])).ok,false);assert.equal(JSON.stringify(f.getState()),before);
+ const oldFirst=cuts[0],oldSecond=cuts[1];await f.ok('adminMoveCut',token,oldSecond,oldFirst);cuts=await f.ok('getCuts');assert.deepEqual(cuts.map(c=>c.title),['Second','First','Third']);
+ assert.equal((await f.call('adminMoveCut',token,oldSecond,oldFirst)).ok,false,'A repeated request cannot reverse the move');
+ await f.ok('adminSetCutCompleted',token,cuts[1],true);cuts=await f.ok('getCuts');assert.equal((await f.call('adminMoveCut',token,cuts[1],cuts[2])).ok,false,'Completed jobs cannot be reordered');
+ await f.ok('adminMoveCut',token,cuts[2],cuts[0]);cuts=await f.ok('getCuts');assert.deepEqual(cuts.filter(c=>!c.completed).map(c=>c.title),['Third','Second'],'Completed entries do not block adjacent pending moves');
+ const backup=await f.ok('adminExportBackup',token);const order=backup.cuts.map(c=>c.id);await f.ok('adminImportBackup',token,backup);cuts=await f.ok('getCuts');assert.deepEqual(cuts.map(c=>c.id),order);assert.equal(cuts.find(c=>c.title==='Second').priority,'urgent');
+ const invalid=structuredClone(backup);invalid.cuts[0].priority='critical';const saved=JSON.stringify(f.getState());assert.equal((await f.call('adminImportBackup',token,invalid)).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ backup.cuts.forEach(c=>delete c.priority);await f.ok('adminImportBackup',token,backup);assert.ok((await f.ok('getCuts')).every(c=>c.priority==='normal'));assert.deepEqual((await f.ok('getCuts')).map(c=>c.id),order);
+});
