@@ -705,3 +705,7 @@ details[open] > summary { margin-bottom: 14px; }
 .note-body { white-space:pre-wrap; overflow-wrap:anywhere; }
 
 #millListBody tr { cursor:pointer; }
+
+.pinned-note { border-color:var(--blue-line); }
+.pinned-note h3, .shop-note > .badge + h3 { margin-top:10px; }
+#remainderFields[hidden] { display:none; }

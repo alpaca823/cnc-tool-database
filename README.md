@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.10
+# CNC Tool Database — v1.14.11
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -47,3 +47,5 @@ As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Goo
 
 
 Update v1.14.10: Notes provides searchable shop reminders. Admins can add, edit, and delete; visitors can read. Notes are shared on the website and independent in local HTML, and travel with JSON backups and offline snapshots. Imports replace notes along with the rest of the database.
+
+Update v1.14.11: Admins can pin notes, manage the Cut List, and record material cuts. Record cut removes one original piece and optionally creates one smaller leftover of the same material/thickness/location. Cut-list completion is planning only and does not deduct stock. Pins, cuts, and leftovers are included in backups and offline snapshots.

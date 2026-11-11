@@ -23,7 +23,7 @@ const {fixture}=require('./shared-fixture.cjs');
   const page=await open();await page.evaluate(()=>cncLocal.ready);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
   assert.equal(await page.locator('#mentorNotice').isVisible(),true);
-  for(const name of ['dashboard','mills','inventory','materials','notes','settings']){
+  for(const name of ['dashboard','mills','inventory','materials','cuts','notes','settings']){
    await page.locator('.nav-button[data-page='+name+']').click();
    assert.equal(await page.locator('#mentorNotice').isVisible(),false);
   }
@@ -31,7 +31,7 @@ const {fixture}=require('./shared-fixture.cjs');
   await page.reload();await page.evaluate(()=>cncLocal.ready);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'light','Saved preference survives reload');
   await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);
-  assert.equal(await page.evaluate(()=>cncLocal.kind),'shared');assert.equal(await page.locator('.nav-button').count(),7);
+  assert.equal(await page.evaluate(()=>cncLocal.kind),'shared');assert.equal(await page.locator('.nav-button').count(),8);
   await page.locator('#toggleView').click();await page.locator('#password').fill('Feds201');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});
   await page.waitForFunction(()=>!document.getElementById('materialFields').disabled);
   await page.locator('.nav-button[data-page=materials]').click();await page.locator('#manageMaterials').click();await page.locator('#materialName').fill('Shared aluminum');await page.locator('#saveMaterial').click();

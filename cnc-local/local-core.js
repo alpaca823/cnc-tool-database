@@ -254,14 +254,45 @@
       if (!record || typeof record.title !== 'string' || !record.title.trim() || record.title.trim().length > 120 || typeof record.body !== 'string' || !record.body.trim() || record.body.length > 10000) throw new Error('Each note needs a title (up to 120 characters) and text (up to 10,000 characters).');
       if (typeof record.id !== 'string' || !record.id || record.id.length > 100 || ids.has(record.id)) throw new Error('The note ID is invalid or duplicated.');
       if (keepVersions && (typeof record.version !== 'string' || !record.version)) throw new Error('The note version is invalid.');
+      if (record.pinned !== undefined && typeof record.pinned !== 'boolean') throw new Error('Pinned must be true or false.');
       ids.add(record.id);
-      return {id:record.id,title:record.title.trim(),body:record.body,version:keepVersions ? record.version : uid()};
+      return {id:record.id,title:record.title.trim(),body:record.body,pinned:record.pinned === true,version:keepVersions ? record.version : uid()};
     });
   }
   function noteIndex(records,original) {
     if (!original || typeof original.id !== 'string' || typeof original.version !== 'string') throw new Error('Select an existing note first.');
     const index = records.findIndex(item => item.id === original.id);
     if (index < 0 || records[index].version !== original.version) throw new Error('This note changed or was deleted. Refresh and select Edit again.');
+    return index;
+  }
+  function validateCuts(value,keepVersions) {
+    if (!Array.isArray(value) || value.length > 1000) throw new Error('The cut list must contain at most 1,000 entries.');
+    const ids = new Set();
+    return value.map(record => {
+      if (!record || typeof record.title !== 'string' || !record.title.trim() || record.title.trim().length > 120) throw new Error('A cut needs a title of up to 120 characters.');
+      if (typeof record.id !== 'string' || !record.id || record.id.length > 100 || ids.has(record.id)) throw new Error('The cut ID is invalid or duplicated.');
+      if (keepVersions && (typeof record.version !== 'string' || !record.version)) throw new Error('The cut version is invalid.');
+      if (record.completed !== undefined && typeof record.completed !== 'boolean') throw new Error('Completed must be true or false.');
+      const quantity = optionalInteger(record.quantity,'Cut quantity',1,1000000);
+      if (quantity === undefined) throw new Error('Enter a cut quantity.');
+      const item = {id:record.id,title:record.title.trim(),quantity,completed:record.completed === true,version:keepVersions ? record.version : uid()};
+      for (const [name,max] of [['material',200],['notes',2000]]) {
+        if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
+        item[name] = (record[name] || '').trim();
+      }
+      for (const name of ['length','width','thickness']) {
+        const value = record[name]; if (value == null || value === '') continue;
+        const text = typeof value === 'string' || typeof value === 'number' ? String(value).trim() : '';
+        if (text.length > 400 || !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(text) || !Number.isFinite(Number(text)) || Number(text) <= 0) throw new Error('Cut dimensions must be positive decimal inches.');
+        item[name] = text;
+      }
+      ids.add(item.id); return item;
+    });
+  }
+  function cutIndex(records,original) {
+    if (!original || typeof original.id !== 'string' || typeof original.version !== 'string') throw new Error('Select an existing cut first.');
+    const index = records.findIndex(item => item.id === original.id);
+    if (index < 0 || records[index].version !== original.version) throw new Error('This cut changed or was deleted. Refresh and select it again.');
     return index;
   }
   function validateState(value) {
@@ -282,7 +313,7 @@
     }
     const settings = validateSettings(value.settings,true);
     const rawMaterials = value.rawMaterials === undefined ? [] : validateRawMaterials(value.rawMaterials,true);
-    return {...value,settings,rawMaterials,notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
+    return {...value,settings,rawMaterials,cuts:validateCuts(value.cuts === undefined ? [] : value.cuts,true),notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
   }
   function readState() {
     const raw = storageRead();
@@ -466,7 +497,7 @@
       throw new Error('Choose a version 1 CNC database backup.');
     const settings = validateSettings(seed.settings,false);
     const rawMaterials = seed.rawMaterials === undefined ? [] : validateRawMaterials(seed.rawMaterials,false);
-    return {settings,rawMaterials,notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
+    return {settings,rawMaterials,cuts:validateCuts(seed.cuts === undefined ? [] : seed.cuts,false),notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
   }
 
   const ready = (async () => {
@@ -490,11 +521,47 @@
   ready.catch(() => {});
 
   const api = {
+    getCuts() {return readState().cuts;},
+    adminSaveCut(token,record,original) {
+      const state = readState(); requireAdmin(token,state);
+      const index = original == null ? -1 : cutIndex(state.cuts,original);
+      const item = validateCuts([{...record,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
+      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.unshift(item);} else state.cuts[index] = item;
+      commit(state); return true;
+    },
+    adminSetCutCompleted(token,original,completed) {
+      const state = readState(); requireAdmin(token,state);
+      if (typeof completed !== 'boolean') throw new Error('Completed must be true or false.');
+      const item = state.cuts[cutIndex(state.cuts,original)]; item.completed = completed; item.version = uid(); commit(state); return true;
+    },
+    adminDeleteCut(token,original) {
+      const state = readState(); requireAdmin(token,state);state.cuts.splice(cutIndex(state.cuts,original),1);commit(state);return true;
+    },
+    adminSetNotePinned(token,original,pinned) {
+      const state = readState(); requireAdmin(token,state);
+      if (typeof pinned !== 'boolean') throw new Error('Pinned must be true or false.');
+      const item = state.notes[noteIndex(state.notes,original)];item.pinned = pinned;item.version = uid();commit(state);return true;
+    },
+    adminCutRawMaterial(token,original,remainder) {
+      const state = readState(); requireAdmin(token,state);
+      const source = state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
+      if (source.quantity < 1) throw new Error('There are no pieces left in this entry.');
+      let leftover = null;
+      if (remainder !== null) {
+        if (!remainder || typeof remainder !== 'object' || Array.isArray(remainder)) throw new Error('Enter a valid leftover size or use the whole piece.');
+        if (state.rawMaterials.length >= MAX_SETTINGS) throw new Error('The sheet list is full. No quantity has been changed.');
+        leftover = validateRawMaterial({...source,length:remainder.length,width:remainder.width,quantity:1});
+        const l = Number(leftover.length), w = Number(leftover.width), sl = Number(source.length), sw = Number(source.width);
+        if (!((l <= sl && w <= sw) || (l <= sw && w <= sl)) || l*w >= sl*sw) throw new Error('The leftover must fit inside the original piece and be smaller.');
+        leftover.id = uid();leftover.version = uid();
+      }
+      source.quantity--;source.version = uid();if(leftover)state.rawMaterials.push(leftover);commit(state);return true;
+    },
     getNotes() {return readState().notes;},
     adminSaveNote(token,record,original) {
       const state = readState(); requireAdmin(token,state);
       const index = original == null ? -1 : noteIndex(state.notes,original);
-      const item = validateNotes([{...record,id:index < 0 ? uid() : state.notes[index].id}],false)[0];
+      const item = validateNotes([{...record,pinned:record?.pinned === undefined && index >= 0 ? state.notes[index].pinned : record?.pinned,id:index < 0 ? uid() : state.notes[index].id}],false)[0];
       if (index < 0) {
         if (state.notes.length >= 1000) throw new Error('The notes list has reached its 1,000 entry limit.');
         state.notes.unshift(item);
@@ -716,19 +783,19 @@
     },
     adminExportBackup(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
+      return {format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
     },
     adminPortableData(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item)};
+      return {format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item)};
     },
     adminImportBackup(token,backup) {
       const state = readState(); requireAdmin(token,state);
       const data = portable(backup); // Validate the complete backup before writing anything.
-      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; commit(state); return true;
+      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; commit(state); return true;
     }
   };
-  const writes = new Set(['adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

@@ -2,6 +2,14 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.11
+
+- Added pin/unpin controls for notes; pinned notes appear first for all viewers.
+- Added the Cut List tab with job names, quantities, materials, optional dimensions in inches, notes, completion/reopen controls, search, and status filters.
+- Added Record cut to material sheet entries: atomically removes one original piece and optionally creates one smaller leftover, retaining material, thickness, and location.
+- Added validation and stale-edit protection for these operations; planning a cut does not automatically deduct inventory.
+- Included pin state and cut-list entries in shared loading, JSON backups, imports, and offline snapshots. Older backups remain compatible.
+
 ## 1.14.10
 
 - Added a Notes sidebar tab with titles, multiline text, and search.

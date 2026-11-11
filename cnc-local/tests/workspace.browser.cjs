@@ -8,7 +8,7 @@ const path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const target=path.join(root,'CNC-Tool-Database.html');
 const origin='http://localhost:31460/workspace.html';
-const pages=['dashboard','feeds','mills','inventory','materials','notes','settings'];
+const pages=['dashboard','feeds','mills','inventory','materials','cuts','notes','settings'];
 
 // Inspect rendered colors so a fixed dark navigation palette cannot pass by
 // changing only html[data-theme]. Reduce motion in test contexts for stable CSS.
@@ -111,7 +111,7 @@ async function assertChromeTheme(page,theme){
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Fresh browsers default to dark');
     await assertChromeTheme(page,'dark');
-    assert.match(await page.locator('body').innerText(),/1\.14\.10/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.11/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
     for(const name of pages){await navigate(page,name);assert.equal(await page.locator('#mentorNotice').isVisible(),name==='feeds','Mentor notice belongs only to Feeds & Speeds');}
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);
@@ -286,7 +286,7 @@ async function assertChromeTheme(page,theme){
     await mobile.page.waitForFunction(()=>document.getElementById('resultToolImage').naturalWidth>0&&document.getElementById('resultMaterialImage').naturalWidth>0);
     assert.equal(await mobile.page.locator('#resultToolImage').getAttribute('src'),image);
     assert.equal(await mobile.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'No result overflow on mobile');
-    console.log('PASS: all seven sidebar tabs and cutting results work at 390 px without document overflow.');
+    console.log('PASS: all eight sidebar tabs and cutting results work at 390 px without document overflow.');
     assert.deepEqual(errors,[],'No uncaught browser errors');assert.deepEqual(unexpectedRequests,[],'Standalone HTML makes no external network requests');
   }finally{
     for(const context of contexts)await context.close();await browser.close();fs.rmSync(temp,{recursive:true,force:true});

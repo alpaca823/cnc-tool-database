@@ -1,5 +1,7 @@
-# v1.14.10 update
+# v1.14.11 update
 
-All 19 supported test commands pass via verify-both.py. Notes checks cover local/shared create, edit, delete, search, read-only visitors, literal text rendering, stale updates, invalid imports, old backups, JSON exports, offline HTML downloads, and mobile layout. Mill-selection regressions pass, including whole-row clicks and filtered results. Authentication stress tests pass (19 cases); case variants cannot duplicate a password, and existing credentials remain valid.
+All 20 supported test commands pass via verify-both.py. Seven shared-backend cases cover protected writes, stale edits, backups, legacy imports, pin preservation, cut-plan validation, stock independence, atomic material deductions, smaller and rotated leftovers, zero-stock rejection, and invalid-size rejection without writes.
 
-The shared API deployment is active and its live public workspace response includes notes. No schema change was needed. No production inventory records or credentials were edited. Google Apps Script remains archived.
+Local/shared browser tests verify pin/unpin ordering, Cut List creation/completion/reopening, search, whole-piece consumption, leftover creation, read-only visitors, offline snapshots, and mobile forms. Existing authentication stress, mill selection, inventory, materials, image, theme, mentor-notice, and portability checks pass.
+
+Shared API deployment is active. No schema or credential change was required; production material counts were not edited during verification. Google Apps Script remains archived.

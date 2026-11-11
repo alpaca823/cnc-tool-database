@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.10
+# CNC Tool Database — v1.14.11
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -107,3 +107,5 @@ As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Goo
 
 
 Update v1.14.10: Notes provides searchable shop reminders. Admins can add, edit, and delete; visitors can read. Notes are shared on the website and independent in local HTML, and travel with JSON backups and offline snapshots. Imports replace notes along with the rest of the database.
+
+Update v1.14.11: Admins can pin notes, manage the Cut List, and record material cuts. Record cut removes one original piece and optionally creates one smaller leftover of the same material/thickness/location. Cut-list completion is planning only and does not deduct stock. Pins, cuts, and leftovers are included in backups and offline snapshots.

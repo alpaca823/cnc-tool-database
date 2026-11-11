@@ -15,10 +15,10 @@ def build_pages():
  '<span class="offline-pill">Offline</span>':'<span class="offline-pill">Shared inventory</span>',
  '<span>●</span> Saved in this browser':'<span>●</span> Shared database',
  'Your shop data, available offline.':'Your shared shop tools and materials.',
- 'Settings and materials save in this browser on this computer. Download an updated HTML copy to take them with you, or export a JSON backup to restore later. Imports replace current settings, libraries, tool inventory, raw sheets, and notes.':'Shop data saves to the shared database. Export JSON or download an offline snapshot. Imports replace inventory, libraries, cutting settings, and notes for everyone.',
+ 'Settings and materials save in this browser on this computer. Download an updated HTML copy to take them with you, or export a JSON backup to restore later. Imports replace current settings, libraries, tool inventory, raw sheets, notes, and the cut list.':'Shop data saves to the shared database. Export JSON or download an offline snapshot. Imports replace inventory, libraries, cutting settings, notes, and the cut list for everyone.',
  'A copy opened in a fresh browser uses admin / Feds201. Additional admin passwords stay with this browser and are not included in data exports.':'Offline copies use admin / Feds201 in a fresh browser. Shared passwords stay in the database and are not included in exports. Offline copies do not sync automatically.',
  '>Download updated HTML</button>':'>Download offline HTML</button>',
- 'Replace all current cutting settings, materials, mills, raw sheet inventory, and notes with this backup (':'Replace the shared cutting settings, materials, mills, raw sheet inventory, and notes for ALL USERS with this backup (',
+ 'Replace all current cutting settings, materials, mills, raw sheet inventory, notes, and the cut list with this backup (':'Replace the shared cutting settings, materials, mills, raw sheet inventory, notes, and the cut list for ALL USERS with this backup (',
  }
  for old,new in replacements.items():
   if html.count(old)!=1:raise ValueError('Shared UI copy changed: '+old[:70])
