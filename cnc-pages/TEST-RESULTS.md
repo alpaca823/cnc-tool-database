@@ -1,7 +1,5 @@
-# v1.14.13 update
+# v1.14.14 update
 
-All 22 supported test commands pass (full suite plus the corrected existing-modal selector rerun). Eleven shared-backend cases cover public reporting, positive stock checks, stale/repeated submissions, admin-only history/undo, newest-first undo chains, used-leftover protection, later-edit protection, backup version rebinding, and legacy imports.
+Five relevant browser suites pass: combined Inventory, local workspace, public reports/undo, cut-list/material cutting, and purchase links. Local/shared coverage verifies mills and material stock together, existing-record totals, zero quantities, material/size search, correct-material navigation from Record cut and View material, admin stock controls, and 390 px layout. Existing inventory counts, reports, undo, offline snapshots, backups, themes, and mentor placement remain covered.
 
-Local/shared browser tests verify visitors reporting broken mills, material cuts, and completed jobs; admin undo restores quantities, removes created leftovers, and reopens cut jobs. Downloaded offline copies retain functional undo history. Optional text renders literally, mobile reporting fits, and existing authentication, cut ordering/priorities, notes, materials, backups, and mentor-notice checks pass.
-
-The shared API deployment is active. No schema or credential changes were required. Production verification uses read-only app requests and a rejected unauthenticated history request; it creates no reports. Google Apps Script remains archived.
+Inventory uses the existing material records and creates no duplicate stock. Location remains absent from Inventory. No backend, schema, or credential changes were needed. Google Apps Script remains archived.

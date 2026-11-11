@@ -721,3 +721,6 @@ details[open] > summary { margin-bottom: 14px; }
 
 .report-dialog { width:min(480px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:14px; padding:20px; }
 .report-dialog::backdrop { background:#000a; }
+
+.stock-list-count { padding:0 16px; }
+#inventoryMaterialBody td:last-child button { margin:3px; }

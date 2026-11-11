@@ -12,7 +12,7 @@
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],
     feeds:['Feeds & Speeds','Find the saved cutting settings for your mill and material.'],
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
-    inventory:['Inventory','Keep track of tool quantities and low stock.'],
+    inventory:['Inventory','Track mills, full sheets, and leftover material pieces.'],
     materials:['Materials','Select a material to see sheet quantities, sizes, and storage locations.'],
     cuts:['Cut List','Plan and track the cuts your shop needs to complete.'],
     notes:['Notes','Shop reminders and information.'],
@@ -44,7 +44,7 @@
     });
     el('pageTitle').textContent = wsPages[page][0]; el('pageDescription').textContent = wsPages[page][1];
     el('globalSearch').disabled = page === 'dashboard' || page === 'settings';
-    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mill numbers, names, or tool types…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
+    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mills, materials, or sizes…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
     el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');
     wsRenderAll();
     if (window.cncLocal) refreshWorkspaceData().catch(error => {el('adminStatus').textContent = message(error);});
@@ -115,7 +115,7 @@
       if (item.purchaseUrl) row.append(wsPurchaseLink(item));
       row.append(wsButton('View',() => {wsGo('inventory'); if (token) wsSelectInventory(item.number);})); el('dashboardStock').append(row);
     });
-    wsStats('inventoryStats',[['Counted mills',wsDashboard.trackedMills],['Units on hand',wsDashboard.unitsInStock],['Low stock',wsDashboard.lowStock],['Out of stock',wsDashboard.outOfStock]]);
+    wsStats('inventoryStats',[['Counted mills',wsDashboard.trackedMills],['Mills on hand',wsDashboard.unitsInStock],['Low mill inventory',wsDashboard.lowStock],['Mills out of stock',wsDashboard.outOfStock],['Material pieces',wsRawMaterials.reduce((total,item)=>total+item.quantity,0)],['Material stock entries',wsRawMaterials.length]]);
   }
   function wsRenderMills() {
     const items = wsFiltered(wsMills,['number','name','type','coating','location','notes']);
@@ -169,6 +169,20 @@
       const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if(item.quantity>0)actions.append(wsButton('Report broken',()=>wsOpenBroken(item))); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
     });
   }
+  function wsRenderInventoryMaterials() {
+    const items=wsFiltered(wsRawMaterials,['material','length','width','thickness','notes']);
+    el('inventoryMaterialBody').replaceChildren();el('inventoryMaterialEmpty').hidden=items.length>0;
+    el('inventoryMaterialEmpty').textContent=wsRawMaterials.length?'No material stock matches your search.':'No material stock recorded. Add sheet entries in Materials to start tracking stock.';
+    el('inventoryMaterialCount').textContent=items.length+' of '+wsRawMaterials.length+' stock entries · '+items.reduce((total,item)=>total+item.quantity,0)+' pieces shown';
+    items.forEach(item=>{
+      const row=wsNode('tr');row.dataset.stockId=item.id;const name=wsNode('td');name.append(wsNode('strong',item.material));
+      row.append(name,wsNode('td',item.length+' × '+item.width),wsNode('td',item.thickness||'Not specified'),wsNode('td',String(item.quantity)));
+      const status=wsNode('td');status.append(wsNode('span',item.quantity>0?'In stock':'Out of stock','badge '+(item.quantity>0?'in':'out')));row.append(status);
+      const actions=wsNode('td');if(item.quantity>0)actions.append(wsButton('Record cut',()=>wsOpenSheetCut(item)));
+      actions.append(wsButton('View material',()=>{wsSelectedMaterialName=item.material;wsGo('materials');}));
+      if(token)actions.append(wsButton('Edit stock',()=>wsOpenRawMaterial(item)));row.append(actions);el('inventoryMaterialBody').append(row);
+    });
+  }
   function wsRenderMaterials() {
     const query = wsPage === 'materials' ? el('globalSearch').value.trim().toLowerCase() : '';
     const fields = ['length','width','thickness','location','notes'];
@@ -211,7 +225,7 @@
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
+  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -259,6 +273,7 @@
     el('menuToggle').addEventListener('click',() => {const open = el('sidebar').classList.toggle('mobile-open'); el('menuToggle').setAttribute('aria-expanded',String(open));});
     el('globalSearch').addEventListener('input',wsRenderAll);
     window.addEventListener('keydown',event => {if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {event.preventDefault(); el('globalSearch').focus(); el('globalSearch').select();} if (event.key === 'Escape' && !loginBusy) {wsCloseLogin(); el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');}});
+    el('addInventoryStock').addEventListener('click',()=>wsOpenRawMaterial(null));
     el('addMill').addEventListener('click',() => wsOpenMill(null));
     el('cancelMillEdit').addEventListener('click',() => {if (!adminBusy) {wsMillEditorOpen = false; el('millEditor').hidden = true;}});
     el('millImageUpload').addEventListener('change',async () => {
@@ -436,7 +451,7 @@
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
-    if(adminBusy)return;wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
+    if(adminBusy)return;if(wsPage!=='materials'){wsSelectedMaterialName=item.material;wsGo('materials');}wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
     el('sheetCutSource').textContent=item.material+' · '+item.length+' × '+item.width+' inch · '+item.quantity+' pieces available';el('remainderLength').focus();
   }
   function wsToggleRemainder() {

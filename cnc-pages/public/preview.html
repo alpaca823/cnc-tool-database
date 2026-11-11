@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.13</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
+<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.14</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
 :root,
 html[data-theme="light"] {
   color-scheme: light;
@@ -722,6 +722,9 @@ details[open] > summary { margin-bottom: 14px; }
 
 .report-dialog { width:min(480px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:14px; padding:20px; }
 .report-dialog::backdrop { background:#000a; }
+
+.stock-list-count { padding:0 16px; }
+#inventoryMaterialBody td:last-child button { margin:3px; }
 </style></head>
 <body class="workspace-app">
 <header class="app-topbar"><button id="menuToggle" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div class="app-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2b8aff" d="M16 2l13 7v14l-13 7L3 23V9z"/><path fill="#143459" d="M16 7l8 4-8 4-8-4zm-8 8l6 3v8l-6-4zm10 3l6-3v7l-6 4z"/></svg></span><strong class="brand-name">CNC Tool Database</strong></div><label class="top-search"><span class="icon" aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search this workspace…" aria-label="Search the current page"><kbd>Ctrl K</kbd></label><div class="topbar-actions"><span class="offline-pill">Prototype preview</span><button id="toggleView" type="button">Admin</button></div></header>
@@ -769,7 +772,7 @@ details[open] > summary { margin-bottom: 14px; }
           <p id="listStatus" class="hint" role="status" aria-live="polite"></p><div id="settingList"></div>
         </section>
       </div></details></section><section class="workspace-view" data-page="mills" hidden><div class="table-toolbar"><p id="millListCount" class="hint"></p><button id="addMill" class="admin-only" hidden type="button">+ Add mill</button></div><div class="workspace-split"><section class="table-card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Type</th><th>Diameter</th><th>Flutes</th><th>Stock</th><th>Quantity</th><th></th></tr></thead><tbody id="millListBody"></tbody></table></div><p id="millEmpty" class="empty-state" hidden>No mills yet. Add a mill or save cutting settings to start your library.</p></section><aside id="millDetails" class="detail-card"><p class="empty-state">Select a mill to view its details.</p></aside></div>
-<section id="millEditor" class="card admin-only" hidden><div class="toolbar"><h2 id="millEditorTitle">Add mill</h2></div><form id="millForm"><fieldset id="millFields"><div class="grid"><div><label for="millNumber">Mill number</label><input id="millNumber" required maxlength="100" placeholder="e.g. 001"></div><div><label for="millName">Tool name</label><input id="millName" maxlength="160" placeholder='e.g. 1/4 inch end mill'></div><div><label for="millType">Tool type</label><input id="millType" maxlength="80" placeholder="e.g. End mill"></div><div><label for="millDiameter">Diameter (inch, optional)</label><input id="millDiameter" inputmode="decimal" placeholder="e.g. 0.25"></div><div><label for="millFlutes">Flutes (optional)</label><input id="millFlutes" type="number" min="1" max="100" step="1"></div><div><label for="millCoating">Coating (optional)</label><input id="millCoating" maxlength="80" placeholder="e.g. TiAlN"></div></div><label for="millPurchaseUrl">Purchase link (optional)</label><input id="millPurchaseUrl" type="url" maxlength="2048" placeholder="https://supplier.example/product"><p class="hint">Link to the product page for this exact mill. A buy link appears in its details and when inventory is low.</p><label for="millNotes">Tool notes</label><textarea id="millNotes" maxlength="2000"></textarea><div class="image-editor"><label for="millImageUpload">Tool image (optional)</label><input id="millImageUpload" type="file" accept="image/jpeg,image/png,image/webp"><img id="millImagePreview" alt="Mill image preview" hidden><button id="removeMillImage" class="secondary small" type="button" hidden>Remove tool image</button><p class="hint">Shared tool photos appear in cutting results when an entry has no separate photo.</p></div><div class="actions"><button id="saveMill" type="submit">Save mill</button><button id="cancelMillEdit" class="secondary" type="button">Cancel</button></div><p id="millFormStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="inventory" hidden><div class="stats-grid" id="inventoryStats"></div><section class="table-card"><div class="table-toolbar"><h2>Tool inventory</h2><p class="hint">Counts are entered by your shop. Uncounted tools remain untracked.</p><button id="refreshInventory" type="button" class="secondary small">Refresh inventory</button></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Quantity</th><th>Low-stock threshold</th><th>Status</th><th></th></tr></thead><tbody id="inventoryListBody"></tbody></table></div><p id="inventoryEmpty" class="empty-state" hidden>No mills to track. Add a mill first.</p></section><section class="card admin-only" id="inventoryEditor" hidden><h2>Update stock</h2><form id="inventoryForm"><fieldset id="inventoryFields"><div class="grid"><div><label for="inventoryMill">Mill</label><select id="inventoryMill" required><option value="">Select mill</option></select></div><div><label for="inventoryQuantity">Quantity on hand</label><input id="inventoryQuantity" type="number" min="0" step="1" required></div><div><label for="inventoryReorderLevel">Low-stock threshold (optional)</label><input id="inventoryReorderLevel" type="number" min="0" step="1"></div></div><div class="actions"><button id="saveInventory" type="submit">Save inventory</button></div><p id="inventoryStatus" class="status" role="status"></p></fieldset></form></section><p class="hint login-callout">Anyone can report a broken mill. Admins manage counts and can undo reports in Settings.</p></section><section class="workspace-view" data-page="materials" hidden>
+<section id="millEditor" class="card admin-only" hidden><div class="toolbar"><h2 id="millEditorTitle">Add mill</h2></div><form id="millForm"><fieldset id="millFields"><div class="grid"><div><label for="millNumber">Mill number</label><input id="millNumber" required maxlength="100" placeholder="e.g. 001"></div><div><label for="millName">Tool name</label><input id="millName" maxlength="160" placeholder='e.g. 1/4 inch end mill'></div><div><label for="millType">Tool type</label><input id="millType" maxlength="80" placeholder="e.g. End mill"></div><div><label for="millDiameter">Diameter (inch, optional)</label><input id="millDiameter" inputmode="decimal" placeholder="e.g. 0.25"></div><div><label for="millFlutes">Flutes (optional)</label><input id="millFlutes" type="number" min="1" max="100" step="1"></div><div><label for="millCoating">Coating (optional)</label><input id="millCoating" maxlength="80" placeholder="e.g. TiAlN"></div></div><label for="millPurchaseUrl">Purchase link (optional)</label><input id="millPurchaseUrl" type="url" maxlength="2048" placeholder="https://supplier.example/product"><p class="hint">Link to the product page for this exact mill. A buy link appears in its details and when inventory is low.</p><label for="millNotes">Tool notes</label><textarea id="millNotes" maxlength="2000"></textarea><div class="image-editor"><label for="millImageUpload">Tool image (optional)</label><input id="millImageUpload" type="file" accept="image/jpeg,image/png,image/webp"><img id="millImagePreview" alt="Mill image preview" hidden><button id="removeMillImage" class="secondary small" type="button" hidden>Remove tool image</button><p class="hint">Shared tool photos appear in cutting results when an entry has no separate photo.</p></div><div class="actions"><button id="saveMill" type="submit">Save mill</button><button id="cancelMillEdit" class="secondary" type="button">Cancel</button></div><p id="millFormStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="inventory" hidden><div class="stats-grid" id="inventoryStats"></div><section class="table-card"><div class="table-toolbar"><h2>Tool inventory</h2><p class="hint">Counts are entered by your shop. Uncounted tools remain untracked.</p><button id="refreshInventory" type="button" class="secondary small">Refresh inventory</button></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Quantity</th><th>Low-stock threshold</th><th>Status</th><th></th></tr></thead><tbody id="inventoryListBody"></tbody></table></div><p id="inventoryEmpty" class="empty-state" hidden>No mills to track. Add a mill first.</p></section><section class="table-card"><div class="table-toolbar"><div><h2>Material stock</h2><p class="hint">Full sheets and leftover pieces · All dimensions in inches</p></div><button id="addInventoryStock" type="button" class="admin-only" hidden>+ Add material stock</button></div><p id="inventoryMaterialCount" class="hint stock-list-count"></p><div class="table-scroll"><table class="data-table"><thead><tr><th>Material</th><th>Size (inch)</th><th>Thickness (inch)</th><th>Pieces on hand</th><th>Status</th><th></th></tr></thead><tbody id="inventoryMaterialBody"></tbody></table></div><p id="inventoryMaterialEmpty" class="empty-state" hidden>No material stock recorded. Add sheet entries in Materials to start tracking stock.</p></section><section class="card admin-only" id="inventoryEditor" hidden><h2>Update stock</h2><form id="inventoryForm"><fieldset id="inventoryFields"><div class="grid"><div><label for="inventoryMill">Mill</label><select id="inventoryMill" required><option value="">Select mill</option></select></div><div><label for="inventoryQuantity">Quantity on hand</label><input id="inventoryQuantity" type="number" min="0" step="1" required></div><div><label for="inventoryReorderLevel">Low-stock threshold (optional)</label><input id="inventoryReorderLevel" type="number" min="0" step="1"></div></div><div class="actions"><button id="saveInventory" type="submit">Save inventory</button></div><p id="inventoryStatus" class="status" role="status"></p></fieldset></form></section><p class="hint login-callout">Anyone can report a broken mill. Admins manage counts and can undo reports in Settings.</p></section><section class="workspace-view" data-page="materials" hidden>
 <div class="materials-workspace">
 <section id="publicMaterials" class="card material-picker-card"><div class="toolbar"><h2>Materials</h2><button id="manageMaterials" type="button" class="secondary small admin-only" hidden>+ Add material</button></div><p class="hint">Select a material to see its sheets, sizes, and storage locations.</p><div id="publicMaterialList" class="material-choice-list"></div></section>
 <div id="materialDetailPane"><section class="card material-detail-header"><div class="material-detail-heading"><div><h2 id="materialDetailTitle">Select a material</h2><p id="selectedMaterialSummary" class="hint">Choose a material from the list to view its inventory.</p></div><img id="selectedMaterialPhoto" alt="" hidden></div><div class="actions"><button id="editSelectedMaterial" type="button" class="secondary small admin-only" hidden>Edit material</button></div></section>
@@ -824,7 +827,7 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
         </div>
-      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.13 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      </details></div></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.14 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
       <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: Feds201.</p>
       <form id="loginForm"><fieldset id="loginFields">
         <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
@@ -2233,7 +2236,7 @@ details[open] > summary { margin-bottom: 14px; }
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],
     feeds:['Feeds & Speeds','Find the saved cutting settings for your mill and material.'],
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
-    inventory:['Inventory','Keep track of tool quantities and low stock.'],
+    inventory:['Inventory','Track mills, full sheets, and leftover material pieces.'],
     materials:['Materials','Select a material to see sheet quantities, sizes, and storage locations.'],
     cuts:['Cut List','Plan and track the cuts your shop needs to complete.'],
     notes:['Notes','Shop reminders and information.'],
@@ -2265,7 +2268,7 @@ details[open] > summary { margin-bottom: 14px; }
     });
     el('pageTitle').textContent = wsPages[page][0]; el('pageDescription').textContent = wsPages[page][1];
     el('globalSearch').disabled = page === 'dashboard' || page === 'settings';
-    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mill numbers, names, or tool types…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
+    el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mills, materials, or sizes…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
     el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');
     wsRenderAll();
     if (window.cncLocal) refreshWorkspaceData().catch(error => {el('adminStatus').textContent = message(error);});
@@ -2336,7 +2339,7 @@ details[open] > summary { margin-bottom: 14px; }
       if (item.purchaseUrl) row.append(wsPurchaseLink(item));
       row.append(wsButton('View',() => {wsGo('inventory'); if (token) wsSelectInventory(item.number);})); el('dashboardStock').append(row);
     });
-    wsStats('inventoryStats',[['Counted mills',wsDashboard.trackedMills],['Units on hand',wsDashboard.unitsInStock],['Low stock',wsDashboard.lowStock],['Out of stock',wsDashboard.outOfStock]]);
+    wsStats('inventoryStats',[['Counted mills',wsDashboard.trackedMills],['Mills on hand',wsDashboard.unitsInStock],['Low mill inventory',wsDashboard.lowStock],['Mills out of stock',wsDashboard.outOfStock],['Material pieces',wsRawMaterials.reduce((total,item)=>total+item.quantity,0)],['Material stock entries',wsRawMaterials.length]]);
   }
   function wsRenderMills() {
     const items = wsFiltered(wsMills,['number','name','type','coating','location','notes']);
@@ -2390,6 +2393,20 @@ details[open] > summary { margin-bottom: 14px; }
       const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if(item.quantity>0)actions.append(wsButton('Report broken',()=>wsOpenBroken(item))); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
     });
   }
+  function wsRenderInventoryMaterials() {
+    const items=wsFiltered(wsRawMaterials,['material','length','width','thickness','notes']);
+    el('inventoryMaterialBody').replaceChildren();el('inventoryMaterialEmpty').hidden=items.length>0;
+    el('inventoryMaterialEmpty').textContent=wsRawMaterials.length?'No material stock matches your search.':'No material stock recorded. Add sheet entries in Materials to start tracking stock.';
+    el('inventoryMaterialCount').textContent=items.length+' of '+wsRawMaterials.length+' stock entries · '+items.reduce((total,item)=>total+item.quantity,0)+' pieces shown';
+    items.forEach(item=>{
+      const row=wsNode('tr');row.dataset.stockId=item.id;const name=wsNode('td');name.append(wsNode('strong',item.material));
+      row.append(name,wsNode('td',item.length+' × '+item.width),wsNode('td',item.thickness||'Not specified'),wsNode('td',String(item.quantity)));
+      const status=wsNode('td');status.append(wsNode('span',item.quantity>0?'In stock':'Out of stock','badge '+(item.quantity>0?'in':'out')));row.append(status);
+      const actions=wsNode('td');if(item.quantity>0)actions.append(wsButton('Record cut',()=>wsOpenSheetCut(item)));
+      actions.append(wsButton('View material',()=>{wsSelectedMaterialName=item.material;wsGo('materials');}));
+      if(token)actions.append(wsButton('Edit stock',()=>wsOpenRawMaterial(item)));row.append(actions);el('inventoryMaterialBody').append(row);
+    });
+  }
   function wsRenderMaterials() {
     const query = wsPage === 'materials' ? el('globalSearch').value.trim().toLowerCase() : '';
     const fields = ['length','width','thickness','location','notes'];
@@ -2432,7 +2449,7 @@ details[open] > summary { margin-bottom: 14px; }
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
+  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -2480,6 +2497,7 @@ details[open] > summary { margin-bottom: 14px; }
     el('menuToggle').addEventListener('click',() => {const open = el('sidebar').classList.toggle('mobile-open'); el('menuToggle').setAttribute('aria-expanded',String(open));});
     el('globalSearch').addEventListener('input',wsRenderAll);
     window.addEventListener('keydown',event => {if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {event.preventDefault(); el('globalSearch').focus(); el('globalSearch').select();} if (event.key === 'Escape' && !loginBusy) {wsCloseLogin(); el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');}});
+    el('addInventoryStock').addEventListener('click',()=>wsOpenRawMaterial(null));
     el('addMill').addEventListener('click',() => wsOpenMill(null));
     el('cancelMillEdit').addEventListener('click',() => {if (!adminBusy) {wsMillEditorOpen = false; el('millEditor').hidden = true;}});
     el('millImageUpload').addEventListener('change',async () => {
@@ -2657,7 +2675,7 @@ details[open] > summary { margin-bottom: 14px; }
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
-    if(adminBusy)return;wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
+    if(adminBusy)return;if(wsPage!=='materials'){wsSelectedMaterialName=item.material;wsGo('materials');}wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
     el('sheetCutSource').textContent=item.material+' · '+item.length+' × '+item.width+' inch · '+item.quantity+' pieces available';el('remainderLength').focus();
   }
   function wsToggleRemainder() {

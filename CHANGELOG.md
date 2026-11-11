@@ -2,6 +2,13 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.14
+
+- Added Material stock to Inventory, showing full sheets and leftovers with material, dimensions in inches, thickness, quantity, and availability.
+- Expanded inventory search and summary totals to include material stock while keeping mill counts clearly labeled.
+- Added public Record cut and View material actions plus admin Add material stock and Edit stock actions, using the existing material records.
+- Preserved existing stock, reporting/undo permissions, and the prior removal of Location from Inventory.
+
 ## 1.14.13
 
 - Allowed visitors to record material cuts, complete Cut List items, and report one broken mill without signing in.

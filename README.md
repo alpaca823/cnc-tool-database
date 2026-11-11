@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.13
+# CNC Tool Database — v1.14.14
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -53,3 +53,5 @@ Update v1.14.11: Admins can pin notes, manage the Cut List, and record material 
 Update v1.14.12: Cut List supports Low/Normal/High/Urgent priorities and Move up/down controls for the pending cutting order. Priority first is an optional view; new cuts append to the plan. Ordering and priorities survive backups and offline snapshots. Reordering requires an unfiltered planned-order view.
 
 Update v1.14.13: Visitors can record material cuts, mark planned cuts done, and report one broken mill from counted inventory. Reports are logged with optional reporter/details. Settings → Report history & undo lets admins reverse unchanged reports safely, newest first. History and undo metadata travel with backups and offline copies; passwords remain excluded.
+
+Update v1.14.14: Inventory shows mills and material stock together. Material stock lists full sheets and leftovers by size, thickness, quantity, and availability. Search covers both lists. Visitors can record cuts or open the material; admins can add/edit stock through the same material records. No duplicate stock is created.
