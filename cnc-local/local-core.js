@@ -296,6 +296,64 @@
     if (index < 0 || records[index].version !== original.version) throw new Error('This cut changed or was deleted. Refresh and select it again.');
     return index;
   }
+  function reportText(value,max,label) {
+    if (value === undefined) return '';
+    if (typeof value !== 'string' || value.length > max) throw new Error(label+' is invalid or too long.');
+    return value.trim();
+  }
+  function validateReports(records,keepVersions) {
+    if (!Array.isArray(records) || records.length > 10000) throw new Error('Report history must contain at most 10,000 entries.');
+    const ids=new Set(),valid=value=>typeof value==='string'&&value.length>0&&value.length<=200;
+    return records.map(row=>{
+      if (!row || !valid(row.id) || ids.has(row.id) || !['material','mill','cut'].includes(row.kind) || typeof row.undone!=='boolean' || !valid(row.time) || !Number.isFinite(Date.parse(row.time))) throw new Error('The report history is invalid.');
+      if (keepVersions&&!valid(row.version)) throw new Error('The report version is invalid.');
+      const source=row.source;
+      if (!source || !valid(source.key) || !valid(source.beforeVersion) || !valid(source.afterVersion) || (row.kind!=='cut'&&(!Number.isSafeInteger(source.quantityBefore)||source.quantityBefore<1))) throw new Error('The report source is invalid.');
+      if (row.leftover && (row.kind!=='material'||!valid(row.leftover.id)||!valid(row.leftover.version))) throw new Error('The report leftover is invalid.');
+      ids.add(row.id);
+      return {id:row.id,version:keepVersions?row.version:uid(),kind:row.kind,undone:row.undone,time:row.time,label:reportText(row.label,1500,'Report label'),reporter:reportText(row.reporter,80,'Reporter'),details:reportText(row.details,500,'Details'),source:{key:source.key,beforeVersion:source.beforeVersion,afterVersion:source.afterVersion,...(row.kind==='cut'?{}:{quantityBefore:source.quantityBefore})},...(row.leftover?{leftover:{id:row.leftover.id,version:row.leftover.version}}:{})};
+    });
+  }
+  function appendReport(state,kind,label,source,leftover,meta={}) {
+    if (state.reports.length>=10000) throw new Error('Report history is full. No inventory changes were saved.');
+    const report={id:uid(),version:uid(),kind,label,source,undone:false,time:new Date().toISOString(),reporter:meta?.reporter,details:meta?.details,...(leftover?{leftover:{id:leftover.id,version:leftover.version}}:{})};
+    state.reports.unshift(validateReports([report],true)[0]);
+  }
+  function reportMaterial(state,original,remainder,meta) {
+    const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
+    if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
+    let leftover=null;
+    if(remainder!==null){
+      if(!remainder||typeof remainder!=='object'||Array.isArray(remainder))throw new Error('Enter a valid leftover size or use the whole piece.');
+      if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full. No quantity has been changed.');
+      leftover=validateRawMaterial({...source,length:remainder.length,width:remainder.width,quantity:1});
+      const l=Number(leftover.length),w=Number(leftover.width),sl=Number(source.length),sw=Number(source.width);
+      if(!((l<=sl&&w<=sw)||(l<=sw&&w<=sl))||l*w>=sl*sw)throw new Error('The leftover must fit inside the original piece and be smaller.');
+      leftover.id=uid();leftover.version=uid();
+    }
+    const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
+    appendReport(state,'material',source.material+' · '+source.length+' × '+source.width+' inch',change,leftover,meta);
+    source.quantity--;source.version=change.afterVersion;if(leftover)state.rawMaterials.push(leftover);commit(state);return true;
+  }
+  function reportArchive(state) {
+    return {reports:state.reports.map(({version,...row})=>row),reportVersions:{mills:state.mills.map(row=>({key:row.number,version:row.version})),rawMaterials:state.rawMaterials.map(row=>({key:row.id,version:row.version})),cuts:state.cuts.map(row=>({key:row.id,version:row.version}))}};
+  }
+  function restoreReportVersions(data,metadata) {
+    if(!data.reports.length)return;
+    if(!metadata||typeof metadata!=='object')throw new Error('Report history requires undo-version metadata.');
+    const map=new Map();
+    for(const [group,kind]of [['mills','mill'],['rawMaterials','material'],['cuts','cut']]){
+      const entries=metadata[group];if(!Array.isArray(entries)||entries.length>MAX_SETTINGS)throw new Error('Invalid report-version metadata.');
+      const keys=new Set();
+      for(const row of entries){const record=data[group].find(item=>(kind==='mill'?item.number:item.id)===row?.key);
+        if(!record||keys.has(row.key)||typeof row.version!=='string'||!row.version||row.version.length>200||map.has(row.version))throw new Error('Report-version metadata does not match the inventory.');
+        keys.add(row.key);map.set(row.version,{key:row.key,kind,version:record.version});
+      }
+    }
+    for(const report of data.reports){const current=map.get(report.source.afterVersion);if(current&&current.key===report.source.key&&current.kind===report.kind)report.source.afterVersion=current.version;
+      if(report.leftover){const current=map.get(report.leftover.version);if(current?.kind==='material'&&current.key===report.leftover.id)report.leftover.version=current.version;}
+    }
+  }
   function validateState(value) {
     if (!value || value.format !== 'cnc-local-database' || value.schemaVersion !== 1 || !Number.isSafeInteger(value.revision) || value.revision < 0)
       throw new Error('Unsupported saved database format.');
@@ -314,7 +372,7 @@
     }
     const settings = validateSettings(value.settings,true);
     const rawMaterials = value.rawMaterials === undefined ? [] : validateRawMaterials(value.rawMaterials,true);
-    return {...value,settings,rawMaterials,cuts:validateCuts(value.cuts === undefined ? [] : value.cuts,true),notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
+    return {...value,settings,rawMaterials,reports:validateReports(value.reports===undefined?[]:value.reports,true),cuts:validateCuts(value.cuts === undefined ? [] : value.cuts,true),notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
   }
   function readState() {
     const raw = storageRead();
@@ -498,7 +556,8 @@
       throw new Error('Choose a version 1 CNC database backup.');
     const settings = validateSettings(seed.settings,false);
     const rawMaterials = seed.rawMaterials === undefined ? [] : validateRawMaterials(seed.rawMaterials,false);
-    return {settings,rawMaterials,cuts:validateCuts(seed.cuts === undefined ? [] : seed.cuts,false),notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
+    const data = {settings,rawMaterials,reports:validateReports(seed.reports===undefined?[]:seed.reports,false),cuts:validateCuts(seed.cuts === undefined ? [] : seed.cuts,false),notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
+    restoreReportVersions(data,seed.reportVersions);return data;
   }
 
   const ready = (async () => {
@@ -558,19 +617,37 @@
       const item = state.notes[noteIndex(state.notes,original)];item.pinned = pinned;item.version = uid();commit(state);return true;
     },
     adminCutRawMaterial(token,original,remainder) {
-      const state = readState(); requireAdmin(token,state);
-      const source = state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
-      if (source.quantity < 1) throw new Error('There are no pieces left in this entry.');
-      let leftover = null;
-      if (remainder !== null) {
-        if (!remainder || typeof remainder !== 'object' || Array.isArray(remainder)) throw new Error('Enter a valid leftover size or use the whole piece.');
-        if (state.rawMaterials.length >= MAX_SETTINGS) throw new Error('The sheet list is full. No quantity has been changed.');
-        leftover = validateRawMaterial({...source,length:remainder.length,width:remainder.width,quantity:1});
-        const l = Number(leftover.length), w = Number(leftover.width), sl = Number(source.length), sw = Number(source.width);
-        if (!((l <= sl && w <= sw) || (l <= sw && w <= sl)) || l*w >= sl*sw) throw new Error('The leftover must fit inside the original piece and be smaller.');
-        leftover.id = uid();leftover.version = uid();
+      const state=readState();requireAdmin(token,state);return reportMaterial(state,original,remainder,{});
+    },
+    reportMaterialCut(original,remainder,meta) {return reportMaterial(readState(),original,remainder,meta);},
+    reportBrokenMill(original,meta) {
+      const state=readState(),source=state.mills[originalMillIndex(state.mills,original)];
+      if(!Number.isSafeInteger(source.quantity)||source.quantity<1)throw new Error('No counted mills are available. Ask an admin to update inventory first.');
+      const change={key:source.number,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
+      appendReport(state,'mill',(source.name||'Mill')+' · '+source.number,change,null,meta);source.quantity--;source.version=change.afterVersion;commit(state);return true;
+    },
+    reportCompletedCut(original,meta) {
+      const state=readState(),source=state.cuts[cutIndex(state.cuts,original)];if(source.completed)throw new Error('This cut is already completed.');
+      const change={key:source.id,beforeVersion:source.version,afterVersion:uid()};appendReport(state,'cut',source.title,change,null,meta);source.completed=true;source.version=change.afterVersion;commit(state);return true;
+    },
+    adminListReports(token) {const state=readState();requireAdmin(token,state);return state.reports;},
+    adminUndoReport(token,original) {
+      const state=readState();requireAdmin(token,state);
+      const report=state.reports.find(row=>row.id===original?.id);
+      if(!report||report.version!==original?.version||report.undone)throw new Error('This report changed or was already undone. Refresh and try again.');
+      const group=report.kind==='material'?'rawMaterials':report.kind==='mill'?'mills':'cuts';
+      const record=state[group].find(row=>(report.kind==='mill'?row.number:row.id)===report.source.key);
+      const leftover=report.leftover&&state.rawMaterials.find(row=>row.id===report.leftover.id);
+      if(!record||record.version!==report.source.afterVersion||(report.leftover&&(!leftover||leftover.version!==report.leftover.version)))throw new Error('This item changed after the report. Undo newer reports first, or adjust inventory manually. Nothing was changed.');
+      const previous=report.source.beforeVersion,fresh=uid();
+      if(report.kind==='cut')record.completed=false;else record.quantity=report.source.quantityBefore;record.version=fresh;
+      if(leftover)state.rawMaterials.splice(state.rawMaterials.indexOf(leftover),1);
+      for(const older of state.reports){if(older.id===report.id||older.undone)continue;let changed=false;
+        if(older.source.afterVersion===previous){older.source.afterVersion=fresh;changed=true;}
+        if(older.leftover?.version===previous){older.leftover.version=fresh;changed=true;}
+        if(changed)older.version=uid();
       }
-      source.quantity--;source.version = uid();if(leftover)state.rawMaterials.push(leftover);commit(state);return true;
+      report.undone=true;report.version=uid();commit(state);return true;
     },
     getNotes() {return readState().notes;},
     adminSaveNote(token,record,original) {
@@ -798,19 +875,19 @@
     },
     adminExportBackup(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
+      return {...reportArchive(state),format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
     },
     adminPortableData(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item)};
+      return {...reportArchive(state),format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item)};
     },
     adminImportBackup(token,backup) {
       const state = readState(); requireAdmin(token,state);
       const data = portable(backup); // Validate the complete backup before writing anything.
-      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; commit(state); return true;
+      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; commit(state); return true;
     }
   };
-  const writes = new Set(['adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

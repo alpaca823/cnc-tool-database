@@ -2,6 +2,14 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.13
+
+- Allowed visitors to record material cuts, complete Cut List items, and report one broken mill without signing in.
+- Logged reports with timestamps and optional reporter/details, and added admin-only Settings → Report history & undo.
+- Added atomic undo for quantities, created leftovers, and completed cuts; newer edits block unsafe undo, and repeated undo cannot apply twice.
+- Preserved report history and undo links in JSON backups and offline snapshots, with legacy backups remaining supported.
+- Kept planning, inventory editing, and all other administrative actions protected.
+
 ## 1.14.12
 
 - Added Low, Normal, High, and Urgent cut priorities, editable in the form or directly on a cut.

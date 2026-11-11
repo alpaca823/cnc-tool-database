@@ -116,3 +116,34 @@ test('cut priorities and planned order survive updates and backups with stale-mo
  const invalid=structuredClone(backup);invalid.cuts[0].priority='critical';const saved=JSON.stringify(f.getState());assert.equal((await f.call('adminImportBackup',token,invalid)).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
  backup.cuts.forEach(c=>delete c.priority);await f.ok('adminImportBackup',token,backup);assert.ok((await f.ok('getCuts')).every(c=>c.priority==='normal'));assert.deepEqual((await f.ok('getCuts')).map(c=>c.id),order);
 });
+
+test('public broken-mill reports can be undone once, newest first, including after backup import',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveMill',token,{number:'BREAK',name:'End mill',quantity:2},null);
+ const first=(await f.ok('getMills'))[0];await f.ok('reportBrokenMill',{number:first.number,version:first.version},{reporter:'Student',details:'Chipped flute'});
+ assert.equal((await f.ok('getMills'))[0].quantity,1);assert.equal((await f.call('reportBrokenMill',first,{})).ok,false);
+ let current=(await f.ok('getMills'))[0];await f.ok('reportBrokenMill',{number:current.number,version:current.version},{});assert.equal((await f.ok('getMills'))[0].quantity,0);
+ current=(await f.ok('getMills'))[0];assert.equal((await f.call('reportBrokenMill',current,{})).ok,false);
+ assert.equal((await f.call('adminListReports','bad')).ok,false);let reports=await f.ok('adminListReports',token);assert.equal(reports.length,2);assert.equal(reports[1].reporter,'Student');
+ assert.equal((await f.call('adminUndoReport','bad',reports[0])).ok,false);assert.equal((await f.call('adminUndoReport',token,reports[1])).ok,false,'Newer report must be undone first');
+ const backup=await f.ok('adminExportBackup',token);assert.equal('auth' in backup,false);await f.ok('adminImportBackup',token,backup);reports=await f.ok('adminListReports',token);
+ const newest=reports[0];await f.ok('adminUndoReport',token,newest);assert.equal((await f.ok('getMills'))[0].quantity,1);assert.equal((await f.call('adminUndoReport',token,newest)).ok,false);
+ reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>!r.undone));assert.equal((await f.ok('getMills'))[0].quantity,2);
+ assert.ok((await f.ok('adminListReports',token)).every(r=>r.undone));assert.equal('reports' in await f.ok('getWorkspaceData'),false,'Undo snapshots are admin-only');
+});
+
+test('material report chains undo leftovers safely and preserve later edits',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveMaterial',token,{name:'Sheet'},null);await f.ok('adminSaveRawMaterial',token,{material:'Sheet',length:96,width:48,quantity:2,thickness:'.5'},null);
+ const full=(await f.ok('getRawMaterials'))[0];const before=JSON.stringify(f.getState());assert.equal((await f.call('reportMaterialCut',full,{length:200,width:200},{})).ok,false);assert.equal(JSON.stringify(f.getState()),before);
+ await f.ok('reportMaterialCut',full,{length:48,width:24},{reporter:'Operator'});let rows=await f.ok('getRawMaterials');const leftover=rows.find(x=>x.id!==full.id);await f.ok('reportMaterialCut',leftover,{length:12,width:12},{});
+ let reports=await f.ok('adminListReports',token);assert.equal((await f.call('adminUndoReport',token,reports[1])).ok,false,'A used leftover blocks its parent undo');
+ const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports[0]);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>!r.undone));rows=await f.ok('getRawMaterials');assert.equal(rows.length,1);assert.equal(rows[0].quantity,2);
+ await f.ok('reportMaterialCut',rows[0],null,{});const report=(await f.ok('adminListReports',token))[0];const latest=(await f.ok('getRawMaterials'))[0];await f.ok('adminSaveRawMaterial',token,{...latest,quantity:5},latest);const saved=JSON.stringify(f.getState());assert.equal((await f.call('adminUndoReport',token,report)).ok,false);assert.equal(JSON.stringify(f.getState()),saved,'Undo cannot overwrite an admin edit');
+});
+
+test('anyone can complete a planned cut but only admins undo or edit it',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveCut',token,{title:'Job',quantity:1},null);const cut=(await f.ok('getCuts'))[0];const inventory=JSON.stringify((await f.ok('getWorkspaceData')).rawMaterials);
+ await f.ok('reportCompletedCut',cut,{});assert.equal((await f.ok('getCuts'))[0].completed,true);assert.equal((await f.call('reportCompletedCut',cut,{})).ok,false);assert.equal((await f.call('adminSaveCut','bad',{title:'Hacked',quantity:1},null)).ok,false);
+ const portable=await f.ok('adminPortableData',token);await f.ok('adminImportBackup',token,portable);const report=(await f.ok('adminListReports',token))[0];await f.ok('adminUndoReport',token,report);assert.equal((await f.ok('getCuts'))[0].completed,false);assert.equal(JSON.stringify((await f.ok('getWorkspaceData')).rawMaterials),inventory);
+ const backup=await f.ok('adminExportBackup',token);backup.reports[0].source.quantityBefore=-1; // cut reports do not carry a quantity, so unknown fields are dropped safely.
+ delete backup.reports;delete backup.reportVersions;await f.ok('adminImportBackup',token,backup);assert.deepEqual(await f.ok('adminListReports',token),[]);
+});

@@ -1,4 +1,5 @@
   // Workspace navigation, public browsing, inventory, and appearance.
+  let wsReports = [], wsBrokenOriginal = null;
   let wsCuts = [], wsCutOriginal = null, wsSheetCutOriginal = null;
   let wsNotes = [], wsNoteOriginal = null;
   let wsPage = 'feeds', wsMills = [], wsMaterials = [], wsRawMaterials = [], wsDashboard = {}, wsSelectedMill = '', wsAfterLogin = null;
@@ -72,7 +73,9 @@
     const revision = ++wsDataRevision;
     const data = typeof localDatabase().workspaceData === 'function' ? await localDatabase().workspaceData() : null;
     const [mills,materials,dashboard,rawMaterials,notes,cuts] = data ? [data.mills,data.materials,data.dashboard,data.rawMaterials,data.notes || [],data.cuts || []] : await Promise.all([rpc('getMills'),rpc('getMaterials'),rpc('getDashboard'),rpc('getRawMaterials'),rpc('getNotes'),rpc('getCuts')]);
-    if (revision !== wsDataRevision) return;
+    const reportToken=token;const reports=reportToken?await rpc('adminListReports',reportToken):[];
+    if (revision !== wsDataRevision || token!==reportToken) return;
+    wsReports=reports;
     wsCuts = cuts; wsNotes = notes; wsMills = mills; wsMaterials = materials; wsDashboard = dashboard; wsRawMaterials = rawMaterials;
     el('sheetSyncStatus').textContent = dashboard.sheetSyncWarning || ''; el('sheetSyncStatus').hidden = !dashboard.sheetSyncWarning;
     if (wsSelectedMill && !mills.some(item => item.number === wsSelectedMill)) wsSelectedMill = '';
@@ -151,6 +154,7 @@
       const edit = wsButton('Edit mill',() => wsOpenMill(item)); edit.id = 'editSelectedMill'; actions.append(edit);
       actions.append(wsButton('Delete',() => wsDeleteMill(item),'danger small'));
     }
+    if (item.quantity>0) actions.append(wsButton('Report broken',()=>wsOpenBroken(item)));
     if (item.purchaseUrl) actions.append(wsPurchaseLink(item));
     detail.append(actions);
   }
@@ -162,7 +166,7 @@
       const row = wsNode('tr'); const name = wsNode('td'); name.append(wsNode('strong',item.name || 'Mill ' + item.number),wsNode('small',item.number,'hint'));
       row.append(name,wsNode('td',item.quantity == null ? 'Not counted' : item.quantity),wsNode('td',item.reorderLevel == null ? '—' : item.reorderLevel));
       const stock = wsNode('td'); stock.append(wsStock(item)); row.append(stock);
-      const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
+      const actions = wsNode('td'); if (item.purchaseUrl && ['low','out'].includes(item.stockStatus)) actions.append(wsPurchaseLink(item)); if(item.quantity>0)actions.append(wsButton('Report broken',()=>wsOpenBroken(item))); if (token) actions.append(wsButton('Update stock',() => wsSelectInventory(item.number))); row.append(actions); el('inventoryListBody').append(row);
     });
   }
   function wsRenderMaterials() {
@@ -207,7 +211,7 @@
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsFilterFeeds();}
+  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -287,6 +291,7 @@
     wsInitRawMaterials();
     wsInitNotes();
     wsInitCuts();
+    wsInitReports();
     wsAuthChanged(); wsGo('feeds');
   }
 
@@ -310,8 +315,9 @@
       const noteCell = wsNode('td'); const note = wsNode('span',item.notes || '—','raw-material-note'); note.title = item.notes || ''; noteCell.append(note);
       row.append(material,wsNode('td',item.length + ' × ' + item.width),wsNode('td',item.thickness || 'Not specified'),quantity,wsNode('td',item.location || '—'),noteCell);
       const actions = wsNode('td');
+      if(item.quantity>0)actions.append(wsButton('Record cut',()=>wsOpenSheetCut(item)));
       if (token) {
-        const group = wsNode('div',null,'actions');if(item.quantity>0)group.append(wsButton('Record cut',()=>wsOpenSheetCut(item))); group.append(wsButton('Edit',() => wsOpenRawMaterial(item)),wsButton('Delete',() => wsDeleteRawMaterial(item),'danger small')); actions.append(group);
+        const group = wsNode('div',null,'actions'); group.append(wsButton('Edit',() => wsOpenRawMaterial(item)),wsButton('Delete',() => wsDeleteRawMaterial(item),'danger small')); actions.append(group);
       }
       row.append(actions); body.append(row);
     });
@@ -419,8 +425,9 @@
             const updated=Array.from(el('cutList').children).find(node=>node.dataset.cutId===item.id);const control=updated&&Array.from(updated.querySelectorAll('button')).find(node=>node.textContent===text);if(control&&!control.disabled)control.focus();
           });button.disabled=!neighbor||priorityFirst||!!query;button.setAttribute('aria-label',text+' '+item.title);actions.append(button);
         }
-        actions.append(wsButton(item.completed?'Reopen':'Mark done',()=>wsSaveAction('adminSetCutCompleted',original,!item.completed)),wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);
-      }el('cutList').append(card);
+        if(item.completed)actions.append(wsButton('Reopen',()=>wsSaveAction('adminSetCutCompleted',original,false)));
+        actions.append(wsButton('Edit',()=>wsOpenCut(item)),wsButton('Delete',()=>{if(window.confirm('Delete cut “'+item.title+'”?'))wsSaveAction('adminDeleteCut',original);},'danger small'));card.append(actions);
+      }if(!item.completed)card.append(wsButton('Mark done',()=>wsReportDone(item)));el('cutList').append(card);
     });
   }
   function wsOpenCut(item) {
@@ -429,7 +436,7 @@
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
-    if(!token||adminBusy)return;wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
+    if(adminBusy)return;wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
     el('sheetCutSource').textContent=item.material+' · '+item.length+' × '+item.width+' inch · '+item.quantity+' pieces available';el('remainderLength').focus();
   }
   function wsToggleRemainder() {
@@ -448,9 +455,34 @@
     el('keepRemainder').addEventListener('change',wsToggleRemainder);
     el('cancelSheetCut').addEventListener('click',()=>{if(!adminBusy){el('sheetCutEditor').hidden=true;wsSheetCutOriginal=null;}});
     el('sheetCutForm').addEventListener('submit',async event=>{
-      event.preventDefault();if(!token||adminBusy||!wsSheetCutOriginal)return;const active=token,remainder=el('keepRemainder').checked?{length:el('remainderLength').value,width:el('remainderWidth').value}:null;
+      event.preventDefault();if(adminBusy||!wsSheetCutOriginal)return;const remainder=el('keepRemainder').checked?{length:el('remainderLength').value,width:el('remainderWidth').value}:null;
       setBusy(true);el('sheetCutFields').disabled=true;el('sheetCutStatus').textContent='Recording cut…';
-      try {await rpc('adminCutRawMaterial',active,wsSheetCutOriginal,remainder);if(token!==active)return;el('sheetCutEditor').hidden=true;wsSheetCutOriginal=null;el('globalSearch').value='';await refreshWorkspaceData();el('adminStatus').textContent='Cut recorded. Material quantities updated.';}
-      catch(error){if(token===active)el('sheetCutStatus').textContent=message(error);}finally{el('sheetCutFields').disabled=false;if(token===active)setBusy(false);}
+      try {await rpc('reportMaterialCut',wsSheetCutOriginal,remainder,{reporter:el('cutReporter').value,details:el('cutReportDetails').value});el('sheetCutEditor').hidden=true;wsSheetCutOriginal=null;el('globalSearch').value='';await refreshWorkspaceData();el('adminStatus').textContent='Cut recorded. Material quantities updated.';}
+      catch(error){el('sheetCutStatus').textContent=message(error);}finally{el('sheetCutFields').disabled=false;setBusy(false);}
+    });
+  }
+
+  function wsRenderReports() {
+    el('reportList').replaceChildren();const reports=token?wsReports:[];el('reportsEmpty').hidden=reports.length>0;
+    reports.forEach(report=>{const card=wsNode('article',null,'shop-note');card.append(wsNode('h3',({material:'Material cut',mill:'Broken mill',cut:'Completed cut'})[report.kind]+' · '+report.label),wsNode('p',new Date(report.time).toLocaleString()+(report.reporter?' · '+report.reporter:''),'hint'));
+      if(report.details)card.append(wsNode('p',report.details,'note-body'));
+      if(report.undone)card.append(wsNode('span','Undone','badge'));else card.append(wsButton('Undo',()=>{if(window.confirm('Undo this report and restore its changes?'))wsSaveAction('adminUndoReport',{id:report.id,version:report.version});}));el('reportList').append(card);
+    });
+  }
+  async function wsReportDone(item) {
+    if(adminBusy||!window.confirm('Mark “'+item.title+'” as done? An admin can undo this report.'))return;setBusy(true);
+    try {await rpc('reportCompletedCut',{id:item.id,version:item.version},{});await refreshWorkspaceData();el('adminStatus').textContent='Cut completion recorded.';}
+    catch(error){el('adminStatus').textContent=message(error);}finally{setBusy(false);}
+  }
+  function wsOpenBroken(item) {
+    if(adminBusy)return;wsBrokenOriginal={number:item.number,version:item.version};el('brokenMillForm').reset();el('brokenMillStatus').textContent='';el('brokenMillSubject').textContent=(item.name||'Mill')+' · '+item.number+' · '+item.quantity+' available';el('brokenMillDialog').showModal();el('brokenReporter').focus();
+  }
+  function wsInitReports() {
+    el('cancelBrokenMill').addEventListener('click',()=>{if(!adminBusy)el('brokenMillDialog').close();});
+    el('brokenMillDialog').addEventListener('cancel',event=>{if(adminBusy)event.preventDefault();});
+    el('brokenMillForm').addEventListener('submit',async event=>{
+      event.preventDefault();if(adminBusy||!wsBrokenOriginal)return;setBusy(true);el('brokenMillFields').disabled=true;el('brokenMillStatus').textContent='Recording broken mill…';
+      try {await rpc('reportBrokenMill',wsBrokenOriginal,{reporter:el('brokenReporter').value,details:el('brokenDetails').value});el('brokenMillDialog').close();wsBrokenOriginal=null;await refreshWorkspaceData();el('adminStatus').textContent='Broken mill recorded. One removed from inventory.';}
+      catch(error){el('brokenMillStatus').textContent=message(error);}finally{el('brokenMillFields').disabled=false;setBusy(false);}
     });
   }

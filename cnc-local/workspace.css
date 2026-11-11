@@ -718,3 +718,6 @@ details[open] > summary { margin-bottom: 14px; }
 .priority-high { background:#ffe7c2; color:#714300; }
 .priority-normal { background:var(--blue-soft); color:var(--blue-text); }
 .priority-low { background:var(--surface-soft); color:var(--muted); }
+
+.report-dialog { width:min(480px,calc(100vw - 24px)); max-height:calc(100dvh - 24px); overflow:auto; background:var(--surface); color:var(--text); border:1px solid var(--line); border-radius:14px; padding:20px; }
+.report-dialog::backdrop { background:#000a; }

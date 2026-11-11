@@ -114,7 +114,7 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
   }
   async function assertReadOnly(page){
     for(const id of ['manageMaterials','materialManagement','addRawMaterial','rawMaterialEditor'])assert.equal(await page.locator('#'+id).isVisible(),false,'Operators cannot see '+id);
-    assert.equal(await page.locator('#rawMaterialListBody button').count(),0,'Operator sheet rows have no write controls');
+    assert.equal(await page.locator('#rawMaterialListBody button').filter({hasNotText:'Record cut'}).count(),0,'Operators can only record cuts');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),3,'Operators retain the material selector');
   }
   async function assertNavigation(page){
@@ -132,7 +132,7 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1);
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0);
     assert.equal(await page.locator('.nav-button').count(),8);
-    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.12/);
+    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.13/);
     assert.match(await page.locator('#mentorNotice').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('#materialDetailEmpty').isVisible(),true,'A new installation has a material-selection empty state');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),0);

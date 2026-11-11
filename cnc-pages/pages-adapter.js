@@ -21,7 +21,7 @@
  function enqueue(name,args){const next=queue.then(()=>invoke(name,args));queue=next.catch(()=>{});return next;}
  window.cncLocal=Object.freeze({
   kind:'shared',ready,
-  async call(name,...args){await ready;const value=await enqueue(name,args);if(name.startsWith('admin')&&!['adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminExportBackup','adminPortableData'].includes(name)){cached=null;expires=0;}return value;},
+  async call(name,...args){await ready;const value=await enqueue(name,args);if(name.startsWith('report')||name.startsWith('admin')&&!['adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminListReports','adminExportBackup','adminPortableData'].includes(name)){cached=null;expires=0;}return value;},
   workspaceData(){
    if(cached&&Date.now()<expires)return Promise.resolve(cached);
    if(!pending)pending=ready.then(()=>enqueue('getWorkspaceData',[])).then(value=>{cached=value;expires=Date.now()+5000;return value;}).finally(()=>{pending=null;});

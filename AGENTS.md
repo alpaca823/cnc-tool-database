@@ -3,3 +3,5 @@
 Support the local HTML and GitHub Pages/Supabase editions. The user discontinued Google Apps Script support in v1.14.1. Keep cnc-scripts and old numbered archives for reference, but do not rebuild or release Google editions. Preserve existing data and credentials. The default login is admin/Feds201, case-insensitive, replacing the old admin/admin fallback by explicit user request. Use canonical cnc-local sources and cnc-pages server generation. Run build-both.py and appropriate supported-edition tests. Keep versions synchronized and numbered release ZIPs immutable. Never expose server database keys. Keep the mentor notice. Shared and offline data remain independent; backups exclude passwords.
 
 Every released change must increment the synchronized version and be recorded accurately in the root CHANGELOG.md. Include that log in both supported release packages. Never invent fixes.
+
+Visitors may record material cuts, completed cut-list items, and broken mills. These limited report actions must remain logged and reversible only by admins; all other editing stays protected. Undo must never overwrite later changes.
