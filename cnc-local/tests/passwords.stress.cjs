@@ -86,7 +86,7 @@ function seeded(...passwords) {
   return saved;
 }
 
-async function login(instance, password = 'admin') {
+async function login(instance, password = 'Feds201') {
   await instance.api.ready;
   return (await instance.api.call('adminLogin', 'admin', password)).token;
 }

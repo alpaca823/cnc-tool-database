@@ -118,10 +118,10 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),3,'Operators retain the material selector');
   }
   async function assertNavigation(page){
-    assert.equal(await page.locator('.nav-button').count(),6,'Six sidebar destinations');
+    assert.equal(await page.locator('.nav-button').count(),7,'Seven sidebar destinations');
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1,'One Materials sidebar tab');
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0,'No duplicate raw-material sidebar tab');
-    for(const name of ['dashboard','feeds','mills','inventory','materials','settings']){
+    for(const name of ['dashboard','feeds','mills','inventory','materials','notes','settings']){
       await navigate(page,name);
       assert.equal(await page.locator('.workspace-view:visible').count(),1,'Only '+name+' is displayed');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,name+' fits the viewport');
@@ -131,8 +131,8 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     const {page,rpc}=await open();await navigate(page,'materials');
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1);
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0);
-    assert.equal(await page.locator('.nav-button').count(),6);
-    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.9/);
+    assert.equal(await page.locator('.nav-button').count(),7);
+    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.10/);
     assert.match(await page.locator('#mentorNotice').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('#materialDetailEmpty').isVisible(),true,'A new installation has a material-selection empty state');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),0);
@@ -261,7 +261,7 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     await mobile.page.locator('#cancelRawMaterialEdit').click();await manager(mobile.page);
     assert.equal(await mobile.page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,'Material manager fits mobile');
     if(process.env.CNC_UNIFIED_SCREENSHOT)await mobile.page.screenshot({path:process.env.CNC_UNIFIED_SCREENSHOT,fullPage:true,animations:'disabled'});
-    console.log('PASS: all six pages, both themes, mobile material selection, and admin editors fit without document overflow.');
+    console.log('PASS: all seven pages, both themes, mobile material selection, and admin editors fit without document overflow.');
     assert.deepEqual(errors,[],'No uncaught browser errors');assert.deepEqual(unexpectedRequests,[],'Standalone HTML requests no external resources');
   }finally{
     for(const context of contexts)await context.close();await browser.close();fs.rmSync(temporary,{recursive:true,force:true});

@@ -253,6 +253,23 @@ export function createDatabase(host) {
     });
     return mills;
   }
+  function validateNotes(value,keepVersions) {
+    if (!Array.isArray(value) || value.length > 1000) throw new Error('Notes must be a list of at most 1,000 entries.');
+    const ids = new Set();
+    return value.map(record => {
+      if (!record || typeof record.title !== 'string' || !record.title.trim() || record.title.trim().length > 120 || typeof record.body !== 'string' || !record.body.trim() || record.body.length > 10000) throw new Error('Each note needs a title (up to 120 characters) and text (up to 10,000 characters).');
+      if (typeof record.id !== 'string' || !record.id || record.id.length > 100 || ids.has(record.id)) throw new Error('The note ID is invalid or duplicated.');
+      if (keepVersions && (typeof record.version !== 'string' || !record.version)) throw new Error('The note version is invalid.');
+      ids.add(record.id);
+      return {id:record.id,title:record.title.trim(),body:record.body,version:keepVersions ? record.version : uid()};
+    });
+  }
+  function noteIndex(records,original) {
+    if (!original || typeof original.id !== 'string' || typeof original.version !== 'string') throw new Error('Select an existing note first.');
+    const index = records.findIndex(item => item.id === original.id);
+    if (index < 0 || records[index].version !== original.version) throw new Error('This note changed or was deleted. Refresh and select Edit again.');
+    return index;
+  }
   function validateState(value) {
     if (!value || value.format !== 'cnc-local-database' || value.schemaVersion !== 1 || !Number.isSafeInteger(value.revision) || value.revision < 0)
       throw new Error('Unsupported saved database format.');
@@ -271,7 +288,7 @@ export function createDatabase(host) {
     }
     const settings = validateSettings(value.settings,true);
     const rawMaterials = value.rawMaterials === undefined ? [] : validateRawMaterials(value.rawMaterials,true);
-    return {...value,settings,rawMaterials,materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
+    return {...value,settings,rawMaterials,notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
   }
   function readState() {
     const raw = storageRead();
@@ -325,18 +342,18 @@ export function createDatabase(host) {
     return result;
   }
   function validateNewPassword(password) {
-    if (typeof password === 'string' && password.toLowerCase() === 'feds201') throw new Error('The password admin is reserved for the permanent default fallback.');
+    if (typeof password === 'string' && password.toLowerCase() === 'feds201') throw new Error('The password Feds201 is reserved for the permanent default fallback.');
     if (typeof password !== 'string' || password.length < 8 || password.length > 128) throw new Error('New password must have 8 to 128 characters.');
   }
   function customPassword(state,id) {
-    if (id === DEFAULT_PASSWORD_ID) throw new Error('The default admin / admin fallback cannot be changed or removed. Add an additional password instead.');
+    if (id === DEFAULT_PASSWORD_ID) throw new Error('The default admin / Feds201 fallback cannot be changed or removed. Add an additional password instead.');
     const credential = state.auth.passwords.find(item => item.id === id);
     if (!credential) throw new Error('That admin password no longer exists. Refresh the list and try again.');
     return credential;
   }
   async function rejectDuplicatePassword(password,passwords,exceptId) {
     for (const credential of passwords) {
-      if (credential.id !== exceptId && passwordsEqual(await hashPassword(password,credential.salt),credential.hash))
+      if (credential.id !== exceptId && (passwordsEqual(await hashPassword(password,credential.salt),credential.hash) || passwordsEqual(await hashPassword(password.toLowerCase(),credential.salt),credential.hash)))
         throw new Error('That admin password already exists. Choose a different password.');
     }
   }
@@ -353,15 +370,16 @@ export function createDatabase(host) {
   }
   async function migratePasswords() {
     // Older versions stored only one credential. Keep a customized password as
-    // an additional login, while restoring the permanent admin/admin fallback.
+    // an additional login, while restoring the permanent admin/Feds201 fallback.
     for (;;) {
       const state = readState();
       if (state.auth.passwords !== undefined) return;
       const defaultHash = await hashPassword('admin',state.auth.salt);
+      const currentDefaultHash = await hashPassword('feds201',state.auth.salt);
       const latest = readState();
       if (latest.auth.passwords !== undefined) return;
       if (JSON.stringify(state.auth) !== JSON.stringify(latest.auth)) continue;
-      latest.auth.passwords = passwordsEqual(defaultHash,state.auth.hash) ? [] :
+      latest.auth.passwords = (passwordsEqual(defaultHash,state.auth.hash) || passwordsEqual(currentDefaultHash,state.auth.hash)) ? [] :
         [{id:uid(),label:'Existing admin password',salt:state.auth.salt,hash:state.auth.hash,version:uid(),iterations:ITERATIONS}];
       commit(latest); return;
     }
@@ -454,7 +472,7 @@ export function createDatabase(host) {
       throw new Error('Choose a version 1 CNC database backup.');
     const settings = validateSettings(seed.settings,false);
     const rawMaterials = seed.rawMaterials === undefined ? [] : validateRawMaterials(seed.rawMaterials,false);
-    return {settings,rawMaterials,materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
+    return {settings,rawMaterials,notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
   }
 
   const ready = (async () => {
@@ -478,6 +496,21 @@ export function createDatabase(host) {
   ready.catch(() => {});
 
   const api = {
+    getNotes() {return readState().notes;},
+    adminSaveNote(token,record,original) {
+      const state = readState(); requireAdmin(token,state);
+      const index = original == null ? -1 : noteIndex(state.notes,original);
+      const item = validateNotes([{...record,id:index < 0 ? uid() : state.notes[index].id}],false)[0];
+      if (index < 0) {
+        if (state.notes.length >= 1000) throw new Error('The notes list has reached its 1,000 entry limit.');
+        state.notes.unshift(item);
+      } else state.notes[index] = item;
+      commit(state); return true;
+    },
+    adminDeleteNote(token,original) {
+      const state = readState(); requireAdmin(token,state);
+      state.notes.splice(noteIndex(state.notes,original),1); commit(state); return true;
+    },
     getMills() {return displayedMills(readState());},
     getMaterials() {return displayedMaterials(readState());},
     getRawMaterials() {return displayedRawMaterials(readState());},
@@ -689,19 +722,19 @@ export function createDatabase(host) {
     },
     adminExportBackup(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),exportedAt:new Date().toISOString()};
+      return {format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
     },
     adminPortableData(token) {
       const state = readState(); requireAdmin(token,state);
-      return {format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state)};
+      return {format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item)};
     },
     adminImportBackup(token,backup) {
       const state = readState(); requireAdmin(token,state);
       const data = portable(backup); // Validate the complete backup before writing anything.
-      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; commit(state); return true;
+      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; commit(state); return true;
     }
   };
-  const writes = new Set(['adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

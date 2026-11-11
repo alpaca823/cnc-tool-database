@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.9
+# CNC Tool Database — v1.14.10
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -97,18 +97,13 @@ The Google Apps Script edition uses the same interface and data rules. Both edit
 
 The local edition continues to work offline with its existing browser storage. The Google edition uses a shared Google database and private Drive images. Its setup instructions are in the separate Google package. You can move data and photos between the editions using JSON exports/imports, and the Google edition can download an offline HTML snapshot. Their live databases remain independent. Admin passwords and appearance preferences are not transferred.
 
-As of v1.14.9, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case.
 
-Small update v1.14.9: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
 
-Small update v1.14.9: Dark mode is the default for a fresh browser. Saved Light, Dark, and System appearance preferences are preserved.
 
-Bug fix v1.14.9: The mentor-required notice appears only on Feeds & Speeds. Dark remains the default appearance.
 
-Bug fix v1.14.9: The search shortcut selects existing text for replacement. Reduced-motion preferences now disable interface transitions and animations.
 
-Bug fix v1.14.9: Smoother modal rendering and more stable layouts during rapid keyboard input.
 
-Bug fix v1.14.9: Improved tap handling and reversible interactions in the optional modal interface.
 
-Bug fix v1.14.9: Removed Location from the tool inventory page while preserving saved locations. Every release now requires a version-matched CHANGELOG.md entry, included in supported downloads.
+
+Update v1.14.10: Notes provides searchable shop reminders. Admins can add, edit, and delete; visitors can read. Notes are shared on the website and independent in local HTML, and travel with JSON backups and offline snapshots. Imports replace notes along with the rest of the database.

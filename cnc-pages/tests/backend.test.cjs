@@ -39,3 +39,24 @@ test('purchase links persist through inventory changes and backups; unsafe links
  await f.ok('adminImportBackup',token,backup);mill=(await f.ok('getMills'))[0];assert.equal(mill.purchaseUrl,url);
  await f.ok('adminSaveMill',token,{...mill,purchaseUrl:''},{number:mill.number,version:mill.version});assert.equal((await f.ok('getMills'))[0].purchaseUrl,undefined);
 });
+
+test('notes protect edits, reject stale writes, export safely, and accept older backups',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');
+ assert.deepEqual(await f.ok('getNotes'),[]);
+ assert.equal((await f.call('adminSaveNote','bad',{title:'No',body:'Blocked'},null)).ok,false);
+ await f.ok('adminSaveNote',token,{title:'Setup',body:'First line\n<script>literal text</script>'},null);
+ const original=(await f.ok('getNotes'))[0];
+ assert.equal((await f.ok('getWorkspaceData')).notes[0].id,original.id);
+ await f.ok('adminSaveNote',token,{title:'Setup updated',body:'Fresh'},original);
+ const before=JSON.stringify(f.getState());
+ assert.equal((await f.call('adminSaveNote',token,{title:'Stale',body:'Lost'},original)).ok,false);
+ assert.equal((await f.call('adminDeleteNote',token,original)).ok,false);
+ assert.equal((await f.call('adminSaveNote',token,{title:'',body:'Bad'},null)).ok,false);
+ assert.equal((await f.call('adminSaveNote',token,{title:'Bad',body:'x'.repeat(10001)},null)).ok,false);
+ assert.equal(JSON.stringify(f.getState()),before);
+ const backup=await f.ok('adminExportBackup',token);assert.equal(backup.notes[0].body,'Fresh');assert.equal('version' in backup.notes[0],false);assert.equal('auth' in backup,false);
+ const invalid=structuredClone(backup);invalid.notes.push(invalid.notes[0]);assert.equal((await f.call('adminImportBackup',token,invalid)).ok,false);assert.equal(JSON.stringify(f.getState()),before);
+ await f.ok('adminImportBackup',token,backup);assert.equal((await f.ok('getNotes'))[0].body,'Fresh');
+ const current=(await f.ok('getNotes'))[0];await f.ok('adminDeleteNote',token,current);assert.deepEqual(await f.ok('getNotes'),[]);
+ delete backup.notes;await f.ok('adminImportBackup',token,backup);assert.deepEqual(await f.ok('getNotes'),[]);
+});

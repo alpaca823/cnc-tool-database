@@ -27,18 +27,13 @@ Run python build-both.py from the full source root to build all supported editio
 
 Tests use a local database-service double and Chromium; live Supabase connection, billing-plan limits, and production deployment must be verified separately. Free hosting/database plans have provider limits. Do not describe the browser-only preview as shared storage.
 
-As of v1.14.9, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case. This is a bug-fix release.
+As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case.
 
-Small update v1.14.9: Mills → Edit mill → Purchase link lets an admin save an optional http/https product URL. Buy this mill links appear in mill details, low/out inventory rows, and dashboard inventory alerts. URLs travel with JSON backups and offline HTML. Visitors can open links without admin access; purchases are completed on the supplier site.
 
-Small update v1.14.9: Dark mode is the default for a fresh browser. Saved Light, Dark, and System appearance preferences are preserved.
 
-Bug fix v1.14.9: The mentor-required notice appears only on Feeds & Speeds. Dark remains the default appearance.
 
-Bug fix v1.14.9: The search shortcut selects existing text for replacement. Reduced-motion preferences now disable interface transitions and animations.
 
-Bug fix v1.14.9: Smoother modal rendering and more stable layouts during rapid keyboard input.
 
-Bug fix v1.14.9: Improved tap handling and reversible interactions in the optional modal interface.
 
-Bug fix v1.14.9: Removed Location from the tool inventory page while preserving saved locations. Every release now requires a version-matched CHANGELOG.md entry, included in supported downloads.
+
+Update v1.14.10: Notes provides searchable shop reminders. Admins can add, edit, and delete; visitors can read. Notes are shared on the website and independent in local HTML, and travel with JSON backups and offline snapshots. Imports replace notes along with the rest of the database.

@@ -67,7 +67,7 @@ const replacementPassword='Mentor-Lathe-92';
   }
   try {
     const page=await open();
-    assert.equal((await page.locator('#appVersion').textContent()).trim(),'Version 1.14.9 · CNC Tool Database');
+    assert.equal((await page.locator('#appVersion').textContent()).trim(),'Version 1.14.10 · CNC Tool Database');
     assert.equal(await page.locator('#mentorNotice').isVisible(),true);
     assert.match(await page.locator('#mentorNotice').textContent(),/mentor must be present/i);
     await loginUI(page);
@@ -95,7 +95,7 @@ const replacementPassword='Mentor-Lathe-92';
     assert.equal((await rpc(page,'adminListPasswords',secondSession.token)).length,3);
     await assert.rejects(rpc(page,'adminLogin','admin','Incorrect-password-99'),/incorrect|password/i);
     await assert.rejects(rpc(page,'adminLogin','mentor',firstPassword),/incorrect|username|password/i);
-    console.log('PASS: Version 1.14.9, mentor notice, immutable fallback display, mismatch feedback, and two additional working admin passwords.');
+    console.log('PASS: Version 1.14.10, mentor notice, immutable fallback display, mismatch feedback, and two additional working admin passwords.');
 
     for(const malformed of [null,{},[],5,'forged-token']){
       await assert.rejects(rpc(page,'adminListPasswords',malformed),/AUTH_REQUIRED/);
@@ -106,7 +106,7 @@ const replacementPassword='Mentor-Lathe-92';
     for(const label of ['', '   ', 'x'.repeat(81), null, {}, 'shop MENTOR', 'Default fallback']){
       await assert.rejects(rpc(page,'adminAddPassword',fallback.token,label,'Another-valid-pass-99'),/label|name|default|already|duplicate|exist/i);
     }
-    for(const password of ['', 'short', 'x'.repeat(129), null, {}, 'admin', firstPassword]){
+    for(const password of ['', 'short', 'x'.repeat(129), null, {}, 'admin', 'FEDS201', firstPassword, firstPassword.toUpperCase()]){
       await assert.rejects(rpc(page,'adminAddPassword',fallback.token,'Invalid password',password),/password|already|duplicate|exist|default/i);
     }
     await assert.rejects(rpc(page,'adminUpdatePassword',fallback.token,first.id,'SUPERVISOR',''),/label|already|duplicate|exist/i);
@@ -177,7 +177,7 @@ const replacementPassword='Mentor-Lathe-92';
     assert.equal((await rpc(receiving,'adminListPasswords',receivedAuth.token)).length,1);
     await assert.rejects(rpc(receiving,'adminLogin','admin',replacementPassword),/incorrect|password/i);
     assert.equal((await rpc(receiving,'getSettings','001','Test aluminum')).feed,8);
-    assert.equal((await receiving.locator('#appVersion').textContent()).trim(),'Version 1.14.9 · CNC Tool Database');
+    assert.equal((await receiving.locator('#appVersion').textContent()).trim(),'Version 1.14.10 · CNC Tool Database');
     assert.equal(await receiving.locator('#mentorNotice').isVisible(),true);
 
     const beforeImport=await rpc(page,'adminListPasswords',current.token);
@@ -187,7 +187,7 @@ const replacementPassword='Mentor-Lathe-92';
     assert.ok((await rpc(page,'adminLogin','admin',replacementPassword)).token);
     assert.ok((await rpc(page,'adminLogin','admin','Feds201')).token);
     assert.equal((await rpc(page,'getSettings','001','Test aluminum')).feed,9);
-    console.log('PASS: actual JSON and standalone HTML downloads contain settings but no custom credentials; fresh copies use admin/admin, and imports preserve local passwords.');
+    console.log('PASS: actual JSON and standalone HTML downloads contain settings but no custom credentials; fresh copies use admin/Feds201, and imports preserve local passwords.');
 
     const legacy=await open();await seedLegacy(legacy,'Legacy-custom-52');
     const migratedDefault=await rpc(legacy,'adminLogin','admin','Feds201');

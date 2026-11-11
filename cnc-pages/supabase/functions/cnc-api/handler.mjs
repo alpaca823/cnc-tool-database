@@ -1,6 +1,6 @@
 // Shared data/auth rules are generated from the canonical offline backend.
 export function createHandler(env,{createDatabase,fetchImpl=fetch,cryptoImpl=crypto,now=()=>Date.now()}={}) {
-  const actions=new Set(['getWorkspaceData','getMills','getMaterials','getRawMaterials','getDashboard','getOptions','getSettings','adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminChangePassword','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveMaterial','adminDeleteMaterial','adminSaveRawMaterial','adminDeleteRawMaterial','adminSaveSetting','adminDeleteSetting','adminExportBackup','adminPortableData','adminImportBackup']);
+  const actions=new Set(['getNotes','adminSaveNote','adminDeleteNote','getWorkspaceData','getMills','getMaterials','getRawMaterials','getDashboard','getOptions','getSettings','adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminChangePassword','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveMaterial','adminDeleteMaterial','adminSaveRawMaterial','adminDeleteRawMaterial','adminSaveSetting','adminDeleteSetting','adminExportBackup','adminPortableData','adminImportBackup']);
   return async request=>{
     const origin=request.headers.get('origin')||'';
     const allowed=new Set(String(env.origins||'').split(',').map(s=>s.trim()).filter(Boolean));
@@ -37,8 +37,8 @@ export function createHandler(env,{createDatabase,fetchImpl=fetch,cryptoImpl=cry
       await database.ready;
       let value;
       if(name==='getWorkspaceData') {
-        const [mills,materials,dashboard,rawMaterials]=await Promise.all(['getMills','getMaterials','getDashboard','getRawMaterials'].map(action=>database.call(action)));
-        value={mills,materials,dashboard,rawMaterials};
+        const [mills,materials,dashboard,rawMaterials,notes]=await Promise.all(['getMills','getMaterials','getDashboard','getRawMaterials','getNotes'].map(action=>database.call(action)));
+        value={mills,materials,dashboard,rawMaterials,notes};
       } else value=await database.call(name,...args);
       if(changed){
         const updated=await rest('cnc_state?id=eq.main&revision=eq.'+saved.revision,{method:'PATCH',headers:{Prefer:'return=representation'},body:JSON.stringify({revision:saved.revision+1,data:JSON.parse(storage)})});

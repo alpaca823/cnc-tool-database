@@ -1,4 +1,5 @@
   // Workspace navigation, public browsing, inventory, and appearance.
+  let wsNotes = [], wsNoteOriginal = null;
   let wsPage = 'feeds', wsMills = [], wsMaterials = [], wsRawMaterials = [], wsDashboard = {}, wsSelectedMill = '', wsAfterLogin = null;
   let wsMillOriginal = null, wsMillBase = null, wsMillPhoto = '', wsMillPhotoDirty = false, wsMillEditorOpen = false, wsInventoryOriginal = null, wsDataRevision = 0;
   const wsThemeKey = 'cnc-tool-theme-v1';
@@ -11,6 +12,7 @@
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
     inventory:['Inventory','Keep track of tool quantities and low stock.'],
     materials:['Materials','Select a material to see sheet quantities, sizes, and storage locations.'],
+    notes:['Notes','Shop reminders and information.'],
     settings:['Settings','Appearance, backups, and admin access for this workspace.']
   };
   function wsNode(tag, text, className) {
@@ -59,7 +61,7 @@
     el('workspace').hidden = !signedIn; el('toggleView').textContent = signedIn ? 'Admin settings' : 'Admin';
     el('publicMaterials').hidden = false;
     el('cuttingDetails').open = signedIn;
-    if (!signedIn) {wsMillEditorOpen = false; wsMillOriginal = null; wsInventoryOriginal = null; wsRawOriginal = null; wsRawEditorOpen = false; el('rawMaterialForm').reset(); el('materialManagement').open = false;}
+    if (!signedIn) {el('noteEditor').hidden = true; wsNoteOriginal = null; wsMillEditorOpen = false; wsMillOriginal = null; wsInventoryOriginal = null; wsRawOriginal = null; wsRawEditorOpen = false; el('rawMaterialForm').reset(); el('materialManagement').open = false;}
     el('millEditor').hidden = !signedIn || !wsMillEditorOpen;
     el('rawMaterialEditor').hidden = !signedIn || !wsRawEditorOpen;
     wsRenderAll();
@@ -67,9 +69,9 @@
   async function refreshWorkspaceData() {
     const revision = ++wsDataRevision;
     const data = typeof localDatabase().workspaceData === 'function' ? await localDatabase().workspaceData() : null;
-    const [mills,materials,dashboard,rawMaterials] = data ? [data.mills,data.materials,data.dashboard,data.rawMaterials] : await Promise.all([rpc('getMills'),rpc('getMaterials'),rpc('getDashboard'),rpc('getRawMaterials')]);
+    const [mills,materials,dashboard,rawMaterials,notes] = data ? [data.mills,data.materials,data.dashboard,data.rawMaterials,data.notes || []] : await Promise.all([rpc('getMills'),rpc('getMaterials'),rpc('getDashboard'),rpc('getRawMaterials'),rpc('getNotes')]);
     if (revision !== wsDataRevision) return;
-    wsMills = mills; wsMaterials = materials; wsDashboard = dashboard; wsRawMaterials = rawMaterials;
+    wsNotes = notes; wsMills = mills; wsMaterials = materials; wsDashboard = dashboard; wsRawMaterials = rawMaterials;
     el('sheetSyncStatus').textContent = dashboard.sheetSyncWarning || ''; el('sheetSyncStatus').hidden = !dashboard.sheetSyncWarning;
     if (wsSelectedMill && !mills.some(item => item.number === wsSelectedMill)) wsSelectedMill = '';
     if (!wsSelectedMill && mills.length) wsSelectedMill = mills[0].number;
@@ -202,7 +204,7 @@
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsFilterFeeds();}
+  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -280,6 +282,7 @@
       catch (error) {if (token === active) {adminError(error); el('inventoryStatus').textContent = message(error);}} finally {if (token === active) setBusy(false);}
     });
     wsInitRawMaterials();
+    wsInitNotes();
     wsAuthChanged(); wsGo('feeds');
   }
 
@@ -349,5 +352,35 @@
         wsRawOriginal = null; wsRawEditorOpen = false; el('rawMaterialEditor').hidden = true;
         await fetchSettings(active); el('adminStatus').textContent = 'Sheet entry saved.';
       } catch (error) {if (token === active) {adminError(error); el('rawMaterialStatus').textContent = message(error);}} finally {if (token === active) setBusy(false);}
+    });
+  }
+
+  function wsRenderNotes() {
+    const notes = wsFiltered(wsNotes,['title','body']); el('noteList').replaceChildren();
+    el('notesEmpty').hidden = notes.length > 0;
+    el('notesEmpty').textContent = wsNotes.length ? 'No notes match your search.' : 'No notes yet.';
+    notes.forEach(item => {
+      const card = wsNode('article',null,'shop-note'); card.append(wsNode('h3',item.title),wsNode('p',item.body,'note-body'));
+      if (token) {const actions = wsNode('div',null,'actions'); actions.append(wsButton('Edit',()=>wsOpenNote(item)),wsButton('Delete',async()=>{
+        if (adminBusy || !window.confirm('Delete note “'+item.title+'”?')) return;
+        const active = token; setBusy(true);
+        try {await rpc('adminDeleteNote',active,{id:item.id,version:item.version});if(token!==active)return;if(wsNoteOriginal?.id===item.id)el('noteEditor').hidden=true;await refreshWorkspaceData();}
+        catch(error){if(token===active)adminError(error);}finally{if(token===active)setBusy(false);}
+      }));card.append(actions);}el('noteList').append(card);
+    });
+  }
+  function wsOpenNote(item) {
+    if (!token || adminBusy) return;
+    wsNoteOriginal = item ? {id:item.id,version:item.version} : null;
+    el('noteTitle').value = item?.title || ''; el('noteBody').value = item?.body || '';
+    el('noteEditorTitle').textContent = item ? 'Edit note' : 'Add note'; el('noteStatus').textContent = '';el('noteEditor').hidden = false;el('noteTitle').focus();
+  }
+  function wsInitNotes() {
+    el('addNote').addEventListener('click',()=>wsOpenNote(null));
+    el('cancelNote').addEventListener('click',()=>{if(!adminBusy){el('noteEditor').hidden=true;wsNoteOriginal=null;}});
+    el('noteForm').addEventListener('submit',async event=>{
+      event.preventDefault();if(!token||adminBusy)return;const active=token;setBusy(true);el('noteFields').disabled=true;el('noteStatus').textContent='Saving note…';
+      try {await rpc('adminSaveNote',active,{title:el('noteTitle').value,body:el('noteBody').value},wsNoteOriginal);if(token!==active)return;el('noteEditor').hidden=true;wsNoteOriginal=null;await refreshWorkspaceData();}
+      catch(error){if(token===active)el('noteStatus').textContent=message(error);}finally{el('noteFields').disabled=false;if(token===active)setBusy(false);}
     });
   }
