@@ -1,5 +1,5 @@
-# v1.14.8 bug fix
+# v1.14.9 bug fix
 
-Local workspace and local/shared inventory browser suites pass. Checks verify Location is absent from the inventory table, form, description, and search prompt. Count edits preserve existing locations, and the local suite verifies backup preservation, stock thresholds, stale updates, themes, mentor placement, and mobile layout. A build check confirms mismatched or missing current-version changelog entries are rejected.
+Mill-selection browser tests pass for local and shared editions: row specifications, mill number, keyboard activation, and mobile taps change the details panel. Search selects a visible result and clears details when no mills match. Local workspace integration passes, including inventories, backups, themes, mentor placement, and mobile layouts.
 
-No database or credential changes. Material sheet locations are unchanged. Google Apps Script remains archived.
+Notes remains staged for the following release. No database, credential, or schema changes.

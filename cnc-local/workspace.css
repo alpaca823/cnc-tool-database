@@ -698,3 +698,5 @@ details[open] > summary { margin-bottom: 14px; }
 .sol-tools { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
 .sol-tools label { display:flex; align-items:center; gap:6px; margin:0; font-size:13px; }
 .sol-tools input { width:18px; height:18px; margin:0; }
+
+#millListBody tr { cursor:pointer; }
