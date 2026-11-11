@@ -132,7 +132,7 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1);
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0);
     assert.equal(await page.locator('.nav-button').count(),8);
-    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.15/);
+    assert.match(await page.locator('#appVersion').innerText(),/1\.14\.16/);
     assert.match(await page.locator('#mentorNotice').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('#materialDetailEmpty').isVisible(),true,'A new installation has a material-selection empty state');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),0);

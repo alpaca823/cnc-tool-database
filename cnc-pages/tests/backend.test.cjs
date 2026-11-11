@@ -140,7 +140,7 @@ test('material report chains undo leftovers safely and preserve later edits',asy
  await f.ok('reportMaterialCut',rows[0],null,{});const report=(await f.ok('adminListReports',token))[0];const latest=(await f.ok('getRawMaterials'))[0];await f.ok('adminSaveRawMaterial',token,{...latest,quantity:5},latest);const saved=JSON.stringify(f.getState());assert.equal((await f.call('adminUndoReport',token,report)).ok,false);assert.equal(JSON.stringify(f.getState()),saved,'Undo cannot overwrite an admin edit');
 });
 
-test('anyone can complete a planned cut but only admins undo or edit it',async()=>{
+test('cut completion reports are public, admin-reversible, and independent of material stock',async()=>{
  const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveCut',token,{title:'Job',quantity:1},null);const cut=(await f.ok('getCuts'))[0];const inventory=JSON.stringify((await f.ok('getWorkspaceData')).rawMaterials);
  await f.ok('reportCompletedCut',cut,{});assert.equal((await f.ok('getCuts'))[0].completed,true);assert.equal((await f.call('reportCompletedCut',cut,{})).ok,false);assert.equal((await f.call('adminSaveCut','bad',{title:'Hacked',quantity:1},null)).ok,false);
  const portable=await f.ok('adminPortableData',token);await f.ok('adminImportBackup',token,portable);const report=(await f.ok('adminListReports',token))[0];await f.ok('adminUndoReport',token,report);assert.equal((await f.ok('getCuts'))[0].completed,false);assert.equal(JSON.stringify((await f.ok('getWorkspaceData')).rawMaterials),inventory);
@@ -156,4 +156,26 @@ test('visitor totals are anonymous, deduplicated, independent of inventory, and 
  assert.equal((await f.call('getVisitorStats','extra')).ok,false);
  const response=await f.handler()(new Request('https://project.supabase.co/functions/v1/cnc-api',{method:'POST',headers:{origin:'https://wrong.example','content-type':'application/json'},body:JSON.stringify({name:'trackVisit',args:['c'.repeat(32)]})}));assert.equal(response.status,403);assert.equal((await f.ok('getVisitorStats')).total,2);
  const {token:admin}=await f.ok('adminLogin','admin','Feds201'),backup=await f.ok('adminExportBackup',admin);assert.equal('visits' in backup,false);await f.ok('adminImportBackup',admin,backup);assert.equal((await f.ok('getVisitorStats')).total,2,'Inventory restore leaves visitor totals alone');
+});
+
+test('public cut planning logs every action and admin undo restores the complete plan after export',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');
+ await f.ok('reportSaveCut',{title:'First',quantity:2},null,{reporter:'Student'});await f.ok('reportSaveCut',{title:'Second',quantity:1},null,{});
+ let cuts=await f.ok('getCuts');await f.ok('reportSetCutPriority',cuts[0],'urgent');cuts=await f.ok('getCuts');await f.ok('reportSaveCut',{...cuts[0],title:'Edited first'},cuts[0],{});
+ cuts=await f.ok('getCuts');await f.ok('reportMoveCut',cuts[1],cuts[0]);cuts=await f.ok('getCuts');assert.deepEqual(cuts.map(c=>c.title),['Second','Edited first']);await f.ok('reportDeleteCut',cuts[0],{});
+ const backup=await f.ok('adminExportBackup',token);assert.equal(backup.reports.filter(r=>r.kind==='plan').length,6);assert.equal('auth' in backup,false);await f.ok('adminImportBackup',token,backup);
+ for(let i=0;i<6;i++){const report=(await f.ok('adminListReports',token)).find(r=>!r.undone);assert.equal((await f.call('adminUndoReport','bad',report)).ok,false);await f.ok('adminUndoReport',token,report);const plan=await f.ok('getCuts');if(i===0)assert.deepEqual(plan.map(c=>c.title),['Second','Edited first']);if(i===1)assert.deepEqual(plan.map(c=>c.title),['Edited first','Second']);if(i===2)assert.equal(plan[0].title,'First');if(i===3)assert.equal(plan[0].priority,'normal');}
+ assert.deepEqual(await f.ok('getCuts'),[]);assert.ok((await f.ok('adminListReports',token)).every(r=>r.undone));assert.deepEqual(await f.ok('getMills'),[]);
+});
+
+test('public plan updates reject stale/invalid changes and undo respects dependent deletions',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('reportSaveCut',{title:'A',quantity:1},null,{});await f.ok('reportSaveCut',{title:'B',quantity:1},null,{});await f.ok('reportSaveCut',{title:'C',quantity:1},null,{});
+ let cuts=await f.ok('getCuts');const stale=cuts[0];await f.ok('reportSetCutPriority',stale,'high');const saved=JSON.stringify(f.getState());
+ for(const [name,args]of [['reportSaveCut',[{title:'Bad',quantity:0},null,{}]],['reportSaveCut',[{title:'Stale',quantity:1},stale,{}]],['reportSetCutPriority',[stale,'urgent']],['reportMoveCut',[stale,cuts[2]]]])assert.equal((await f.call(name,...args)).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ cuts=await f.ok('getCuts');await f.ok('reportDeleteCut',cuts[1],{});let reports=await f.ok('adminListReports',token);const createA=reports.find(r=>r.kind==='plan'&&r.plan.action==='create'&&r.plan.after[0].title==='A');assert.equal((await f.call('adminUndoReport',token,createA)).ok,false,'Cannot remove a deletion anchor');
+ cuts=await f.ok('getCuts');await f.ok('reportSaveCut',{...cuts[0],title:'A changed'},cuts[0],{});reports=await f.ok('adminListReports',token);const deletion=reports.find(r=>r.kind==='plan'&&r.plan.action==='delete');assert.equal((await f.call('adminUndoReport',token,deletion)).ok,false,'A changed anchor blocks restoring an old position');
+ await f.ok('adminUndoReport',token,reports[0]);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>r.kind==='plan'&&r.plan.action==='delete'));assert.deepEqual((await f.ok('getCuts')).map(c=>c.title),['A','B','C']);
+ const edited=(await f.ok('getCuts'))[0];await f.ok('reportCompletedCut',edited,{});cuts=await f.ok('getCuts');await f.ok('reportReopenCut',cuts[0]);assert.equal((await f.ok('getCuts'))[0].completed,false);
+ reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports[0]);assert.equal((await f.ok('getCuts'))[0].completed,true);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>!r.undone&&r.kind==='cut'));assert.equal((await f.ok('getCuts'))[0].completed,false);
+ assert.equal((await f.call('adminSaveMill','bad',{number:'FORGED'},null)).ok,false);assert.equal((await f.call('adminSaveMaterial','bad',{name:'FORGED'},null)).ok,false);assert.equal((await f.call('adminSaveNote','bad',{title:'FORGED',body:'No'},null)).ok,false);
 });

@@ -2,6 +2,13 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.16
+
+- Opened Cut List creation, editing, priorities, reordering, reopening, deletion, and completion to visitors.
+- Logged public plan changes with admin-only undo, version checks, dependency checks, and backup/offline history support.
+- Added upcoming Cut List items to the Dashboard in planned order, with priorities, quantities, Add cut, Open Cut List, and Mark done controls.
+- Kept mill, material, note, and settings administration protected.
+
 ## 1.14.15
 
 - Added a built-in website visit counter, with today and total counts visible to everyone in Settings.

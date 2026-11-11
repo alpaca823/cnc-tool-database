@@ -4,4 +4,4 @@ Support the local HTML and GitHub Pages/Supabase editions. The user discontinued
 
 Every released change must increment the synchronized version and be recorded accurately in the root CHANGELOG.md. Include that log in both supported release packages. Never invent fixes.
 
-Visitors may record material cuts, completed cut-list items, and broken mills. These limited report actions must remain logged and reversible only by admins; all other editing stays protected. Undo must never overwrite later changes.
+Visitors may manage all Cut List actions (add, edit, priority, order, reopen, delete, complete), record material cuts, and report broken mills. These public actions must remain logged and reversible only by admins; mill, material, note, and settings administration stays protected. Undo must never overwrite later changes.

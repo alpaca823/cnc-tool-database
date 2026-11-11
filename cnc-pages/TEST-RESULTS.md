@@ -1,7 +1,7 @@
-# v1.14.15 update
+# v1.14.16 update
 
-All 24 supported test commands pass via verify-both.py. Twelve shared-backend cases include anonymous visitor totals, duplicate submissions, input/origin validation, inventory-independent counting, and counts surviving inventory restore. Browser coverage verifies publicly visible Settings totals, page-load counting, same-session reload deduplication, refresh, offline exclusion, theme/mobile layout, and inventory remaining usable during a pending or failed counter request. Existing inventory, reports/undo, backups, credentials, mentor notice, and planning tests pass.
+All 25 supported test commands pass via verify-both.py. Fourteen shared-backend cases cover public cut creation, editing, priorities, moves, deletion, reopening/completion, logged snapshots, stale writes, deletion anchors/dependencies, and admin undo of complete planning histories after backup import. Mill, material, note, and settings administration remain protected.
 
-The visitor SQL checks pass inside a rolled-back transaction: duplicate suppression, cooldown expiry, distinct sessions, expired-hash cleanup, Eastern timezone, and restricted table/function privileges. Security advisor findings are informational only: service-only tables intentionally have RLS and no browser policies (https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy). No warning/error findings were returned.
+Local/shared browser coverage verifies full Cut List use without login, Dashboard upcoming cuts in planned order, priorities/quantities, Add cut, Mark done, updates after completion, admin-only undo, and working undo chains in downloaded offline copies. Existing inventory, reports, visit totals, themes, credentials, images, mentor notice, and portability tests pass.
 
-Shared counter schema and API deployment are active. Production API verification reads totals without adding a test visit. Counts contain no names, account details, or IP addresses; expired anonymous hashes are pruned on a subsequent visit after one day. Google Apps Script remains archived.
+The shared API deployment is active; production checks read the workspace and reject an unauthenticated undo request without editing shop records. No schema changes were needed. Google Apps Script remains archived.

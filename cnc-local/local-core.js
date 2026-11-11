@@ -305,8 +305,16 @@
     if (!Array.isArray(records) || records.length > 10000) throw new Error('Report history must contain at most 10,000 entries.');
     const ids=new Set(),valid=value=>typeof value==='string'&&value.length>0&&value.length<=200;
     return records.map(row=>{
-      if (!row || !valid(row.id) || ids.has(row.id) || !['material','mill','cut'].includes(row.kind) || typeof row.undone!=='boolean' || !valid(row.time) || !Number.isFinite(Date.parse(row.time))) throw new Error('The report history is invalid.');
+      if (!row || !valid(row.id) || ids.has(row.id) || !['material','mill','cut','plan'].includes(row.kind) || typeof row.undone!=='boolean' || !valid(row.time) || !Number.isFinite(Date.parse(row.time))) throw new Error('The report history is invalid.');
       if (keepVersions&&!valid(row.version)) throw new Error('The report version is invalid.');
+      if(row.kind==='plan') {
+        const plan=row.plan;
+        if(!plan||!['create','edit','delete','move'].includes(plan.action)||!Array.isArray(plan.before)||!Array.isArray(plan.after)||plan.before.length>2||plan.after.length>2)throw new Error('The cut-plan history is invalid.');
+        const before=validateCuts(plan.before,true),after=validateCuts(plan.after,true),sizes={create:[0,1],edit:[1,1],delete:[1,0],move:[2,2]};
+        if(before.length!==sizes[plan.action][0]||after.length!==sizes[plan.action][1]||(['edit','move'].includes(plan.action)&&before.some(record=>!after.some(item=>item.id===record.id))))throw new Error('The cut-plan snapshots are invalid.');
+        const anchors={};for(const name of ['previous','next']){const anchor=plan[name];if(anchor!=null&&(!valid(anchor.key)||!valid(anchor.version)))throw new Error('The cut-plan position is invalid.');anchors[name]=anchor?{key:anchor.key,version:anchor.version}:null;}
+        ids.add(row.id);return {id:row.id,version:keepVersions?row.version:uid(),kind:'plan',undone:row.undone,time:row.time,label:reportText(row.label,1500,'Report label'),reporter:reportText(row.reporter,80,'Reporter'),details:reportText(row.details,500,'Details'),plan:{action:plan.action,before,after,...anchors}};
+      }
       const source=row.source;
       if (!source || !valid(source.key) || !valid(source.beforeVersion) || !valid(source.afterVersion) || (row.kind!=='cut'&&(!Number.isSafeInteger(source.quantityBefore)||source.quantityBefore<1))) throw new Error('The report source is invalid.');
       if (row.leftover && (row.kind!=='material'||!valid(row.leftover.id)||!valid(row.leftover.version))) throw new Error('The report leftover is invalid.');
@@ -318,6 +326,43 @@
     if (state.reports.length>=10000) throw new Error('Report history is full. No inventory changes were saved.');
     const report={id:uid(),version:uid(),kind,label,source,undone:false,time:new Date().toISOString(),reporter:meta?.reporter,details:meta?.details,...(leftover?{leftover:{id:leftover.id,version:leftover.version}}:{})};
     state.reports.unshift(validateReports([report],true)[0]);
+  }
+  function appendPlanReport(state,action,label,before,after,anchors={},meta={}) {
+    if(state.reports.length>=10000)throw new Error('Report history is full. No changes were saved.');
+    state.reports.unshift(validateReports([{id:uid(),version:uid(),kind:'plan',undone:false,time:new Date().toISOString(),label,reporter:meta?.reporter,details:meta?.details,plan:{action,before,after,...anchors}}],true)[0]);
+  }
+  function rebindPlan(report,id,oldVersion,fresh) {
+    let changed=false;
+    if(report.kind==='cut'&&report.source.key===id&&report.source.afterVersion===oldVersion){report.source.afterVersion=fresh;changed=true;}
+    if(report.kind==='plan'){
+      for(const row of report.plan.after)if(row.id===id&&row.version===oldVersion){row.version=fresh;changed=true;}
+      for(const name of ['previous','next'])if(report.plan[name]?.key===id&&report.plan[name].version===oldVersion){report.plan[name].version=fresh;changed=true;}
+    }
+    return changed;
+  }
+  function undoPlanReport(state,report) {
+    const plan=report.plan,fail=()=>{throw new Error('The cut plan changed after this report. Undo newer changes first. Nothing was changed.');};
+    for(const expected of plan.after){const current=state.cuts.find(row=>row.id===expected.id);if(!current||current.version!==expected.version)fail();}
+    if(plan.action==='create'){
+      const id=plan.after[0].id,index=state.reports.indexOf(report);
+      if(state.reports.slice(0,index).some(row=>!row.undone&&row.kind==='plan'&&(row.plan.previous?.key===id||row.plan.next?.key===id)))fail();
+      state.cuts.splice(state.cuts.findIndex(row=>row.id===id),1);
+    }else if(plan.action==='delete'){
+      if(state.cuts.some(row=>row.id===plan.before[0].id)||state.cuts.length>=1000)fail();
+      let previous=-1,next=-1;
+      for(const name of ['previous','next'])if(plan[name]){const index=state.cuts.findIndex(row=>row.id===plan[name].key&&row.version===plan[name].version);if(index<0)fail();if(name==='previous')previous=index;else next=index;}
+      if(previous>=0&&next>=0&&next!==previous+1)fail();
+      const restored={...plan.before[0],version:uid()};state.cuts.splice(next>=0?next:previous>=0?previous+1:0,0,restored);
+      for(const older of state.reports)if(older!==report&&!older.undone&&rebindPlan(older,restored.id,plan.before[0].version,restored.version))older.version=uid();
+    }else {
+      const positions=plan.before.map(row=>state.cuts.findIndex(item=>item.id===row.id));
+      for(let i=0;i<plan.before.length;i++){
+        const before=plan.before[i],restored={...before,version:uid()};state.cuts[positions[i]]=restored;
+        for(const older of state.reports)if(older!==report&&!older.undone&&rebindPlan(older,restored.id,before.version,restored.version))older.version=uid();
+      }
+      if(plan.action==='move')[state.cuts[positions[0]],state.cuts[positions[1]]]=[state.cuts[positions[1]],state.cuts[positions[0]]];
+    }
+    report.undone=true;report.version=uid();commit(state);return true;
   }
   function reportMaterial(state,original,remainder,meta) {
     const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
@@ -350,7 +395,13 @@
         keys.add(row.key);map.set(row.version,{key:row.key,kind,version:record.version});
       }
     }
-    for(const report of data.reports){const current=map.get(report.source.afterVersion);if(current&&current.key===report.source.key&&current.kind===report.kind)report.source.afterVersion=current.version;
+    for(const report of data.reports){
+      if(report.kind==='plan'){
+        for(const row of report.plan.after){const current=map.get(row.version);if(current?.kind==='cut'&&current.key===row.id)row.version=current.version;}
+        for(const name of ['previous','next'])if(report.plan[name]){const current=map.get(report.plan[name].version);if(current?.kind==='cut'&&current.key===report.plan[name].key)report.plan[name].version=current.version;}
+        continue;
+      }
+      const current=map.get(report.source.afterVersion);if(current&&current.key===report.source.key&&current.kind===report.kind)report.source.afterVersion=current.version;
       if(report.leftover){const current=map.get(report.leftover.version);if(current?.kind==='material'&&current.key===report.leftover.id)report.leftover.version=current.version;}
     }
   }
@@ -582,6 +633,29 @@
 
   const api = {
     getCuts() {return readState().cuts;},
+    reportSaveCut(record,original,meta) {
+      const state=readState(),index=original==null?-1:cutIndex(state.cuts,original),before=index<0?[]:[{...state.cuts[index]}];
+      const item=validateCuts([{...record,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
+      if(index<0){if(state.cuts.length>=1000)throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
+      appendPlanReport(state,index<0?'create':'edit',(index<0?'Added cut':'Edited cut')+' · '+item.title,before,[item],{},meta);commit(state);return true;
+    },
+    reportSetCutPriority(original,priority) {
+      const state=readState(),item=state.cuts[cutIndex(state.cuts,original)];return api.reportSaveCut({...item,priority},original,{});
+    },
+    reportReopenCut(original) {
+      const state=readState(),item=state.cuts[cutIndex(state.cuts,original)];if(!item.completed)throw new Error('This cut is already pending.');return api.reportSaveCut({...item,completed:false},original,{});
+    },
+    reportDeleteCut(original,meta) {
+      const state=readState(),index=cutIndex(state.cuts,original),before={...state.cuts[index]},anchor=row=>row?{key:row.id,version:row.version}:null;
+      const anchors={previous:anchor(state.cuts[index-1]),next:anchor(state.cuts[index+1])};
+      state.cuts.splice(index,1);appendPlanReport(state,'delete','Deleted cut · '+before.title,[before],[],anchors,meta);commit(state);return true;
+    },
+    reportMoveCut(original,neighbor) {
+      const state=readState(),index=cutIndex(state.cuts,original),other=cutIndex(state.cuts,neighbor),pending=state.cuts.filter(row=>!row.completed);
+      if(state.cuts[index].completed||state.cuts[other].completed||Math.abs(pending.findIndex(row=>row.id===original.id)-pending.findIndex(row=>row.id===neighbor.id))!==1)throw new Error('The cut order changed. Refresh and try again.');
+      const before=[{...state.cuts[index]},{...state.cuts[other]}];[state.cuts[index],state.cuts[other]]=[state.cuts[other],state.cuts[index]];state.cuts[index].version=uid();state.cuts[other].version=uid();
+      const after=before.map(row=>state.cuts.find(item=>item.id===row.id));appendPlanReport(state,'move','Reordered cuts · '+before[0].title,before,after);commit(state);return true;
+    },
     adminSaveCut(token,record,original) {
       const state = readState(); requireAdmin(token,state);
       const index = original == null ? -1 : cutIndex(state.cuts,original);
@@ -635,6 +709,7 @@
       const state=readState();requireAdmin(token,state);
       const report=state.reports.find(row=>row.id===original?.id);
       if(!report||report.version!==original?.version||report.undone)throw new Error('This report changed or was already undone. Refresh and try again.');
+      if(report.kind==='plan')return undoPlanReport(state,report);
       const group=report.kind==='material'?'rawMaterials':report.kind==='mill'?'mills':'cuts';
       const record=state[group].find(row=>(report.kind==='mill'?row.number:row.id)===report.source.key);
       const leftover=report.leftover&&state.rawMaterials.find(row=>row.id===report.leftover.id);
@@ -643,8 +718,9 @@
       if(report.kind==='cut')record.completed=false;else record.quantity=report.source.quantityBefore;record.version=fresh;
       if(leftover)state.rawMaterials.splice(state.rawMaterials.indexOf(leftover),1);
       for(const older of state.reports){if(older.id===report.id||older.undone)continue;let changed=false;
-        if(older.source.afterVersion===previous){older.source.afterVersion=fresh;changed=true;}
+        if(older.source?.afterVersion===previous){older.source.afterVersion=fresh;changed=true;}
         if(older.leftover?.version===previous){older.leftover.version=fresh;changed=true;}
+        if(report.kind==='cut'&&rebindPlan(older,record.id,previous,fresh))changed=true;
         if(changed)older.version=uid();
       }
       report.undone=true;report.version=uid();commit(state);return true;
@@ -887,7 +963,7 @@
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; commit(state); return true;
     }
   };
-  const writes = new Set(['reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {
