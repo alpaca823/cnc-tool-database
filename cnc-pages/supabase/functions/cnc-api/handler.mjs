@@ -1,6 +1,6 @@
 // Shared data/auth rules are generated from the canonical offline backend.
 export function createHandler(env,{createDatabase,fetchImpl=fetch,cryptoImpl=crypto,now=()=>Date.now()}={}) {
-  const actions=new Set(['reportMaterialCut','reportBrokenMill','reportCompletedCut','adminListReports','adminUndoReport','adminSetCutPriority','adminMoveCut','getCuts','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','getNotes','adminSaveNote','adminDeleteNote','getWorkspaceData','getMills','getMaterials','getRawMaterials','getDashboard','getOptions','getSettings','adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminChangePassword','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveMaterial','adminDeleteMaterial','adminSaveRawMaterial','adminDeleteRawMaterial','adminSaveSetting','adminDeleteSetting','adminExportBackup','adminPortableData','adminImportBackup']);
+  const actions=new Set(['trackVisit','getVisitorStats','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminListReports','adminUndoReport','adminSetCutPriority','adminMoveCut','getCuts','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','getNotes','adminSaveNote','adminDeleteNote','getWorkspaceData','getMills','getMaterials','getRawMaterials','getDashboard','getOptions','getSettings','adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminChangePassword','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveMaterial','adminDeleteMaterial','adminSaveRawMaterial','adminDeleteRawMaterial','adminSaveSetting','adminDeleteSetting','adminExportBackup','adminPortableData','adminImportBackup']);
   return async request=>{
     const origin=request.headers.get('origin')||'';
     const allowed=new Set(String(env.origins||'').split(',').map(s=>s.trim()).filter(Boolean));
@@ -22,6 +22,16 @@ export function createHandler(env,{createDatabase,fetchImpl=fetch,cryptoImpl=cry
         if(!result.ok)throw new Error('The database service could not complete the request. Please try again.');
         const text=await result.text();return text?JSON.parse(text):null;
       };
+      // Visitor totals use separate tables and never acquire the inventory revision.
+      if(name==='getVisitorStats') {
+        if(args.length!==0)throw new Error('Invalid visitor stats request.');
+        return reply({ok:true,value:await rest('rpc/cnc_get_visitor_stats',{method:'POST',body:'{}'})});
+      }
+      if(name==='trackVisit') {
+        if(args.length!==1||typeof args[0]!=='string'||!/^[0-9a-f]{32}$/.test(args[0]))throw new Error('Invalid visit session.');
+        const hash=Array.from(new Uint8Array(await cryptoImpl.subtle.digest('SHA-256',new TextEncoder().encode(args[0]))),b=>b.toString(16).padStart(2,'0')).join('');
+        return reply({ok:true,value:await rest('rpc/cnc_track_visit',{method:'POST',body:JSON.stringify({p_session_hash:hash})})});
+      }
       const rows=await rest('cnc_state?id=eq.main&select=revision,data');
       if(!rows?.length)throw new Error('Run the supplied schema.sql in Supabase before opening the app.');
       const saved=rows[0],sessions=new Map();

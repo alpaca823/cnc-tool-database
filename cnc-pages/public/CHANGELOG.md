@@ -2,6 +2,14 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.15
+
+- Added a built-in website visit counter, with today and total counts visible to everyone in Settings.
+- Counts page openings site-wide using anonymous tab sessions, with a 30-minute repeat-count cooldown and Eastern Time daily totals.
+- Kept counter requests independent of inventory loading, with isolated failure/retry handling.
+- Stored aggregate daily counts and anonymous hashes (expired hashes are pruned on a subsequent visit after one day) in separate protected tables; no ad scripts, names, account details, or IP addresses are collected by this counter.
+- Kept local HTML/preview use uncounted and excluded website statistics from inventory backups and restores.
+
 ## 1.14.14
 
 - Added Material stock to Inventory, showing full sheets and leftovers with material, dimensions in inches, thickness, quantity, and availability.

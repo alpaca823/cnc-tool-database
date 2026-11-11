@@ -147,3 +147,13 @@ test('anyone can complete a planned cut but only admins undo or edit it',async()
  const backup=await f.ok('adminExportBackup',token);backup.reports[0].source.quantityBefore=-1; // cut reports do not carry a quantity, so unknown fields are dropped safely.
  delete backup.reports;delete backup.reportVersions;await f.ok('adminImportBackup',token,backup);assert.deepEqual(await f.ok('adminListReports',token),[]);
 });
+
+test('visitor totals are anonymous, deduplicated, independent of inventory, and public',async()=>{
+ const f=await fixture(),before=JSON.stringify(f.getState());assert.deepEqual(await f.ok('getVisitorStats'),{today:0,total:0,timezone:'America/New_York'});
+ const token='a'.repeat(32);await Promise.all(Array.from({length:5},()=>f.ok('trackVisit',token)));assert.equal((await f.ok('getVisitorStats')).total,1);assert.equal(JSON.stringify(f.getState()),before,'Counting never initializes or writes inventory');
+ await f.ok('trackVisit','b'.repeat(32));const stats=await f.ok('getVisitorStats');assert.equal(stats.total,2);assert.deepEqual(Object.keys(stats).sort(),['timezone','today','total']);
+ for(const args of [[],['bad'],['x'.repeat(32)],['a'.repeat(32),'extra']])assert.equal((await f.call('trackVisit',...args)).ok,false);
+ assert.equal((await f.call('getVisitorStats','extra')).ok,false);
+ const response=await f.handler()(new Request('https://project.supabase.co/functions/v1/cnc-api',{method:'POST',headers:{origin:'https://wrong.example','content-type':'application/json'},body:JSON.stringify({name:'trackVisit',args:['c'.repeat(32)]})}));assert.equal(response.status,403);assert.equal((await f.ok('getVisitorStats')).total,2);
+ const {token:admin}=await f.ok('adminLogin','admin','Feds201'),backup=await f.ok('adminExportBackup',admin);assert.equal('visits' in backup,false);await f.ok('adminImportBackup',admin,backup);assert.equal((await f.ok('getVisitorStats')).total,2,'Inventory restore leaves visitor totals alone');
+});

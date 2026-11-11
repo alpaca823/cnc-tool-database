@@ -1,3 +1,4 @@
+  let wsVisitRequest = 0;
   // Workspace navigation, public browsing, inventory, and appearance.
   let wsReports = [], wsBrokenOriginal = null;
   let wsCuts = [], wsCutOriginal = null, wsSheetCutOriginal = null;
@@ -37,6 +38,7 @@
     if (!wsPages[page]) return;
     if (wsPage !== page) el('globalSearch').value = '';
     wsPage = page;
+    if(page==='settings'&&typeof wsRefreshVisits==='function')wsRefreshVisits(false);
     document.querySelectorAll('.workspace-view').forEach(panel => panel.hidden = panel.dataset.page !== page);
     document.querySelectorAll('.nav-button').forEach(button => {
       const active = button.dataset.page === page; button.classList.toggle('active',active);
@@ -307,6 +309,7 @@
     wsInitNotes();
     wsInitCuts();
     wsInitReports();
+    wsInitVisits();
     wsAuthChanged(); wsGo('feeds');
   }
 
@@ -500,4 +503,22 @@
       try {await rpc('reportBrokenMill',wsBrokenOriginal,{reporter:el('brokenReporter').value,details:el('brokenDetails').value});el('brokenMillDialog').close();wsBrokenOriginal=null;await refreshWorkspaceData();el('adminStatus').textContent='Broken mill recorded. One removed from inventory.';}
       catch(error){el('brokenMillStatus').textContent=message(error);}finally{el('brokenMillFields').disabled=false;setBusy(false);}
     });
+  }
+
+  function wsInitVisits() {
+    el('refreshVisitorStats').addEventListener('click',()=>wsRefreshVisits(false));
+    wsRefreshVisits(true);
+  }
+  async function wsRefreshVisits(initial) {
+    const request=++wsVisitRequest,db=localDatabase();
+    if(db.kind!=='shared'){el('refreshVisitorStats').hidden=true;el('visitorStats').hidden=true;return;}
+    el('refreshVisitorStats').hidden=false;el('refreshVisitorStats').disabled=true;el('visitorStatus').textContent='Loading visit totals…';
+    try {
+      const counted=await db.countVisit();const stats=initial?counted:await db.visitorStats();
+      if(request!==wsVisitRequest)return;
+      if(!Number.isSafeInteger(stats?.today)||!Number.isSafeInteger(stats?.total)||stats.today<0||stats.total<stats.today)throw new Error('Invalid visitor totals');
+      el('visitorToday').textContent=stats.today.toLocaleString();el('visitorTotal').textContent=stats.total.toLocaleString();el('visitorStats').hidden=false;
+      el('visitorStatus').textContent='Anonymous website visit totals. Offline use is not counted.';
+    }catch(_){if(request===wsVisitRequest)el('visitorStatus').textContent='Visitor counts are unavailable right now. You can still use the rest of the app.';}
+    finally{if(request===wsVisitRequest)el('refreshVisitorStats').disabled=false;}
   }

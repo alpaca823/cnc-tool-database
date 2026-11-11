@@ -2,7 +2,7 @@
 (()=>{
  'use strict';
  const config=window.CNC_CONFIG||{},url=String(config.supabaseUrl||'').replace(/\/$/,''),key=config.publicKey||'';
- let queue=Promise.resolve(),cached=null,expires=0,pending=null;
+ let queue=Promise.resolve(),cached=null,expires=0,pending=null,visitPromise=null,visitSession=null;
  const configured=/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(url)&&!!key;
  const ready=configured?Promise.resolve():Promise.reject(new Error('The shared inventory database has not been connected yet. The site owner needs to finish setup.'));
  ready.catch(()=>{});
@@ -21,6 +21,16 @@
  function enqueue(name,args){const next=queue.then(()=>invoke(name,args));queue=next.catch(()=>{});return next;}
  window.cncLocal=Object.freeze({
   kind:'shared',ready,
+  countVisit(){
+   if(!visitPromise)visitPromise=ready.then(()=>{
+    if(!visitSession){try{visitSession=sessionStorage.getItem('cnc-visit-session-v1');}catch(_){}
+     if(!/^[0-9a-f]{32}$/.test(visitSession||'')){visitSession=Array.from(crypto.getRandomValues(new Uint8Array(16)),b=>b.toString(16).padStart(2,'0')).join('');try{sessionStorage.setItem('cnc-visit-session-v1',visitSession);}catch(_){}}
+    }
+    return invoke('trackVisit',[visitSession]);
+   }).catch(error=>{visitPromise=null;throw error;});
+   return visitPromise;
+  },
+  visitorStats(){return ready.then(()=>invoke('getVisitorStats',[]));},
   async call(name,...args){await ready;const value=await enqueue(name,args);if(name.startsWith('report')||name.startsWith('admin')&&!['adminLogin','adminLogout','adminListSettings','adminListMaterials','adminListPasswords','adminListReports','adminExportBackup','adminPortableData'].includes(name)){cached=null;expires=0;}return value;},
   workspaceData(){
    if(cached&&Date.now()<expires)return Promise.resolve(cached);

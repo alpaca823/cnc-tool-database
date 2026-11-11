@@ -724,3 +724,7 @@ details[open] > summary { margin-bottom: 14px; }
 
 .stock-list-count { padding:0 16px; }
 #inventoryMaterialBody td:last-child button { margin:3px; }
+#visitorStats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+#visitorStats .stat-card { flex-direction:column; align-items:flex-start; gap:8px; }
+#visitorStats .stat-card span { font-size:12px; color:var(--muted); }
+#visitorStats strong { font-size:28px; max-width:100%; overflow-wrap:anywhere; }

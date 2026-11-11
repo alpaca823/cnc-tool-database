@@ -1,5 +1,7 @@
-# v1.14.14 update
+# v1.14.15 update
 
-Five relevant browser suites pass: combined Inventory, local workspace, public reports/undo, cut-list/material cutting, and purchase links. Local/shared coverage verifies mills and material stock together, existing-record totals, zero quantities, material/size search, correct-material navigation from Record cut and View material, admin stock controls, and 390 px layout. Existing inventory counts, reports, undo, offline snapshots, backups, themes, and mentor placement remain covered.
+All 24 supported test commands pass via verify-both.py. Twelve shared-backend cases include anonymous visitor totals, duplicate submissions, input/origin validation, inventory-independent counting, and counts surviving inventory restore. Browser coverage verifies publicly visible Settings totals, page-load counting, same-session reload deduplication, refresh, offline exclusion, theme/mobile layout, and inventory remaining usable during a pending or failed counter request. Existing inventory, reports/undo, backups, credentials, mentor notice, and planning tests pass.
 
-Inventory uses the existing material records and creates no duplicate stock. Location remains absent from Inventory. No backend, schema, or credential changes were needed. Google Apps Script remains archived.
+The visitor SQL checks pass inside a rolled-back transaction: duplicate suppression, cooldown expiry, distinct sessions, expired-hash cleanup, Eastern timezone, and restricted table/function privileges. Security advisor findings are informational only: service-only tables intentionally have RLS and no browser policies (https://supabase.com/docs/guides/database/database-linter?lint=0008_rls_enabled_no_policy). No warning/error findings were returned.
+
+Shared counter schema and API deployment are active. Production API verification reads totals without adding a test visit. Counts contain no names, account details, or IP addresses; expired anonymous hashes are pruned on a subsequent visit after one day. Google Apps Script remains archived.

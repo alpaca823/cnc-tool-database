@@ -2,9 +2,11 @@ const assert=require('node:assert/strict');
 const {webcrypto}=require('node:crypto');
 const load=()=>Promise.all([import('../supabase/functions/cnc-api/engine.mjs'),import('../supabase/functions/cnc-api/handler.mjs')]);
 async function fixture(){
- const [{createDatabase},{createHandler}]=await load();let state={revision:0,data:null};const sessions=new Map();let conflict=false;
+ const [{createDatabase},{createHandler}]=await load();let state={revision:0,data:null};const sessions=new Map(),visits=new Set();let conflict=false;
  const fetchImpl=async(url,options={})=>{
   const u=new URL(url),method=options.method||'GET';
+  if(u.pathname.endsWith('/rpc/cnc_track_visit')){visits.add(JSON.parse(options.body).p_session_hash);return Response.json({today:visits.size,total:visits.size,timezone:'America/New_York'});}
+  if(u.pathname.endsWith('/rpc/cnc_get_visitor_stats'))return Response.json({today:visits.size,total:visits.size,timezone:'America/New_York'});
   if(u.pathname.endsWith('/cnc_state')){
    if(method==='GET')return Response.json([structuredClone(state)]);
    if(method==='PATCH'){
