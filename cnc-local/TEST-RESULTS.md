@@ -1,5 +1,5 @@
-# v1.14.20 update
+# v1.14.22 bug fix
 
-Dashboard/home layout, local workspace, and What’s new browser suites pass in both editions. Checks verify Dashboard is visible and selected on launch, reloading after visiting Feeds & Speeds returns home, the mentor notice remains on Feeds & Speeds, and other tabs stay hidden correctly. Layout checks cover five widths, both themes, alert states, and no overflow. Existing backups, credentials, inventory, and portable HTML checks pass in the workspace suite.
+Settings spacing, Dashboard/home layout, What’s new, and shared Pages integration suites pass. Settings checks cover both editions, public/admin views, five widths, and light/dark themes; visible cards and nested backup/password sections have at least 16 px separation and no horizontal overflow. What’s new hides the Settings home cleanly and returns correctly. Dashboard remains the default page on launch/reload, with its earlier spacing fix preserved.
 
-Initial markup also shows Dashboard before JavaScript/data loading. No backend, data, or credential changes were needed. Google Apps Script remains archived.
+Shared setup verification checks the visible global notice. No backend, schema, credential, or shop-data changes were needed. The pending v1.14.21 test adjustment is included here. Google Apps Script remains archived.

@@ -752,3 +752,8 @@ details[open] > summary { margin-bottom: 14px; }
 @media(max-width:600px) {
   .workspace-view[data-page="dashboard"] { gap:17px; }
 }
+/* Space Settings cards and the nested admin cards consistently. */
+#settingsHome, #settingsHome > div.admin-only { display:grid; gap:22px; }
+@media(max-width:600px) {
+  #settingsHome, #settingsHome > div.admin-only { gap:17px; }
+}

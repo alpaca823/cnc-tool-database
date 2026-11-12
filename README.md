@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.20
+# CNC Tool Database — v1.14.22
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -67,3 +67,7 @@ Update v1.14.18: Cut List items accept up to 3 drawings (1 MB each, 2 MB combine
 Bug fix v1.14.19: Dashboard sections now have consistent spacing, keeping Inventory alerts and the Cut List clearly separated on desktop and mobile.
 
 Update v1.14.20: Dashboard is the home page when opening or refreshing the website or local HTML. Feeds & Speeds remains available in the sidebar with its mentor notice.
+
+Follow-up v1.14.21: Shared setup verification now checks the global notice while Dashboard remains the home page.
+
+Bug fix v1.14.22: Settings cards, including admin backup/password sections, now have consistent desktop/mobile spacing. Dashboard remains the home page.

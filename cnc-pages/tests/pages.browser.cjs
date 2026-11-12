@@ -40,7 +40,7 @@ const {fixture}=require('./shared-fixture.cjs');
   await reader.locator('.nav-button[data-page=materials]').click();await reader.getByRole('heading',{name:'Shared aluminum',exact:true}).first().waitFor();
   assert.equal(await reader.locator('#manageMaterials').isVisible(),false);assert.equal(await reader.evaluate(()=>localStorage.getItem('cnc-tool-database-v1')),null);
   assert.ok(requests.includes('getWorkspaceData'));assert.ok(!requests.includes('getMills'),'Workspace loads in one bulk request');
-  const missing=await open(false);await missing.locator('#status').filter({hasText:'has not been connected'}).waitFor();
+  const missing=await open(false);await missing.locator('.app-main > aside').filter({hasText:'not connected yet'}).waitFor();
   assert.equal(await missing.locator('#loginFields').evaluate(e=>e.disabled),true);
   assert.deepEqual(errors,[]);
   console.log('PASS: exact Pages build connects to shared server, admin edits appear in another browser, public role stays read-only, workspace uses one bulk request, and unconfigured setup is clear.');

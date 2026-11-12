@@ -1,5 +1,18 @@
 [
   {
+    "version": "1.14.22",
+    "notes": [
+      "Settings cards now have clear spacing on desktop and mobile.",
+      "Admin backup and password cards are separated too."
+    ]
+  },
+  {
+    "version": "1.14.21",
+    "notes": [
+      "Updated setup checks for the new Dashboard home page."
+    ]
+  },
+  {
     "version": "1.14.20",
     "notes": [
       "Dashboard now opens first when you launch or refresh the app."

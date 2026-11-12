@@ -2,6 +2,17 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.22
+
+- Added consistent spacing between public Settings cards and nested admin backup/password cards on desktop and mobile.
+- Preserved Dashboard as the home page and the What’s new subpage/back navigation.
+- Included the pending test-only v1.14.21 follow-up in this release; it was not published separately.
+
+## 1.14.21
+
+- Updated the shared setup regression test to check the visible global setup notice instead of the now-hidden Feeds & Speeds panel.
+- Dashboard remains the default home page introduced in v1.14.20.
+
 ## 1.14.20
 
 - Made Dashboard the initial page on opening and reloading both supported editions.
