@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.23
+
+- Added DWG files to drawing uploads, validation, and downloads in the Cut List and Dashboard.
+- Kept DWG download-only for CAD software; existing attachment limits, backups, and admin undo remain supported.
+
 ## 1.14.22
 
 - Added consistent spacing between public Settings cards and nested admin backup/password cards on desktop and mobile.

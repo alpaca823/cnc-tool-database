@@ -204,3 +204,9 @@ test('invalid and oversized drawing uploads reject atomically',async()=>{
  const large=Buffer.alloc(800000,65);large.write('%PDF-1.4');assert.equal((await f.call('reportSaveCut',{title:'Large',quantity:1,newDrawings:[0,1,2].map(i=>({...pdf,name:i+'.pdf',data:large.toString('base64')}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
  assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[pdf,pdf,pdf,pdf]},null,{})).ok,true,'Identical content may deduplicate to one file');
 });
+
+test('DWG drawings retain bytes through edits, backup import and undo',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201'),drawing={name:'plate.DWG',type:'image/vnd.dwg',data:Buffer.from('AC1032\x00\x01DWG fixture').toString('base64')};
+ await f.ok('reportSaveCut',{title:'DWG job',quantity:1,newDrawings:[drawing]},null,{});let cut=(await f.ok('getCuts'))[0];const id=cut.drawingIds[0];assert.equal((await f.ok('getCutDrawing',id)).type,'image/vnd.dwg');assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
+ const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);cut=(await f.ok('getCuts'))[0];await f.ok('reportSaveCut',{...cut,drawingIds:[]},cut,{});assert.equal((await f.call('getCutDrawing',id)).ok,false);const report=(await f.ok('adminListReports',token))[0];await f.ok('adminUndoReport',token,report);assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
+});

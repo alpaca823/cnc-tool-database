@@ -1,5 +1,5 @@
-# v1.14.22 bug fix
+# v1.14.23 update
 
-Settings spacing, Dashboard/home layout, What’s new, and shared Pages integration suites pass. Settings checks cover both editions, public/admin views, five widths, and light/dark themes; visible cards and nested backup/password sections have at least 16 px separation and no horizontal overflow. What’s new hides the Settings home cleanly and returns correctly. Dashboard remains the default page on launch/reload, with its earlier spacing fix preserved.
+Seventeen shared-backend cases pass, including DWG byte preservation through edits, backup import, removal, and admin undo. DWG, existing drawing, and What’s new browser suites pass for both local and shared builds. DWG browser coverage verifies uppercase extension handling with generic browser MIME type, download-only controls, exact Dashboard download bytes, and standalone offline downloads.
 
-Shared setup verification checks the visible global notice. No backend, schema, credential, or shop-data changes were needed. The pending v1.14.21 test adjustment is included here. Google Apps Script remains archived.
+Existing drawing checks retain image previews, SVG download-only behavior, size validation, and undo coverage. File limits remain 1 MB per file, up to three files and 2 MB combined per cut. Shared API deployment and public workspace metadata checks pass without editing production records. No schema or credential changes were needed. Google Apps Script remains archived.

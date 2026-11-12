@@ -1,0 +1,20 @@
+const{chromium}=require('playwright'),fs=require('node:fs'),path=require('node:path'),assert=require('node:assert/strict');
+const{fixture}=require('./shared-fixture.cjs');
+(async()=>{const root=path.resolve(__dirname,'../..'),backend=await fixture(),browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});try{
+ for(const mode of ['local','shared']){
+  const context=await browser.newContext({viewport:{width:1440,height:1000}}),page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+  await context.route('**/*',async route=>{const req=route.request(),url=req.url();if(url==='http://localhost:31489/')return route.fulfill({contentType:'text/html',body:fs.readFileSync(path.join(root,mode==='local'?'cnc-local/CNC-Tool-Database.html':'cnc-pages/public/index.html'),'utf8')});if(url==='http://localhost:31489/config.js')return route.fulfill({contentType:'text/javascript',body:'window.CNC_CONFIG={supabaseUrl:"https://project.supabase.co",publicKey:"public-test"}'});if(url==='https://project.supabase.co/functions/v1/cnc-api'){if(req.method()==='OPTIONS')return route.fulfill({status:204,headers:{'access-control-allow-origin':'*','access-control-allow-headers':'content-type,apikey'}});const{name,args}=req.postDataJSON();return route.fulfill({contentType:'application/json',headers:{'access-control-allow-origin':'*'},body:JSON.stringify(await backend.call(name,...args))});}return route.abort();});
+
+
+
+
+
+
+  await page.goto('http://localhost:31489/');await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);await page.locator('.nav-button[data-page=cuts]').click();await page.locator('#addCut').click();assert.ok((await page.locator('#cutDrawingUpload').getAttribute('accept')).includes('.dwg'));await page.locator('#cutTitle').fill('DWG plate');
+  const dwg=Buffer.from('AC1032\x00\x01DWG fixture');await page.locator('#cutDrawingUpload').setInputFiles({name:'plate.DWG',mimeType:'application/octet-stream',buffer:dwg});await page.waitForFunction(()=>document.getElementById('cutDrawingStatus').textContent.includes('ready'));await page.locator('#cutForm button[type=submit]').click();await page.locator('#cutEditor').waitFor({state:'hidden'});await page.locator('#cutList').getByRole('button',{name:'Download plate.DWG',exact:true}).waitFor();assert.equal(await page.locator('#cutList').getByRole('button',{name:'Preview plate.DWG',exact:true}).count(),0);
+  await page.locator('.nav-button[data-page=dashboard]').click();const download=page.waitForEvent('download');await page.locator('#dashboardCuts').getByRole('button',{name:'Download plate.DWG',exact:true}).click();const saved=await download;assert.equal(saved.suggestedFilename(),'plate.DWG');assert.deepEqual(fs.readFileSync(await saved.path()),dwg);
+  await page.locator('.nav-button[data-page=settings]').click();await page.locator('#toggleView').click();await page.locator('#password').fill('Feds201');await page.locator('#loginForm button').click();await page.locator('#workspace').waitFor({state:'visible'});const portableDownload=page.waitForEvent('download');await page.locator('#downloadPortable').click();const portable=await portableDownload,html=fs.readFileSync(await portable.path(),'utf8');
+  const receiving=await browser.newContext(),copy=await receiving.newPage();await receiving.route('**/*',r=>r.fulfill({contentType:'text/html',body:html}));await copy.goto('http://localhost:31490/');await copy.waitForFunction(()=>!document.getElementById('loginFields').disabled);const offlineDownload=copy.waitForEvent('download');await copy.locator('#dashboardCuts').getByRole('button',{name:'Download plate.DWG',exact:true}).click();assert.deepEqual(fs.readFileSync(await(await offlineDownload).path()),dwg);await receiving.close();assert.deepEqual(errors,[]);await context.close();
+ }
+ console.log('PASS: local/shared uppercase DWG upload, download-only controls, Dashboard downloads and standalone offline byte preservation');
+}finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -265,14 +265,14 @@
     if (index < 0 || records[index].version !== original.version) throw new Error('This note changed or was deleted. Refresh and select Edit again.');
     return index;
   }
-  const DRAWING_TYPES={pdf:'application/pdf',svg:'image/svg+xml',dxf:'application/dxf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+  const DRAWING_TYPES={pdf:'application/pdf',svg:'image/svg+xml',dxf:'application/dxf',dwg:'image/vnd.dwg',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
   function validateDrawingFiles(records,newFiles=false) {
     if(!Array.isArray(records)||records.length>250)throw new Error('The drawing library is invalid or full.');
     const ids=new Set();let total=0;
     return records.map(record=>{
       if(!record||typeof record.name!=='string'||!record.name.trim()||record.name.length>200||/[\\/\x00-\x1f]/.test(record.name))throw new Error('Enter a valid drawing filename.');
       const ext=record.name.split('.').pop().toLowerCase(),type=DRAWING_TYPES[ext];
-      if(!type||record.type!==type||typeof record.data!=='string'||record.data.length>1398104||record.data.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(record.data))throw new Error('Use a PDF, SVG, DXF, PNG, JPG, or WebP file of at most 1 MB.');
+      if(!type||record.type!==type||typeof record.data!=='string'||record.data.length>1398104||record.data.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(record.data))throw new Error('Use a PDF, SVG, DXF, DWG, PNG, JPG, or WebP file of at most 1 MB.');
       const size=record.data.length/4*3-(record.data.endsWith('==')?2:record.data.endsWith('=')?1:0);
       if(size<1||size>1048576)throw new Error('Each drawing must be between 1 byte and 1 MB.');
       if((type==='image/png'&&!record.data.startsWith('iVBORw0KGgo'))||(type==='image/jpeg'&&!record.data.startsWith('/9j/'))||(type==='image/webp'&&!record.data.startsWith('UklGR'))||(type==='application/pdf'&&!record.data.startsWith('JVBERi0')))throw new Error('The drawing contents do not match the file type.');

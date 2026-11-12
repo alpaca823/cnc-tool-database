@@ -551,7 +551,7 @@
     if(focus)el(open?'whatsNewHeading':'openWhatsNew').focus();
   }
 
-  const wsDrawingTypes={pdf:'application/pdf',svg:'image/svg+xml',dxf:'application/dxf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+  const wsDrawingTypes={pdf:'application/pdf',svg:'image/svg+xml',dxf:'application/dxf',dwg:'image/vnd.dwg',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
   function wsAppendDrawings(target,item) {
     if(!item.drawingIds?.length)return;const list=wsNode('div',null,'drawing-list');list.append(wsNode('p','Drawings ('+item.drawingIds.length+')','hint'));
     for(const id of item.drawingIds){const file=wsDrawingFiles.find(row=>row.id===id);if(!file)continue;const row=wsNode('div',null,'drawing-file');row.append(wsNode('span',file.name),wsButton('Download',()=>wsOpenDrawing(id,false)));row.lastChild.setAttribute('aria-label','Download '+file.name);
@@ -577,7 +577,7 @@
       if(adminBusy)return;const files=Array.from(el('cutDrawingUpload').files);if(!files.length)return;
       setBusy(true);el('cutFields').disabled=true;el('cutDrawingStatus').textContent='Reading drawings…';
       try {if(wsDrawingIds.length+wsNewDrawingFiles.length+files.length>3)throw new Error('A cut can have up to 3 drawings.');const added=[];
-        for(const file of files){const type=wsDrawingTypes[file.name.split('.').pop().toLowerCase()];if(!type||file.size<1||file.size>1048576)throw new Error('Use PDF, SVG, DXF, PNG, JPG, or WebP files up to 1 MB each.');
+        for(const file of files){const type=wsDrawingTypes[file.name.split('.').pop().toLowerCase()];if(!type||file.size<1||file.size>1048576)throw new Error('Use PDF, SVG, DXF, DWG, PNG, JPG, or WebP files up to 1 MB each.');
           const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('This drawing could not be read.'));reader.readAsDataURL(file);});added.push({name:file.name,type,data,size:file.size});
         }
         const total=wsDrawingIds.reduce((sum,id)=>sum+(wsDrawingFiles.find(file=>file.id===id)?.size||0),0)+[...wsNewDrawingFiles,...added].reduce((sum,file)=>sum+file.size,0);if(total>2097152)throw new Error('Drawings for one cut must total 2 MB or less.');

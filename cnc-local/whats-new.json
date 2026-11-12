@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.14.23",
+    "notes": [
+      "Attach DWG drawings to cuts and download them from the Cut List or Dashboard."
+    ]
+  },
+  {
     "version": "1.14.22",
     "notes": [
       "Settings cards now have clear spacing on desktop and mobile.",

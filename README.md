@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.22
+# CNC Tool Database — v1.14.23
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -71,3 +71,5 @@ Update v1.14.20: Dashboard is the home page when opening or refreshing the websi
 Follow-up v1.14.21: Shared setup verification now checks the global notice while Dashboard remains the home page.
 
 Bug fix v1.14.22: Settings cards, including admin backup/password sections, now have consistent desktop/mobile spacing. Dashboard remains the home page.
+
+Update v1.14.23: DWG drawings can be attached and downloaded from the Cut List and Dashboard. Open them in CAD software; DWG is not previewed in the app. Existing limits remain: 1 MB per file, up to 3 files and 2 MB total per cut. DWG files are retained in backups and attachment undo history.
