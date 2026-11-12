@@ -210,3 +210,25 @@ test('DWG drawings retain bytes through edits, backup import and undo',async()=>
  await f.ok('reportSaveCut',{title:'DWG job',quantity:1,newDrawings:[drawing]},null,{});let cut=(await f.ok('getCuts'))[0];const id=cut.drawingIds[0];assert.equal((await f.ok('getCutDrawing',id)).type,'image/vnd.dwg');assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
  const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);cut=(await f.ok('getCuts'))[0];await f.ok('reportSaveCut',{...cut,drawingIds:[]},cut,{});assert.equal((await f.call('getCutDrawing',id)).ok,false);const report=(await f.ok('adminListReports',token))[0];await f.ok('adminUndoReport',token,report);assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
 });
+
+test('beta shape cuts require admin, validate geometry, preserve stock, backup and conflict-safe undo',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');
+ await f.ok('adminSaveMaterial',token,{name:'Beta plywood'},null);
+ await f.ok('adminSaveRawMaterial',token,{material:'Beta plywood',length:24,width:12,quantity:3},null);
+ let source=(await f.ok('getRawMaterials'))[0],outline=[[2,2],[6,2],[6,5],[2,5]];
+ const before=structuredClone(f.getState());
+ for(const [auth,p] of [['forged',outline],[token,[[-1,0],[2,0],[2,2]]],[token,[[0,0],[24,0],[24,12],[0,12]]],[token,[[1,1],[6,6],[1,6],[6,1]]],[token,[[1,1],[Infinity,2],[3,4]]]]){
+  assert.equal((await f.call('adminRecordShapeCut',auth,source,p)).ok,false);assert.deepEqual(f.getState(),before);
+ }
+ const id=await f.ok('adminRecordShapeCut',token,source,outline);let rows=await f.ok('getRawMaterials'),remnant=rows.find(r=>r.id===id);assert.equal(rows.find(r=>r.id===source.id).quantity,2);assert.deepEqual(remnant.cutouts,[outline]);assert.equal(remnant.quantity,1);
+ assert.equal((await f.call('adminRecordShapeCut',token,source,outline)).ok,false);
+ assert.equal((await f.call('adminRecordShapeCut',token,remnant,[[3,3],[7,3],[7,7],[3,7]])).ok,false);
+ assert.equal((await f.call('reportMaterialCut',remnant,{length:2,width:2},{})).ok,false);
+ assert.equal((await f.call('adminSaveRawMaterial',token,{...remnant,length:25},remnant)).ok,false);
+ const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);rows=await f.ok('getRawMaterials');remnant=rows.find(r=>r.id===id);assert.deepEqual(remnant.cutouts,[outline]);
+ let report=(await f.ok('adminListReports',token))[0];await f.ok('adminUndoReport',token,report);assert.equal((await f.ok('getRawMaterials')).length,1);assert.equal((await f.ok('getRawMaterials'))[0].quantity,3);
+ source=(await f.ok('getRawMaterials'))[0];const id2=await f.ok('adminRecordShapeCut',token,source,outline);remnant=(await f.ok('getRawMaterials')).find(r=>r.id===id2);report=(await f.ok('adminListReports',token))[0];
+ const {cutouts,...edit}=remnant;await f.ok('adminSaveRawMaterial',token,{...edit,notes:'Later edit'},remnant);assert.deepEqual((await f.ok('getRawMaterials')).find(r=>r.id===id2).cutouts,[outline]);assert.equal((await f.call('adminUndoReport',token,report)).ok,false);
+ remnant=(await f.ok('getRawMaterials')).find(r=>r.id===id2);const id3=await f.ok('adminRecordShapeCut',token,remnant,[[10,2],[12,2],[12,4],[10,4]]);assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).cutouts.length,2);
+ const final=(await f.ok('getRawMaterials')).find(r=>r.id===id3);await f.ok('reportMaterialCut',final,null,{});assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).quantity,0);await f.ok('adminUndoReport',token,(await f.ok('adminListReports',token))[0]);assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).quantity,1);
+});

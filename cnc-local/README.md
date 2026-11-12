@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.24
+# CNC Tool Database — v1.15.0
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -135,3 +135,5 @@ Bug fix v1.14.22: Settings cards, including admin backup/password sections, now 
 Update v1.14.23: DWG drawings can be attached and downloaded from the Cut List and Dashboard. Open them in CAD software; DWG is not previewed in the app. Existing limits remain: 1 MB per file, up to 3 files and 2 MB total per cut. DWG files are retained in backups and attachment undo history.
 
 Update v1.14.24: What’s new now has its own sidebar tab directly below Settings.
+
+Update v1.15.0: Admin-only Beta Testing places a closed straight-edged DXF LWPOLYLINE or SVG polygon/rectangle on existing stock. Select drawing units, verify width in inches, drag or set X/Y, and rotate. Recording consumes one sheet and creates a remnant with cutouts, logged for conflict-safe admin undo in Settings. Footprints survive backups and offline snapshots. Curves, DWG/VCarve files, kerf compensation, and automatic scrap separation are unsupported. Non-touching cuts must fit within available material; disconnected scraps remain grouped as one remnant. Stock dimensions describe its original bounds. SVG coordinates use the selected drawing unit per coordinate, so verify width explicitly before recording.

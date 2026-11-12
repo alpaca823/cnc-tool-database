@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.15.0",
+    "notes": [
+      "Admins can test dragging DXF or SVG outlines onto stock in Beta Testing.",
+      "Record shaped remnants, with cut history, backups, and admin undo."
+    ]
+  },
+  {
     "version": "1.14.24",
     "notes": [
       "Moved What’s new to the sidebar directly below Settings."

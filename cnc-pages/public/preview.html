@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.14.24</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
+<html lang="en" data-theme="dark"><head><meta charset="UTF-8"><title>CNC Tool Database — v1.15.0</title><meta name="viewport" content="width=device-width, initial-scale=1"><style>/* Self-contained workspace styles. No web fonts or remote assets are required. */
 :root,
 html[data-theme="light"] {
   color-scheme: light;
@@ -758,6 +758,8 @@ details[open] > summary { margin-bottom: 14px; }
 @media(max-width:600px) {
   #settingsHome, #settingsHome > div.admin-only { gap:17px; }
 }
+
+.beta-controls{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:16px 0}.beta-canvas{width:100%;height:440px;display:block;border:1px solid var(--border);border-radius:8px;touch-action:none;background:repeating-conic-gradient(#8881 0% 25%,transparent 0% 50%) 0/20px 20px}.beta-canvas #betaPlaced{cursor:grab}.beta-canvas:active #betaPlaced{cursor:grabbing}@media(max-width:650px){.beta-controls{grid-template-columns:repeat(2,minmax(0,1fr))}.beta-canvas{height:300px}}
 </style></head>
 <body class="workspace-app">
 <header class="app-topbar"><button id="menuToggle" class="icon-button" type="button" aria-label="Open navigation" aria-expanded="false">☰</button><div class="app-brand"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#2b8aff" d="M16 2l13 7v14l-13 7L3 23V9z"/><path fill="#143459" d="M16 7l8 4-8 4-8-4zm-8 8l6 3v8l-6-4zm10 3l6-3v7l-6 4z"/></svg></span><strong class="brand-name">CNC Tool Database</strong></div><label class="top-search"><span class="icon" aria-hidden="true">⌕</span><input id="globalSearch" type="search" placeholder="Search this workspace…" aria-label="Search the current page"><kbd>Ctrl K</kbd></label><div class="topbar-actions"><span class="offline-pill">Prototype preview</span><button id="toggleView" type="button">Admin</button></div></header>
@@ -860,7 +862,7 @@ details[open] > summary { margin-bottom: 14px; }
           </fieldset></form>
           <div><h3>Accepted admin passwords</h3><p id="passwordListStatus" class="hint" role="status" aria-live="polite"></p><div id="passwordList"></div></div>
         </div>
-      </details></div></div></section><section class="workspace-view" data-page="whats-new" hidden><section id="whatsNewPage" class="card" aria-labelledby="whatsNewHeading"><div class="toolbar"><h2 id="whatsNewHeading" tabindex="-1">Recent updates</h2></div><div id="recentReleases" class="release-list"><article class="release-note"><div class="release-heading"><h3>v1.14.24</h3><span class="badge in">Latest</span></div><ul><li>Moved What’s new to the sidebar directly below Settings.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.23</h3></div><ul><li>Attach DWG drawings to cuts and download them from the Cut List or Dashboard.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.22</h3></div><ul><li>Settings cards now have clear spacing on desktop and mobile.</li><li>Admin backup and password cards are separated too.</li></ul></article></div><details id="olderReleaseNotes"><summary>Older updates</summary><div class="release-list"><article class="release-note"><div class="release-heading"><h3>v1.14.21</h3></div><ul><li>Updated setup checks for the new Dashboard home page.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.20</h3></div><ul><li>Dashboard now opens first when you launch or refresh the app.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.19</h3></div><ul><li>Dashboard cards now have a clear gap.</li><li>Spacing stays consistent on desktop and mobile.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.18</h3></div><ul><li>Attach drawings to cuts and access them from the Dashboard.</li><li>Preview images or download PDF, SVG, DXF, and image files.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.17</h3></div><ul><li>Find short release highlights in Settings → What’s new.</li><li>Open Older updates to see earlier changes.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.16</h3></div><ul><li>Everyone can manage the Cut List; admins can undo changes.</li><li>Upcoming cuts now appear on the Dashboard.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.15</h3></div><ul><li>See today’s and total website visits in Settings.</li><li>No ads. Offline use is not counted.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.14</h3></div><ul><li>Inventory now includes mills, full sheets, and leftover material.</li><li>Search stock by material or size, and record cuts from Inventory.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.13</h3></div><ul><li>Anyone can report material cuts and broken mills.</li><li>Admins can undo reports in Settings.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.12</h3></div><ul><li>Set cut priorities and move jobs up or down.</li><li>Switch between planned order and priority-first views.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.11</h3></div><ul><li>Pin important notes and plan jobs in the Cut List.</li><li>Record a material cut and save its smaller leftover.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.10</h3></div><ul><li>Read and search shop reminders in Notes.</li><li>Notes are included in backups and offline downloads.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.9</h3></div><ul><li>Click any mill row to change its details.</li><li>Search results and selected mill details now stay in sync.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.8</h3></div><ul><li>Removed Location from tool Inventory; saved data is preserved.</li><li>Started a versioned change log for releases.</li></ul></article></div></details></section></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.14.24 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
+      </details></div></div></section><section class="workspace-view" data-page="whats-new" hidden><section id="whatsNewPage" class="card" aria-labelledby="whatsNewHeading"><div class="toolbar"><h2 id="whatsNewHeading" tabindex="-1">Recent updates</h2></div><div id="recentReleases" class="release-list"><article class="release-note"><div class="release-heading"><h3>v1.15.0</h3><span class="badge in">Latest</span></div><ul><li>Admins can test dragging DXF or SVG outlines onto stock in Beta Testing.</li><li>Record shaped remnants, with cut history, backups, and admin undo.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.24</h3></div><ul><li>Moved What’s new to the sidebar directly below Settings.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.23</h3></div><ul><li>Attach DWG drawings to cuts and download them from the Cut List or Dashboard.</li></ul></article></div><details id="olderReleaseNotes"><summary>Older updates</summary><div class="release-list"><article class="release-note"><div class="release-heading"><h3>v1.14.22</h3></div><ul><li>Settings cards now have clear spacing on desktop and mobile.</li><li>Admin backup and password cards are separated too.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.21</h3></div><ul><li>Updated setup checks for the new Dashboard home page.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.20</h3></div><ul><li>Dashboard now opens first when you launch or refresh the app.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.19</h3></div><ul><li>Dashboard cards now have a clear gap.</li><li>Spacing stays consistent on desktop and mobile.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.18</h3></div><ul><li>Attach drawings to cuts and access them from the Dashboard.</li><li>Preview images or download PDF, SVG, DXF, and image files.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.17</h3></div><ul><li>Find short release highlights in Settings → What’s new.</li><li>Open Older updates to see earlier changes.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.16</h3></div><ul><li>Everyone can manage the Cut List; admins can undo changes.</li><li>Upcoming cuts now appear on the Dashboard.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.15</h3></div><ul><li>See today’s and total website visits in Settings.</li><li>No ads. Offline use is not counted.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.14</h3></div><ul><li>Inventory now includes mills, full sheets, and leftover material.</li><li>Search stock by material or size, and record cuts from Inventory.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.13</h3></div><ul><li>Anyone can report material cuts and broken mills.</li><li>Admins can undo reports in Settings.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.12</h3></div><ul><li>Set cut priorities and move jobs up or down.</li><li>Switch between planned order and priority-first views.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.11</h3></div><ul><li>Pin important notes and plan jobs in the Cut List.</li><li>Record a material cut and save its smaller leftover.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.10</h3></div><ul><li>Read and search shop reminders in Notes.</li><li>Notes are included in backups and offline downloads.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.9</h3></div><ul><li>Click any mill row to change its details.</li><li>Search results and selected mill details now stay in sync.</li></ul></article><article class="release-note"><div class="release-heading"><h3>v1.14.8</h3></div><ul><li>Removed Location from tool Inventory; saved data is preserved.</li><li>Started a versioned change log for releases.</li></ul></article></div></details></section></section></main><footer id="appVersion" class="app-version" aria-label="Application version">Version 1.15.0 · CNC Tool Database</footer><section id="adminPanel" class="login-overlay" hidden aria-label="Admin login"><section id="loginCard" class="card">
       <h2>Admin login</h2><p class="hint">Sign in to add mills and maintain cutting settings. Username: admin. Default fallback password: Feds201.</p>
       <form id="loginForm"><fieldset id="loginFields">
         <label for="username">Username</label><input id="username" name="username" autocomplete="username" value="admin" required maxlength="100">
@@ -868,7 +870,39 @@ details[open] > summary { margin-bottom: 14px; }
         <button class="full" type="submit">Sign in</button>
       </fieldset></form>
       <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
-    </section><button id="closeLogin" class="secondary small close-login" type="button">Cancel login</button></section><dialog id="drawingPreviewDialog" class="report-dialog" aria-labelledby="drawingPreviewTitle"><div class="toolbar"><h2 id="drawingPreviewTitle">Drawing preview</h2><button id="closeDrawingPreview" class="secondary" type="button">Close preview</button></div><img id="drawingPreviewImage" alt=""></dialog><dialog id="brokenMillDialog" class="report-dialog" aria-labelledby="brokenMillTitle"><h2 id="brokenMillTitle">Report broken mill</h2><p id="brokenMillSubject"></p><p class="hint">Removes one mill from the available quantity. An admin can undo this report in Settings.</p><form id="brokenMillForm"><fieldset id="brokenMillFields"><label for="brokenReporter">Reported by (optional)</label><input id="brokenReporter" maxlength="80"><label for="brokenDetails">Details (optional)</label><textarea id="brokenDetails" maxlength="500" rows="3"></textarea><div class="actions"><button type="submit">Report broken</button><button id="cancelBrokenMill" class="secondary" type="button">Cancel</button></div><p id="brokenMillStatus" class="status" role="status"></p></fieldset></form></dialog><script id="cncEmbeddedData" type="application/json">{"format":"cnc-local-portable","schemaVersion":1,"settings":[]}</script><script>
+    </section><button id="closeLogin" class="secondary small close-login" type="button">Cancel login</button></section><dialog id="drawingPreviewDialog" class="report-dialog" aria-labelledby="drawingPreviewTitle"><div class="toolbar"><h2 id="drawingPreviewTitle">Drawing preview</h2><button id="closeDrawingPreview" class="secondary" type="button">Close preview</button></div><img id="drawingPreviewImage" alt=""></dialog><dialog id="brokenMillDialog" class="report-dialog" aria-labelledby="brokenMillTitle"><h2 id="brokenMillTitle">Report broken mill</h2><p id="brokenMillSubject"></p><p class="hint">Removes one mill from the available quantity. An admin can undo this report in Settings.</p><form id="brokenMillForm"><fieldset id="brokenMillFields"><label for="brokenReporter">Reported by (optional)</label><input id="brokenReporter" maxlength="80"><label for="brokenDetails">Details (optional)</label><textarea id="brokenDetails" maxlength="500" rows="3"></textarea><div class="actions"><button type="submit">Report broken</button><button id="cancelBrokenMill" class="secondary" type="button">Cancel</button></div><p id="brokenMillStatus" class="status" role="status"></p></fieldset></form></dialog><script id="cncEmbeddedData" type="application/json">{"format":"cnc-local-portable","schemaVersion":1,"settings":[]}</script><script>// Straight-edged stock footprints, shared by the UI and database validator.
+window.cncStockGeometry = (() => {
+  const eps=1e-8;
+  const cross=(a,b,c)=>(b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+  const area=p=>Math.abs(p.reduce((s,a,i)=>{const b=p[(i+1)%p.length];return s+a[0]*b[1]-b[0]*a[1];},0)/2);
+  const on=(a,b,p)=>Math.abs(cross(a,b,p))<eps&&p[0]>=Math.min(a[0],b[0])-eps&&p[0]<=Math.max(a[0],b[0])+eps&&p[1]>=Math.min(a[1],b[1])-eps&&p[1]<=Math.max(a[1],b[1])+eps;
+  function intersects(a,b,c,d){return (cross(a,b,c)*cross(a,b,d)<-eps&&cross(c,d,a)*cross(c,d,b)<-eps)||on(a,b,c)||on(a,b,d)||on(c,d,a)||on(c,d,b);}
+  function inside(p,ring){let hit=false;for(let i=0,j=ring.length-1;i<ring.length;j=i++){const a=ring[i],b=ring[j];if(on(a,b,p))return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;}
+  function polygon(input){
+    if(!Array.isArray(input)||input.length<3||input.length>200)throw Error('Use one closed outline with 3–200 straight vertices.');
+    let p=input.map(v=>{if(!Array.isArray(v)||v.length!==2||v.some(n=>typeof n!=='number'||!Number.isFinite(n)||Math.abs(n)>100000))throw Error('Invalid outline coordinates.');return v.slice();});
+    if(p.length>3&&p[0][0]===p.at(-1)[0]&&p[0][1]===p.at(-1)[1])p.pop();
+    if(area(p)<1e-6)throw Error('The outline has no usable area.');
+    for(let i=0;i<p.length;i++){
+      if(Math.hypot(p[i][0]-p[(i+1)%p.length][0],p[i][1]-p[(i+1)%p.length][1])<eps)throw Error('Repeated outline vertex.');
+      for(let j=i+1;j<p.length;j++)if(j!==i+1&&!(i===0&&j===p.length-1)&&intersects(p[i],p[(i+1)%p.length],p[j],p[(j+1)%p.length]))throw Error('Outline must not cross itself.');
+    }return p;
+  }
+  function overlap(a,b){if(a.some(p=>inside(p,b))||b.some(p=>inside(p,a)))return true;return a.some((p,i)=>b.some((q,j)=>intersects(p,a[(i+1)%a.length],q,b[(j+1)%b.length])));}
+  function validate(cuts,l,w){
+    if(!Array.isArray(cuts)||cuts.length>100)throw Error('A footprint can contain up to 100 cuts.');
+    const result=cuts.map(polygon);if(result.reduce((n,p)=>n+p.length,0)>2000)throw Error('A footprint can contain up to 2,000 vertices.');
+    for(let i=0;i<result.length;i++){
+      if(result[i].some(p=>p[0]<0||p[1]<0||p[0]>l||p[1]>w))throw Error('Place the entire outline inside the sheet.');
+      for(let j=0;j<i;j++)if(overlap(result[i],result[j]))throw Error('This outline touches or overlaps an earlier cut.');
+    }
+    if(result.reduce((s,p)=>s+area(p),0)>=l*w-1e-6)throw Error('The cut must leave some material.');
+    return result;
+  }
+  function path(p){return 'M'+p.map(v=>v.join(',')).join('L')+'Z';}
+  return {area,polygon,validate,path};
+})();
+</script><script>
 /* Local-only storage and settings API. This password gate is a convenience on a
    shared workstation; people with access to this file/browser can inspect it. */
 (() => {
@@ -1043,6 +1077,7 @@ details[open] > summary { margin-bottom: 14px; }
     }
     if (Object.prototype.hasOwnProperty.call(record,'materialImage') || Object.prototype.hasOwnProperty.call(record,'toolImage'))
       throw new Error('Raw material images belong in the shared material library.');
+    if(record.cutouts!==undefined)result.cutouts=window.cncStockGeometry.validate(record.cutouts,Number(result.length),Number(result.width));
     return result;
   }
   function validateRawMaterials(records,keepVersions) {
@@ -1274,6 +1309,7 @@ details[open] > summary { margin-bottom: 14px; }
   function reportMaterial(state,original,remainder,meta) {
     const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
     if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
+    if(source.cutouts?.length&&remainder!==null)throw new Error('Use Beta Testing to cut a shaped remnant, or use the whole piece.');
     let leftover=null;
     if(remainder!==null){
       if(!remainder||typeof remainder!=='object'||Array.isArray(remainder))throw new Error('Enter a valid leftover size or use the whole piece.');
@@ -1622,6 +1658,17 @@ details[open] > summary { margin-bottom: 14px; }
       const state=readState(),source=state.cuts[cutIndex(state.cuts,original)];if(source.completed)throw new Error('This cut is already completed.');
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid()};appendReport(state,'cut',source.title,change,null,meta);source.completed=true;source.version=change.afterVersion;commit(state);return true;
     },
+    adminRecordShapeCut(token,original,outline) {
+      const state=readState();requireAdmin(token,state);
+      const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
+      if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
+      if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full.');
+      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),outline],Number(source.length),Number(source.width));
+      const leftover=validateRawMaterial({...source,quantity:1,cutouts});leftover.id=uid();leftover.version=uid();
+      const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
+      appendReport(state,'material','Beta shape cut · '+source.material,change,leftover,{details:'Recorded a straight-edged drawing cut. Dimensions describe the original footprint.'});
+      source.quantity--;source.version=change.afterVersion;state.rawMaterials.push(leftover);commit(state);return leftover.id;
+    },
     adminListReports(token) {const state=readState();requireAdmin(token,state);return state.reports;},
     adminUndoReport(token,original) {
       const state=readState();requireAdmin(token,state);
@@ -1749,8 +1796,10 @@ details[open] > summary { margin-bottom: 14px; }
     },
     adminSaveRawMaterial(token,record,original) {
       const state = readState(); requireAdmin(token,state);
-      const item = validateRawMaterial(record);
       const index = original == null ? -1 : originalRawMaterialIndex(state.rawMaterials,original);
+      const previous=index<0?null:state.rawMaterials[index];
+      if(previous?.cutouts?.length&&(Number(record.length)!==Number(previous.length)||Number(record.width)!==Number(previous.width)))throw new Error('A shaped remnant footprint cannot be resized.');
+      const item = validateRawMaterial(previous?.cutouts?.length?{...record,cutouts:previous.cutouts}:record);
       if (!state.materials.some(material => material.name === item.material)) throw new Error('Choose a saved material from the material list. Add the material first if it is missing.');
       item.id = index < 0 ? uid() : state.rawMaterials[index].id;
       item.version = uid();
@@ -1881,7 +1930,7 @@ details[open] > summary { margin-bottom: 14px; }
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; state.cutDrawings = data.cutDrawings; commit(state); return true;
     }
   };
-  const writes = new Set(['reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {
@@ -2378,6 +2427,84 @@ details[open] > summary { margin-bottom: 14px; }
       el('loginStatus').textContent = text;
     }
   }
+  // The beta DOM is created only while an admin session is active.
+let betaStockId='',betaOutline=null,betaName='',betaDrag=null;
+const betaG=()=>window.cncStockGeometry;
+function betaAuth(){
+  if(!token){document.getElementById('betaNav')?.remove();document.getElementById('betaPage')?.remove();betaOutline=null;betaStockId='';if(wsPage==='beta')wsGo('dashboard');return;}
+  if(document.getElementById('betaNav'))return;
+  const nav=wsButton('⚗ Beta Testing',()=>wsGo('beta'),'nav-button');nav.id='betaNav';nav.dataset.page='beta';document.querySelector('#sidebar nav').append(nav);
+  const panel=wsNode('section');panel.id='betaPage';panel.className='workspace-view';panel.dataset.page='beta';panel.hidden=true;
+  panel.innerHTML=`<section class="card"><h2>Drawing placement beta</h2><p class="hint">Plan a full-depth cut on one sheet. Drag the blue outline or enter its position in inches. The remaining footprint keeps the cutout. Other sheets stay unchanged.</p><p class="hint">Use one closed straight-edged DXF LWPOLYLINE, or an SVG containing one polygon or rectangle, without transforms. Curves, holes, DWG and VCarve files are not supported. Export a simplified outline first. No toolpath or kerf compensation is calculated.</p><label for="betaStock">Stock sheet or remnant</label><select id="betaStock"></select><label for="betaExistingDrawing">Reuse a Cut List drawing</label><select id="betaExistingDrawing"><option value="">Choose an existing DXF or SVG (optional)</option></select><label for="betaDrawing">Or upload an outline (up to 1 MB)</label><input id="betaDrawing" type="file" accept=".dxf,.svg"><label for="betaUnits">Drawing units</label><select id="betaUnits"><option value="1">Inches</option><option value="0.03937007874015748">Millimeters (converted to inches)</option></select><div class="beta-controls"><label>X (inch)<input id="betaX" type="number" step="0.01" value="0"></label><label>Y (inch)<input id="betaY" type="number" step="0.01" value="0"></label><label>Rotation (degrees)<input id="betaAngle" type="number" step="1" value="0"></label><label>Outline width (inch)<input id="betaWidth" type="number" min="0.001" step="0.01"></label></div><p class="hint">X/Y position the drawing’s lower-left bounding corner; width scales it proportionally. Confirm the size before recording.</p><svg id="betaCanvas" class="beta-canvas" role="img" aria-label="Stock footprint and movable drawing"></svg><p id="betaSummary" class="hint"></p><p id="betaStatus" role="status" class="status"></p><button id="betaRecord" type="button" disabled>Record cut on one sheet</button><p class="hint">Admin only. Records are logged in Settings and can be undone there unless later edits conflict. Disconnected scraps remain grouped in one remnant record. Dimensions show the original sheet bounds; only the shaded area is available.</p></section>`;
+  el('appVersion').before(panel); // Move inside main so workspace layout and tab visibility apply.
+  document.querySelector('main').append(panel);
+  el('betaStock').addEventListener('change',()=>{betaStockId=el('betaStock').value;betaRender();});
+  el('betaDrawing').addEventListener('change',()=>{el('betaExistingDrawing').value='';betaLoad();});
+  el('betaExistingDrawing').addEventListener('change',()=>{el('betaDrawing').value='';betaLoad();});
+  for(const id of ['betaX','betaY','betaAngle','betaWidth'])el(id).addEventListener('input',betaRender);
+  el('betaUnits').addEventListener('change',()=>{if(el('betaDrawing').files.length||el('betaExistingDrawing').value)betaLoad();});
+  el('betaRecord').addEventListener('click',betaRecord);
+  const svg=el('betaCanvas');svg.addEventListener('pointerdown',e=>{if(e.target.id!=='betaPlaced')return;betaDrag={p:betaPoint(e),x:Number(el('betaX').value),y:Number(el('betaY').value)};svg.setPointerCapture(e.pointerId);});
+  svg.addEventListener('pointermove',e=>{if(!betaDrag)return;const p=betaPoint(e);el('betaX').value=(betaDrag.x+p.x-betaDrag.p.x).toFixed(3);el('betaY').value=(betaDrag.y+p.y-betaDrag.p.y).toFixed(3);betaRender();});
+  for(const name of ['pointerup','pointercancel','lostpointercapture'])svg.addEventListener(name,()=>betaDrag=null);
+  betaRefresh();
+}
+function betaPoint(e){const svg=el('betaCanvas'),p=new DOMPoint(e.clientX,e.clientY);const q=p.matrixTransform(svg.getScreenCTM().inverse());return {x:q.x,y:-q.y};}
+function betaSource(){return wsRawMaterials.find(row=>row.id===betaStockId);}
+function betaRefresh(){
+  if(!token||!el('betaPage'))return;
+  const savedSelect=el('betaExistingDrawing'),savedId=savedSelect.value;savedSelect.replaceChildren(new Option('Choose an existing DXF or SVG (optional)',''));for(const file of wsDrawingFiles.filter(f=>/\.(svg|dxf)$/i.test(f.name)))savedSelect.append(new Option(file.name,file.id));savedSelect.value=savedId;
+  const select=el('betaStock');select.replaceChildren();
+  for(const row of wsRawMaterials.filter(r=>r.quantity>0)){const opt=wsNode('option',row.material+' · '+row.length+' × '+row.width+' inch · '+row.quantity+' available'+(row.cutouts?.length?' · shaped remnant':''));opt.value=row.id;select.append(opt);}
+  if(Array.from(select.options).some(o=>o.value===betaStockId))select.value=betaStockId;else betaStockId=select.value;
+  betaRender();
+}
+function betaPlaced(){
+  if(!betaOutline)throw Error('Upload an outline first.');
+  const bounds=betaOutline.reduce((b,p)=>[Math.min(b[0],p[0]),Math.max(b[1],p[0])],[Infinity,-Infinity]);
+  const width=Number(el('betaWidth').value),x=Number(el('betaX').value),y=Number(el('betaY').value),angle=Number(el('betaAngle').value)*Math.PI/180;
+  if(![width,x,y,angle].every(Number.isFinite)||width<=0)throw Error('Enter valid position, rotation, and width.');
+  const scale=width/(bounds[1]-bounds[0]),c=Math.cos(angle),s=Math.sin(angle),p=betaOutline.map(([a,b])=>[(a*c-b*s)*scale,(a*s+b*c)*scale]),minX=Math.min(...p.map(v=>v[0])),minY=Math.min(...p.map(v=>v[1]));return p.map(v=>[v[0]-minX+x,v[1]-minY+y]);
+}
+function betaRender(){
+  if(!token||!el('betaCanvas'))return;
+  const svg=el('betaCanvas'),source=betaSource();svg.replaceChildren();el('betaRecord').disabled=true;
+  if(!source){el('betaStatus').textContent='Add stock in Materials first.';return;}
+  const l=Number(source.length),w=Number(source.width),pad=Math.max(l,w)*.04;svg.setAttribute('viewBox',[-pad,-w-pad,l+2*pad,w+2*pad].join(' '));
+  const shape=(d,fill,id)=>{const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',d);p.setAttribute('fill',fill);p.setAttribute('fill-rule','evenodd');p.setAttribute('transform','scale(1,-1)');if(id)p.id=id;svg.append(p);return p;};
+  shape(betaG().path([[0,0],[l,0],[l,w],[0,w]])+(source.cutouts||[]).map(betaG().path).join(''),'var(--beta-stock, #829b91)');
+  const remaining=l*w-(source.cutouts||[]).reduce((n,p)=>n+betaG().area(p),0);el('betaSummary').textContent=source.material+' · '+l+' × '+w+' inch · '+remaining.toFixed(2)+' square inches remaining'+(betaName?' · '+betaName:'');
+  try{if(!betaOutline){el('betaStatus').textContent='Choose a drawing to place on this sheet.';return;}const placed=betaPlaced(),node=shape(betaG().path(placed),'#398bff88','betaPlaced');node.setAttribute('stroke','#398bff');node.setAttribute('stroke-width',Math.max(l,w)*.003);betaG().validate([...(source.cutouts||[]),placed],l,w);el('betaStatus').textContent='Fits available material · cut area '+betaG().area(placed).toFixed(2)+' square inches.';el('betaRecord').disabled=adminBusy;}
+  catch(error){el('betaStatus').textContent=error.message;el('betaPlaced')?.setAttribute('fill','#ff555588');}
+}
+function betaParse(text,extension){
+  if(extension==='svg'){
+    const doc=new DOMParser().parseFromString(text,'image/svg+xml');if(doc.querySelector('parsererror')||doc.documentElement.localName!=='svg')throw Error('Invalid SVG.');
+    if(doc.querySelector('[transform],[style],path,circle,ellipse,line,polyline,use,image,text,script,foreignObject,style,defs,mask,clipPath'))throw Error('Export one polygon or rectangle with no transforms, curves, or other objects.');
+    const nodes=doc.querySelectorAll('polygon,rect');if(nodes.length!==1)throw Error('Use exactly one closed polygon or rectangle.');const n=nodes[0];
+    if(n.localName==='polygon'){const vals=(n.getAttribute('points')||'').trim().split(/[\s,]+/).map(Number);if(vals.length%2)throw Error('Invalid polygon points.');return betaG().polygon(Array.from({length:vals.length/2},(_,i)=>[vals[2*i],vals[2*i+1]]));}
+    const number=(key,fallback=0)=>{const raw=n.getAttribute(key);if(raw===null)return fallback;if(!/^[+-]?(?:\d*\.)?\d+(?:e[+-]?\d+)?$/i.test(raw))throw Error('SVG dimensions must be plain numbers.');return Number(raw);};if(number('rx')||number('ry'))throw Error('Rounded rectangles are not supported.');const x=number('x'),y=number('y'),w=number('width'),h=number('height');if(w<=0||h<=0)throw Error('Invalid rectangle.');return [[x,y],[x+w,y],[x+w,y+h],[x,y+h]];
+  }
+  if(extension!=='dxf')throw Error('Choose a DXF or SVG outline.');
+  const lines=text.replace(/\r/g,'').trim().split('\n').map(s=>s.trim());if(lines.length%2)throw Error('Invalid ASCII DXF.');const pairs=[];for(let i=0;i<lines.length;i+=2)pairs.push([lines[i],lines[i+1]]);
+  let section='',entities=[],current=null;
+  for(let i=0;i<pairs.length;i++){const [code,value]=pairs[i];if(code==='0'&&value==='SECTION'){section=pairs[i+1]?.[1];continue;}if(code==='0'&&value==='ENDSEC'){section='';continue;}if(section!=='ENTITIES')continue;if(code==='0'){current={type:value,attrs:[]};entities.push(current);}else if(current)current.attrs.push([code,value]);}
+  if(entities.length!==1||entities[0].type!=='LWPOLYLINE')throw Error('Export exactly one closed DXF LWPOLYLINE.');const attrs=entities[0].attrs;
+  if(!(Number(attrs.find(p=>p[0]==='70')?.[1])&1)||attrs.some(([c,v])=>['42','39'].includes(c)&&Number(v)!==0)||attrs.some(([c,v])=>c==='210'&&Number(v)!==0||c==='220'&&Number(v)!==0||c==='230'&&Number(v)!==1))throw Error('Use a closed, flat outline without arcs.');
+  const p=[];for(const [c,v] of attrs){if(c==='10')p.push([Number(v),NaN]);if(c==='20'&&p.length)p.at(-1)[1]=Number(v);}return betaG().polygon(p);
+}
+async function betaLoad(){
+  betaOutline=null;betaName='';el('betaRecord').disabled=true;let file=el('betaDrawing').files[0];const savedId=el('betaExistingDrawing').value;if(!file&&!savedId){betaRender();return;}
+  try{if(savedId){const saved=await rpc('getCutDrawing',savedId);file=new File([Uint8Array.from(atob(saved.data),c=>c.charCodeAt(0))],saved.name);if(!token||!el('betaPage'))return;}if(file.size>1048576)throw Error('Outline must be up to 1 MB.');const outline=betaParse(await file.text(),file.name.split('.').pop().toLowerCase()),factor=Number(el('betaUnits').value);if(!token||!el('betaPage'))return;betaOutline=outline.map(p=>[p[0]*factor,p[1]*factor*(file.name.toLowerCase().endsWith('.svg')?-1:1)]);betaName=file.name;el('betaWidth').value=String(Math.max(...betaOutline.map(p=>p[0]))-Math.min(...betaOutline.map(p=>p[0])));el('betaX').value='0';el('betaY').value='0';el('betaAngle').value='0';betaRender();}
+  catch(error){if(el('betaStatus')){betaRender();el('betaStatus').textContent=error.message;}}
+}
+async function betaRecord(){
+  if(!token||adminBusy)return;
+  const source=betaSource();if(!source)return;
+  try{const placed=betaPlaced();betaG().validate([...(source.cutouts||[]),placed],Number(source.length),Number(source.width));if(!window.confirm('Record this full-depth cut on ONE sheet? One sheet will be replaced by a shaped remnant.'))return;setBusy(true);el('betaRecord').disabled=true;const id=await rpc('adminRecordShapeCut',token,{id:source.id,version:source.version},placed);betaStockId=id;betaOutline=null;await refreshWorkspaceData();betaRefresh();el('betaStatus').textContent='Cut recorded. Select another outline to continue, or undo it in Settings.';}
+  catch(error){el('betaStatus').textContent=message(error);}finally{setBusy(false);}
+}
+
     let wsDrawingFiles = [], wsDrawingIds = [], wsNewDrawingFiles = [], wsPreviewUrl = null;
   let wsVisitRequest = 0;
   // Workspace navigation, public browsing, inventory, and appearance.
@@ -2391,6 +2518,7 @@ details[open] > summary { margin-bottom: 14px; }
   let wsTheme = 'dark', wsFeedSignature = '';
   let wsRawOriginal = null, wsRawEditorOpen = false, wsSelectedMaterialName = '';
   const wsPages = {
+    beta:['Beta Testing','Experimental drawing placement and shaped stock.'],
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],
     feeds:['Feeds & Speeds','Find the saved cutting settings for your mill and material.'],
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
@@ -2417,7 +2545,7 @@ details[open] > summary { margin-bottom: 14px; }
   }
   function wsGo(page) {
     if (page === 'raw-materials') page = 'materials';
-    if (!wsPages[page]) return;
+    if (!wsPages[page] || (page==='beta'&&!token)) return;
     if (wsPage !== page) el('globalSearch').value = '';
     wsPage = page;
     if(page==='settings'&&typeof wsRefreshVisits==='function')wsRefreshVisits(false);
@@ -2443,6 +2571,7 @@ details[open] > summary { margin-bottom: 14px; }
   function wsRequireAdmin(action) {if (token) action(); else wsRequestLogin(action);}
   function wsAuthChanged() {
     const signedIn = !!token;
+    betaAuth();
     document.querySelectorAll('.admin-only').forEach(node => node.hidden = !signedIn);
     document.querySelectorAll('.login-callout').forEach(node => node.hidden = signedIn);
     el('workspace').hidden = !signedIn; el('toggleView').textContent = signedIn ? 'Admin settings' : 'Admin';
@@ -2561,9 +2690,10 @@ details[open] > summary { margin-bottom: 14px; }
     el('inventoryMaterialCount').textContent=items.length+' of '+wsRawMaterials.length+' stock entries · '+items.reduce((total,item)=>total+item.quantity,0)+' pieces shown';
     items.forEach(item=>{
       const row=wsNode('tr');row.dataset.stockId=item.id;const name=wsNode('td');name.append(wsNode('strong',item.material));
-      row.append(name,wsNode('td',item.length+' × '+item.width),wsNode('td',item.thickness||'Not specified'),wsNode('td',String(item.quantity)));
+      row.append(name,wsNode('td',item.length+' × '+item.width+(item.cutouts?.length?' · shaped remnant (bounds)':'')),wsNode('td',item.thickness||'Not specified'),wsNode('td',String(item.quantity)));
       const status=wsNode('td');status.append(wsNode('span',item.quantity>0?'In stock':'Out of stock','badge '+(item.quantity>0?'in':'out')));row.append(status);
-      const actions=wsNode('td');if(item.quantity>0)actions.append(wsButton('Record cut',()=>wsOpenSheetCut(item)));
+      const actions=wsNode('td');if(item.quantity>0)actions.append(wsButton(item.cutouts?.length?'Use whole piece':'Record cut',()=>wsOpenSheetCut(item)));
+      if(token&&item.quantity>0&&item.cutouts?.length)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('beta');}));
       actions.append(wsButton('View material',()=>{wsSelectedMaterialName=item.material;wsGo('materials');}));
       if(token)actions.append(wsButton('Edit stock',()=>wsOpenRawMaterial(item)));row.append(actions);el('inventoryMaterialBody').append(row);
     });
@@ -2610,7 +2740,7 @@ details[open] > summary { margin-bottom: 14px; }
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
+  function wsRenderAll() {betaRefresh();wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -2715,9 +2845,10 @@ details[open] > summary { margin-bottom: 14px; }
       identity.append(wsNode('strong',item.material)); material.append(identity);
       const quantity = wsNode('td'); quantity.append(wsNode('span',String(item.quantity),'badge ' + (item.quantity === 0 ? 'out' : 'in')));
       const noteCell = wsNode('td'); const note = wsNode('span',item.notes || '—','raw-material-note'); note.title = item.notes || ''; noteCell.append(note);
-      row.append(material,wsNode('td',item.length + ' × ' + item.width),wsNode('td',item.thickness || 'Not specified'),quantity,wsNode('td',item.location || '—'),noteCell);
+      row.append(material,wsNode('td',item.length + ' × ' + item.width+(item.cutouts?.length?' · shaped remnant (bounds)':'')),wsNode('td',item.thickness || 'Not specified'),quantity,wsNode('td',item.location || '—'),noteCell);
       const actions = wsNode('td');
-      if(item.quantity>0)actions.append(wsButton('Record cut',()=>wsOpenSheetCut(item)));
+      if(item.quantity>0)actions.append(wsButton(item.cutouts?.length?'Use whole piece':'Record cut',()=>wsOpenSheetCut(item)));
+      if(token&&item.quantity>0&&item.cutouts?.length)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('beta');}));
       if (token) {
         const group = wsNode('div',null,'actions'); group.append(wsButton('Edit',() => wsOpenRawMaterial(item)),wsButton('Delete',() => wsDeleteRawMaterial(item),'danger small')); actions.append(group);
       }
@@ -2841,7 +2972,7 @@ details[open] > summary { margin-bottom: 14px; }
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
-    if(adminBusy)return;if(wsPage!=='materials'){wsSelectedMaterialName=item.material;wsGo('materials');}wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
+    if(adminBusy)return;if(wsPage!=='materials'){wsSelectedMaterialName=item.material;wsGo('materials');}wsRawEditorOpen=false;el('rawMaterialEditor').hidden=true;wsSheetCutOriginal={id:item.id,version:item.version};el('sheetCutForm').reset();el('keepRemainder').disabled=!!item.cutouts?.length;if(item.cutouts?.length)el('keepRemainder').checked=false;el('sheetCutStatus').textContent='';el('sheetCutEditor').hidden=false;wsToggleRemainder();
     el('sheetCutSource').textContent=item.material+' · '+item.length+' × '+item.width+' inch · '+item.quantity+' pieces available';el('remainderLength').focus();
   }
   function wsToggleRemainder() {

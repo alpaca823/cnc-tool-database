@@ -14,7 +14,7 @@ def render_shell(backend: str) -> str:
         raise ValueError('The app shell must contain exactly one backend marker.')
     if '</script' in backend.lower():
         raise ValueError('The backend must not contain an HTML script terminator.')
-    built = shell.replace('/* LOCAL_CORE */', backend).replace('__CNC_VERSION__', version)
+    built = shell.replace('/* LOCAL_CORE */', backend).replace('/* STOCK_GEOMETRY */',(ROOT / 'stock-geometry.js').read_text()).replace('__CNC_VERSION__', version)
     highlights = json.loads((ROOT / 'whats-new.json').read_text(encoding='utf-8'))
     if not isinstance(highlights,list) or not highlights or highlights[0].get('version') != version:
         raise ValueError('Add short What’s new highlights for VERSION ' + version)
@@ -36,7 +36,7 @@ def render_shell(backend: str) -> str:
     if built.count('<!-- WHATS_NEW -->') != 1:
         raise ValueError('Missing What’s new build marker.')
     built = built.replace('<!-- WHATS_NEW -->',content)
-    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
+    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
         if built.count(token) != 1:
             raise ValueError('Missing or repeated workspace build marker: ' + token)
         built = built.replace(token, (ROOT / filename).read_text(encoding='utf-8'))

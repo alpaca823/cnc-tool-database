@@ -2,6 +2,13 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.15.0
+
+- Added an admin-only Beta Testing tab for placing one closed, straight-edged DXF or SVG outline on stock.
+- Added drawing reuse from the Cut List, dragging, inch positioning, proportional width scaling, rotation, and validation against sheet bounds and prior cutouts.
+- Recording a beta cut consumes one sheet and creates a shaped remnant; existing report history and conflict-safe admin undo apply. Footprints survive backups and offline snapshots.
+- Marked shaped remnants in stock lists and protected their footprint dimensions from rectangular edits. Curves, VCarve/DWG import, kerf, and automatic scrap separation are outside this beta.
+
 ## 1.14.24
 
 - Moved What’s new from inside Settings to its own sidebar tab directly below Settings.

@@ -35,7 +35,7 @@ def build_pages():
  (public/'preview.html').write_text(preview)
  if (ROOT/'config.js').exists():(public/'config.js').write_text((ROOT/'config.js').read_text())
  if not (public/'config.js').exists():(public/'config.js').write_text('window.CNC_CONFIG = { supabaseUrl: "", publicKey: "" };\n')
- core=(ROOT/'cnc-local/local-core.js').read_text()
+ core=(ROOT/'cnc-local/stock-geometry.js').read_text()+'\n'+(ROOT/'cnc-local/local-core.js').read_text()
  if core.count('const sessions = new Map();')!=1:raise ValueError('Canonical session adapter changed')
  core=core.replace('const sessions = new Map();','const sessions = host.sessions;')
  engine='// GENERATED from cnc-local/local-core.js. Do not edit.\nexport function createDatabase(host) {\n const window={crypto:host.crypto};\n const localStorage={getItem:()=>host.read(),setItem:(_,value)=>host.write(value)};\n const navigator={};\n const document={getElementById:()=>null};\n'+core+'\nreturn window.cncLocal;\n}\n'

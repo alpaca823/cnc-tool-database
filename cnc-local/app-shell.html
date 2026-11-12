@@ -109,7 +109,7 @@
         <button class="full" type="submit">Sign in</button>
       </fieldset></form>
       <p id="loginStatus" class="status" role="status" aria-live="polite"></p>
-    </section><button id="closeLogin" class="secondary small close-login" type="button">Cancel login</button></section><dialog id="drawingPreviewDialog" class="report-dialog" aria-labelledby="drawingPreviewTitle"><div class="toolbar"><h2 id="drawingPreviewTitle">Drawing preview</h2><button id="closeDrawingPreview" class="secondary" type="button">Close preview</button></div><img id="drawingPreviewImage" alt=""></dialog><dialog id="brokenMillDialog" class="report-dialog" aria-labelledby="brokenMillTitle"><h2 id="brokenMillTitle">Report broken mill</h2><p id="brokenMillSubject"></p><p class="hint">Removes one mill from the available quantity. An admin can undo this report in Settings.</p><form id="brokenMillForm"><fieldset id="brokenMillFields"><label for="brokenReporter">Reported by (optional)</label><input id="brokenReporter" maxlength="80"><label for="brokenDetails">Details (optional)</label><textarea id="brokenDetails" maxlength="500" rows="3"></textarea><div class="actions"><button type="submit">Report broken</button><button id="cancelBrokenMill" class="secondary" type="button">Cancel</button></div><p id="brokenMillStatus" class="status" role="status"></p></fieldset></form></dialog><script id="cncEmbeddedData" type="application/json">{"format":"cnc-local-portable","schemaVersion":1,"settings":[]}</script><script>
+    </section><button id="closeLogin" class="secondary small close-login" type="button">Cancel login</button></section><dialog id="drawingPreviewDialog" class="report-dialog" aria-labelledby="drawingPreviewTitle"><div class="toolbar"><h2 id="drawingPreviewTitle">Drawing preview</h2><button id="closeDrawingPreview" class="secondary" type="button">Close preview</button></div><img id="drawingPreviewImage" alt=""></dialog><dialog id="brokenMillDialog" class="report-dialog" aria-labelledby="brokenMillTitle"><h2 id="brokenMillTitle">Report broken mill</h2><p id="brokenMillSubject"></p><p class="hint">Removes one mill from the available quantity. An admin can undo this report in Settings.</p><form id="brokenMillForm"><fieldset id="brokenMillFields"><label for="brokenReporter">Reported by (optional)</label><input id="brokenReporter" maxlength="80"><label for="brokenDetails">Details (optional)</label><textarea id="brokenDetails" maxlength="500" rows="3"></textarea><div class="actions"><button type="submit">Report broken</button><button id="cancelBrokenMill" class="secondary" type="button">Cancel</button></div><p id="brokenMillStatus" class="status" role="status"></p></fieldset></form></dialog><script id="cncEmbeddedData" type="application/json">{"format":"cnc-local-portable","schemaVersion":1,"settings":[]}</script><script>/* STOCK_GEOMETRY */</script><script>
 /* LOCAL_CORE */
 </script><script>
   const el = id => document.getElementById(id);
@@ -594,6 +594,7 @@
       el('loginStatus').textContent = text;
     }
   }
+  /* STOCK_BETA */
   /* WORKSPACE_UI */
   if (typeof initWorkspace === 'function') initWorkspace();
   startApp();

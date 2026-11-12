@@ -172,6 +172,7 @@
     }
     if (Object.prototype.hasOwnProperty.call(record,'materialImage') || Object.prototype.hasOwnProperty.call(record,'toolImage'))
       throw new Error('Raw material images belong in the shared material library.');
+    if(record.cutouts!==undefined)result.cutouts=window.cncStockGeometry.validate(record.cutouts,Number(result.length),Number(result.width));
     return result;
   }
   function validateRawMaterials(records,keepVersions) {
@@ -403,6 +404,7 @@
   function reportMaterial(state,original,remainder,meta) {
     const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
     if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
+    if(source.cutouts?.length&&remainder!==null)throw new Error('Use Beta Testing to cut a shaped remnant, or use the whole piece.');
     let leftover=null;
     if(remainder!==null){
       if(!remainder||typeof remainder!=='object'||Array.isArray(remainder))throw new Error('Enter a valid leftover size or use the whole piece.');
@@ -751,6 +753,17 @@
       const state=readState(),source=state.cuts[cutIndex(state.cuts,original)];if(source.completed)throw new Error('This cut is already completed.');
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid()};appendReport(state,'cut',source.title,change,null,meta);source.completed=true;source.version=change.afterVersion;commit(state);return true;
     },
+    adminRecordShapeCut(token,original,outline) {
+      const state=readState();requireAdmin(token,state);
+      const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
+      if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
+      if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full.');
+      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),outline],Number(source.length),Number(source.width));
+      const leftover=validateRawMaterial({...source,quantity:1,cutouts});leftover.id=uid();leftover.version=uid();
+      const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
+      appendReport(state,'material','Beta shape cut · '+source.material,change,leftover,{details:'Recorded a straight-edged drawing cut. Dimensions describe the original footprint.'});
+      source.quantity--;source.version=change.afterVersion;state.rawMaterials.push(leftover);commit(state);return leftover.id;
+    },
     adminListReports(token) {const state=readState();requireAdmin(token,state);return state.reports;},
     adminUndoReport(token,original) {
       const state=readState();requireAdmin(token,state);
@@ -878,8 +891,10 @@
     },
     adminSaveRawMaterial(token,record,original) {
       const state = readState(); requireAdmin(token,state);
-      const item = validateRawMaterial(record);
       const index = original == null ? -1 : originalRawMaterialIndex(state.rawMaterials,original);
+      const previous=index<0?null:state.rawMaterials[index];
+      if(previous?.cutouts?.length&&(Number(record.length)!==Number(previous.length)||Number(record.width)!==Number(previous.width)))throw new Error('A shaped remnant footprint cannot be resized.');
+      const item = validateRawMaterial(previous?.cutouts?.length?{...record,cutouts:previous.cutouts}:record);
       if (!state.materials.some(material => material.name === item.material)) throw new Error('Choose a saved material from the material list. Add the material first if it is missing.');
       item.id = index < 0 ? uid() : state.rawMaterials[index].id;
       item.version = uid();
@@ -1010,7 +1025,7 @@
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; state.cutDrawings = data.cutDrawings; commit(state); return true;
     }
   };
-  const writes = new Set(['reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {
