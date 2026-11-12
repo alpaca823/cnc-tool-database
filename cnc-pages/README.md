@@ -53,3 +53,5 @@ Update v1.14.16: Everyone can add, edit, prioritize, reorder, reopen, delete, or
 Update v1.14.17: Settings → What’s new provides short release highlights for everyone. The latest three releases are shown first; Older updates expands earlier releases. Highlights are embedded in both editions and offline downloads. Future releases must update cnc-local/whats-new.json with 1–3 factual bullets (at most 100 characters each), alongside the root change log.
 
 Update v1.14.18: Cut List items accept up to 3 drawings (1 MB each, 2 MB combined). PNG/JPG/WebP preview in the app; PDF/SVG/DXF and images download. The existing Dashboard cut queue also shows attachments. File contents load only when opened, and shared data stores each file once while undo history references its ID. Drawings are preserved in backups and offline copies; attachment edits are logged and admin-reversible.
+
+Bug fix v1.14.19: Dashboard sections now have consistent spacing, keeping Inventory alerts and the Cut List clearly separated on desktop and mobile.

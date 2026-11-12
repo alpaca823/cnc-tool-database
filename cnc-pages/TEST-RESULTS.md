@@ -1,7 +1,5 @@
-# v1.14.18 update
+# v1.14.19 bug fix
 
-All 27 supported test commands pass via verify-both.py. Sixteen shared-backend cases include drawing validation, file/combined size limits, duplicate storage avoidance, missing-reference rejection, old-client preservation, metadata-only loading, inactive-file access rejection, backup import, cut deletion/undo, and attachment removal/undo. Undo history stores IDs rather than duplicate file bytes.
+Dashboard layout regression passes in local and shared builds at 2048, 1440, 1024, 768, and 390 px, in both themes, with populated and empty alerts. Checks verify at least 16 px separation between summary cards, the alerts/quick-access row, and the Cut List; no horizontal overflow; hidden Dashboard behavior remains correct. A desktop screenshot was visually inspected.
 
-Local/shared browser tests verify public uploads, raster previews, document downloads, safe SVG download-only behavior, existing Dashboard drawing links, file removal, size errors, admin undo, and functioning drawing downloads from fresh offline copies. Existing planning, reports, inventory, visitor totals, credentials, concise release notes, themes, and mentor notice pass their checks.
-
-The shared API is deployed and live metadata/missing-file checks pass without editing production cuts. No schema or credential changes were needed. Google Apps Script remains archived.
+Public planning/Dashboard/admin undo and What’s new browser suites also pass in both editions. No backend, data, credential, or schema changes were needed. Google Apps Script remains archived.

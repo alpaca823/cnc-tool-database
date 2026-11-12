@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.14.19",
+    "notes": [
+      "Dashboard cards now have a clear gap.",
+      "Spacing stays consistent on desktop and mobile."
+    ]
+  },
+  {
     "version": "1.14.18",
     "notes": [
       "Attach drawings to cuts and access them from the Dashboard.",

@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.19
+
+- Separated Dashboard summary cards, inventory alerts/quick access, and the Cut List with consistent vertical gaps.
+- Removed the duplicate Dashboard stats margin so the new spacing stays consistent across desktop and mobile layouts.
+
 ## 1.14.18
 
 - Added optional drawing attachments to cuts: PDF, SVG, DXF, PNG, JPG, and WebP, with upload/removal controls.
