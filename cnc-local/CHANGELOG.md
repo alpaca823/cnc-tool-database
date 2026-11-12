@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.26
+
+- Added a consistent gap between Tool inventory and Material stock on the Inventory page, including mobile layouts.
+
 ## 1.14.25
 
 - Added public read-only shape thumbnails in Materials, with an enlarged preview of sheet/remnant cutouts, inch dimensions, quantity, and remaining area.

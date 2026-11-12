@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.25
+# CNC Tool Database — v1.14.26
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -137,3 +137,5 @@ Update v1.14.23: DWG drawings can be attached and downloaded from the Cut List a
 Update v1.14.24: What’s new now has its own sidebar tab directly below Settings.
 
 Update v1.14.25: Everyone can preview saved sheet and remnant shapes from Materials. Click a shape thumbnail for a larger view of cutouts, inch bounds, quantity and remaining area. Previews are read-only, update with stock changes, and work in offline copies.
+
+Update v1.14.26: Added spacing between Tool inventory and Material stock on desktop and mobile.

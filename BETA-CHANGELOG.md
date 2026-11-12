@@ -1,6 +1,6 @@
 # Admin-only stock beta — pending public release
 
-Public version is 1.14.25 after the user-authorized promotion of read-only Materials previews. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
+Public version is 1.14.26 after the public Inventory spacing fix. Read-only Materials previews were promoted in 1.14.25. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
 
 ## Current work
 

@@ -1,7 +1,5 @@
-# v1.14.25 validation
+# v1.14.26 validation
 
-The public read-only Materials stock-preview browser suite passed for both the local and shared builds: full-sheet and shaped-remnant thumbnails, even-odd cutouts, enlarged remaining-area/count preview, inch dimensions, light/dark fills, mobile dialog bounds, Escape/Close handling, offline copies, refresh after stock edits and undo, and public access after logout. Public dialogs expose only Close; editing remains protected.
+Verified separation between Tool inventory and Material stock in the exact local and shared builds: 22px at desktop/tablet widths and 17px on mobile, in both light and dark themes. The existing combined inventory/material browser suite passed, including searches, public material cuts, admin stock controls, and responsive layout. The What’s new/version suite passed in both supported editions.
 
-The What’s new/version and combined inventory/material browser regression suites passed in both editions. Shared database engine output is unchanged, so no backend/schema deployment or production data edits were needed. Existing saved footprints supply the previews.
-
-Drawing placement remains admin-only pending beta work, tracked separately in BETA-CHANGELOG.md. Public release highlights describe only the promoted preview. Google Apps Script remains archived. This is focused release validation, not a full legacy-suite pass.
+This release changes only Inventory table spacing, release metadata and documentation. No database/schema, credentials or inventory data changed. Drawing placement remains pending admin-only beta and is excluded from public highlights. Google Apps Script remains archived.
