@@ -1,0 +1,12 @@
+[
+  {"version":"1.14.17","notes":["Find short release highlights in Settings → What’s new.","Open Older updates to see earlier changes."]},
+  {"version":"1.14.16","notes":["Everyone can manage the Cut List; admins can undo changes.","Upcoming cuts now appear on the Dashboard."]},
+  {"version":"1.14.15","notes":["See today’s and total website visits in Settings.","No ads. Offline use is not counted."]},
+  {"version":"1.14.14","notes":["Inventory now includes mills, full sheets, and leftover material.","Search stock by material or size, and record cuts from Inventory."]},
+  {"version":"1.14.13","notes":["Anyone can report material cuts and broken mills.","Admins can undo reports in Settings."]},
+  {"version":"1.14.12","notes":["Set cut priorities and move jobs up or down.","Switch between planned order and priority-first views."]},
+  {"version":"1.14.11","notes":["Pin important notes and plan jobs in the Cut List.","Record a material cut and save its smaller leftover."]},
+  {"version":"1.14.10","notes":["Read and search shop reminders in Notes.","Notes are included in backups and offline downloads."]},
+  {"version":"1.14.9","notes":["Click any mill row to change its details.","Search results and selected mill details now stay in sync."]},
+  {"version":"1.14.8","notes":["Removed Location from tool Inventory; saved data is preserved.","Started a versioned change log for releases."]}
+]

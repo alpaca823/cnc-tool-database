@@ -45,6 +45,7 @@
       if (active) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
     });
     el('pageTitle').textContent = wsPages[page][0]; el('pageDescription').textContent = wsPages[page][1];
+    if(page==='settings')wsShowWhatsNew(false,false);
     el('globalSearch').disabled = page === 'dashboard' || page === 'settings';
     el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mills, materials, or sizes…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
     el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');
@@ -311,6 +312,8 @@
     wsInitCuts();
     wsInitReports();
     wsInitVisits();
+    el('openWhatsNew').addEventListener('click',()=>wsShowWhatsNew(true,true));
+    el('backFromWhatsNew').addEventListener('click',()=>wsShowWhatsNew(false,true));
     wsAuthChanged(); wsGo('feeds');
   }
 
@@ -535,4 +538,10 @@
     const pending=wsCuts.filter(item=>!item.completed);el('dashboardCuts').replaceChildren();el('dashboardCutCount').textContent=pending.length+' to do · '+wsCuts.filter(item=>item.completed).length+' completed · Planned cutting order';
     if(!pending.length)el('dashboardCuts').append(wsNode('p','No pending cuts. Add a cut to plan the next job.','empty-state'));
     pending.slice(0,6).forEach((item,index)=>{const row=wsNode('div',null,'dashboard-cut');row.append(wsNode('strong','#'+(index+1)+' · '+item.title),wsNode('span',wsPriorities[item.priority]||'Normal','badge priority-'+(item.priority||'normal')),wsNode('p','Quantity: '+item.quantity+(item.material?' · '+item.material:''),'hint'),wsButton('Mark done',()=>wsReportDone(item)));el('dashboardCuts').append(row);});
+  }
+
+  function wsShowWhatsNew(open,focus) {
+    el('settingsHome').hidden=open;el('whatsNewPage').hidden=!open;
+    if(wsPage==='settings'){el('pageTitle').textContent=open?'What’s new':wsPages.settings[0];el('pageDescription').textContent=open?'Short release highlights.':wsPages.settings[1];}
+    if(focus)el(open?'whatsNewHeading':'openWhatsNew').focus();
   }

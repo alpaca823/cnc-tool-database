@@ -1,7 +1,5 @@
-# v1.14.16 update
+# v1.14.17 update
 
-All 25 supported test commands pass via verify-both.py. Fourteen shared-backend cases cover public cut creation, editing, priorities, moves, deletion, reopening/completion, logged snapshots, stale writes, deletion anchors/dependencies, and admin undo of complete planning histories after backup import. Mill, material, note, and settings administration remain protected.
+Four relevant browser suites pass: What’s new, local workspace, public planning/Dashboard/undo, and visitor totals. Local/shared checks verify public Settings access, current-version highlights, 1–3 bullets per release of at most 100 characters, collapsed older updates, focus/back navigation, themes, 390 px layout, and offline embedding. Existing data, credentials, reports, undo, backup, and mentor-notice coverage passes in the selected suites.
 
-Local/shared browser coverage verifies full Cut List use without login, Dashboard upcoming cuts in planned order, priorities/quantities, Add cut, Mark done, updates after completion, admin-only undo, and working undo chains in downloaded offline copies. Existing inventory, reports, visit totals, themes, credentials, images, mentor notice, and portability tests pass.
-
-The shared API deployment is active; production checks read the workspace and reject an unauthenticated undo request without editing shop records. No schema changes were needed. Google Apps Script remains archived.
+Build guard checks reject mismatched versions, oversized bullets, and excessive detail. Highlights are embedded locally; no extra runtime requests, data migrations, backend changes, or Google Apps Script rebuilds were needed.

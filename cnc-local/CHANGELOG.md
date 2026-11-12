@@ -2,6 +2,12 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.17
+
+- Added a public What’s new page under Settings in both supported editions.
+- Added brief release highlights, with recent versions first and earlier updates collapsed.
+- Added build checks requiring current-version highlights and short, factual bullets tied to the change log.
+
 ## 1.14.16
 
 - Opened Cut List creation, editing, priorities, reordering, reopening, deletion, and completion to visitors.
