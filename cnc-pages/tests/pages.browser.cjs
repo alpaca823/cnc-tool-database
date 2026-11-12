@@ -22,7 +22,7 @@ const {fixture}=require('./shared-fixture.cjs');
   }
   const page=await open();await page.evaluate(()=>cncLocal.ready);
   assert.equal(await page.locator('html').getAttribute('data-theme'),'dark');
-  assert.equal(await page.locator('#mentorNotice').isVisible(),true);
+  assert.equal(await page.locator('#mentorNotice').isVisible(),false);
   for(const name of ['dashboard','mills','inventory','materials','cuts','notes','settings']){
    await page.locator('.nav-button[data-page='+name+']').click();
    assert.equal(await page.locator('#mentorNotice').isVisible(),false);

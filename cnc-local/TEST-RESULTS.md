@@ -1,5 +1,5 @@
-# v1.14.19 bug fix
+# v1.14.20 update
 
-Dashboard layout regression passes in local and shared builds at 2048, 1440, 1024, 768, and 390 px, in both themes, with populated and empty alerts. Checks verify at least 16 px separation between summary cards, the alerts/quick-access row, and the Cut List; no horizontal overflow; hidden Dashboard behavior remains correct. A desktop screenshot was visually inspected.
+Dashboard/home layout, local workspace, and What’s new browser suites pass in both editions. Checks verify Dashboard is visible and selected on launch, reloading after visiting Feeds & Speeds returns home, the mentor notice remains on Feeds & Speeds, and other tabs stay hidden correctly. Layout checks cover five widths, both themes, alert states, and no overflow. Existing backups, credentials, inventory, and portable HTML checks pass in the workspace suite.
 
-Public planning/Dashboard/admin undo and What’s new browser suites also pass in both editions. No backend, data, credential, or schema changes were needed. Google Apps Script remains archived.
+Initial markup also shows Dashboard before JavaScript/data loading. No backend, data, or credential changes were needed. Google Apps Script remains archived.

@@ -10,7 +10,7 @@ const{fixture}=require('./shared-fixture.cjs');
 
 
 
-  await page.goto('http://localhost:31487/');await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);
+  await page.goto('http://localhost:31487/');await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);assert.equal(await page.locator('.workspace-view[data-page=dashboard]').isVisible(),true);assert.equal(await page.locator('#pageTitle').textContent(),'Dashboard');assert.equal(await page.locator('.nav-button[aria-current=page]').getAttribute('data-page'),'dashboard');assert.equal(await page.locator('#mentorNotice').isVisible(),false);
   await page.evaluate(async()=>{const{token}=await cncLocal.call('adminLogin','admin','Feds201');await cncLocal.call('adminSaveMill',token,{number:'SPACING',name:'Dashboard mill',quantity:0,reorderLevel:1},null);await cncLocal.call('adminSaveCut',token,{title:'Dashboard cut with a long name to exercise wrapping',quantity:2,priority:'high'},null);});
   for(const alerts of [true,false]){
    await page.setViewportSize({width:1440,height:1200});
@@ -24,7 +24,7 @@ const{fixture}=require('./shared-fixture.cjs');
    }
   }
   if(mode==='local'){await page.setViewportSize({width:1440,height:1200});await page.evaluate(()=>document.documentElement.dataset.theme='dark');await page.screenshot({path:'/tmp/cnc-dashboard-spacing.png'});}
-  await page.setViewportSize({width:1440,height:1200});await page.locator('.nav-button[data-page=materials]').click();assert.equal(await page.locator('[data-page=dashboard].workspace-view').isVisible(),false);assert.deepEqual(errors,[]);await context.close();
+  await page.setViewportSize({width:1440,height:1200});await page.locator('.nav-button[data-page=feeds]').click();assert.equal(await page.locator('#mentorNotice').isVisible(),true);await page.reload();await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);assert.equal(await page.locator('.workspace-view[data-page=dashboard]').isVisible(),true);await page.locator('.nav-button[data-page=materials]').click();assert.equal(await page.locator('[data-page=dashboard].workspace-view').isVisible(),false);assert.deepEqual(errors,[]);await context.close();
  }
  console.log('PASS: local/shared Dashboard card separation at five widths, both themes, alerts/empty states, and hidden-tab behavior');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exitCode=1;});

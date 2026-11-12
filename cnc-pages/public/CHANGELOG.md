@@ -2,6 +2,12 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.20
+
+- Made Dashboard the initial page on opening and reloading both supported editions.
+- Updated initial markup and navigation so Dashboard is shown immediately, before data finishes loading.
+- Kept the mentor notice on Feeds & Speeds.
+
 ## 1.14.19
 
 - Separated Dashboard summary cards, inventory alerts/quick access, and the Cut List with consistent vertical gaps.

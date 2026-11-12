@@ -4,7 +4,7 @@
   let wsReports = [], wsBrokenOriginal = null;
   let wsCuts = [], wsCutOriginal = null, wsSheetCutOriginal = null;
   let wsNotes = [], wsNoteOriginal = null;
-  let wsPage = 'feeds', wsMills = [], wsMaterials = [], wsRawMaterials = [], wsDashboard = {}, wsSelectedMill = '', wsAfterLogin = null;
+  let wsPage = 'dashboard', wsMills = [], wsMaterials = [], wsRawMaterials = [], wsDashboard = {}, wsSelectedMill = '', wsAfterLogin = null;
   let wsMillOriginal = null, wsMillBase = null, wsMillPhoto = '', wsMillPhotoDirty = false, wsMillEditorOpen = false, wsInventoryOriginal = null, wsDataRevision = 0;
   const wsThemeKey = 'cnc-tool-theme-v1';
   const wsThemeMedia = window.matchMedia('(prefers-color-scheme: dark)');
@@ -316,7 +316,7 @@
     wsInitVisits();
     el('openWhatsNew').addEventListener('click',()=>wsShowWhatsNew(true,true));
     el('backFromWhatsNew').addEventListener('click',()=>wsShowWhatsNew(false,true));
-    wsAuthChanged(); wsGo('feeds');
+    wsAuthChanged(); wsGo('dashboard');
   }
 
   function wsRenderRawMaterials() {
