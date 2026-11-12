@@ -18,9 +18,9 @@ const{fixture}=require('./shared-fixture.cjs');
     await page.setViewportSize({width,height:1200});await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
     const gaps=await page.locator('#settingsHome').evaluate(home=>{
      const check=parent=>{const children=Array.from(parent.children).filter(n=>n.getClientRects().length&&getComputedStyle(n).display!=='none');return children.slice(1).map((node,index)=>node.getBoundingClientRect().top-children[index].getBoundingClientRect().bottom);};return [...check(home),...Array.from(home.querySelectorAll(':scope > div.admin-only')).filter(n=>n.getClientRects().length).flatMap(check)];
-    });assert.ok(gaps.length>=3);assert.ok(gaps.every(gap=>gap>=16),'Settings cards have a clear gap: '+gaps.join(','));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+    });assert.ok(gaps.length>=2);assert.ok(gaps.every(gap=>gap>=16),'Settings cards have a clear gap: '+gaps.join(','));assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
    }
-   await page.setViewportSize({width:1440,height:1200});await page.locator('#openWhatsNew').click();assert.equal(await page.locator('#settingsHome').isVisible(),false);assert.equal(await page.locator('#whatsNewPage').isVisible(),true);await page.locator('#backFromWhatsNew').click();assert.equal(await page.locator('#settingsHome').isVisible(),true);
+   await page.setViewportSize({width:1440,height:1200});await page.locator('.nav-button[data-page=whats-new]').click();assert.equal(await page.locator('#settingsHome').isVisible(),false);assert.equal(await page.locator('#whatsNewPage').isVisible(),true);await page.locator('.nav-button[data-page=settings]').click();assert.equal(await page.locator('#settingsHome').isVisible(),true);
   }
   await page.reload();await page.waitForFunction(()=>!document.getElementById('loginFields').disabled);assert.equal(await page.locator('.workspace-view[data-page=dashboard]').isVisible(),true);assert.equal(await page.locator('#mentorNotice').isVisible(),false);assert.deepEqual(errors,[]);await context.close();
  }

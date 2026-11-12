@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.14.24",
+    "notes": [
+      "Moved What’s new to the sidebar directly below Settings."
+    ]
+  },
+  {
     "version": "1.14.23",
     "notes": [
       "Attach DWG drawings to cuts and download them from the Cut List or Dashboard."

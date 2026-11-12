@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.24
+
+- Moved What’s new from inside Settings to its own sidebar tab directly below Settings.
+
 ## 1.14.23
 
 - Added DWG files to drawing uploads, validation, and downloads in the Cut List and Dashboard.
