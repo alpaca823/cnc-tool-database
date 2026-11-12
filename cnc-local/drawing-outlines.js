@@ -1,3 +1,25 @@
+// Sample circular geometry at no more than 2 degrees per straight segment.
+function betaArcPoints(cx,cy,r,start,sweep){
+  if(![cx,cy,r,start,sweep].every(Number.isFinite)||r<=0||Math.abs(sweep)<1e-10||Math.abs(sweep)>2*Math.PI+1e-8)throw Error('Invalid circular drawing geometry.');
+  const count=Math.ceil(Math.abs(sweep)/(Math.PI/90));
+  return Array.from({length:count+1},(_,i)=>{const a=start+sweep*i/count;return [cx+r*Math.cos(a),cy+r*Math.sin(a)];});
+}
+function betaPolylinePoints(vertices,closed){
+  if(vertices.length<2)throw Error('A polyline needs at least two vertices.');
+  const result=[];let curved=false;
+  for(let i=0;i<vertices.length-(closed?0:1);i++){
+    const a=vertices[i],b=vertices[(i+1)%vertices.length],bulge=a.bulge??0;
+    if(!Number.isFinite(bulge))throw Error('Invalid polyline bulge.');
+    if(!bulge){result.push(a.point.slice());continue;}
+    const dx=b.point[0]-a.point[0],dy=b.point[1]-a.point[1],chord=Math.hypot(dx,dy);
+    if(chord<1e-10)throw Error('A curved segment needs different endpoints.');
+    const offset=(1-bulge*bulge)/(4*bulge),cx=(a.point[0]+b.point[0])/2-dy*offset,cy=(a.point[1]+b.point[1])/2+dx*offset;
+    const pts=betaArcPoints(cx,cy,Math.hypot(a.point[0]-cx,a.point[1]-cy),Math.atan2(a.point[1]-cy,a.point[0]-cx),4*Math.atan(bulge));
+    pts[0]=a.point.slice();result.push(...pts.slice(0,-1));curved=true;
+  }
+  if(!closed)result.push(vertices.at(-1).point.slice());
+  return {points:result,closed,curved};
+}
 // Convert drawing entities into a group of simple stock-removal outlines.
 function betaJoinOutlines(chains){
   if(!chains.length||chains.length>500)throw Error('Use 1–500 outline entities.');
@@ -32,7 +54,7 @@ function betaJoinOutlines(chains){
     autoClosed.push(!chain.closed&&!connected);outlines.push(betaG().polygon(p));
     if(outlines.length>100)throw Error('A group can contain up to 100 outlines.');
   }
-  outlines.autoClosed=autoClosed;return outlines;
+  outlines.autoClosed=autoClosed;outlines.curved=chains.some(c=>c.curved);return outlines;
 }
 function betaParse(text,extension){
   if(extension==='svg'){
@@ -55,12 +77,15 @@ function betaParse(text,extension){
   for(let i=0;i<entities.length;i++){
     const {type,attrs}=entities[i];
     if(['TEXT','MTEXT','ATTRIB','ATTDEF','DIMENSION','LEADER','MLEADER'].includes(type))continue;
-    if(attrs.some(([c,v])=>['42','39','30','31'].includes(c)&&Number(v)!==0)||attrs.some(([c,v])=>c==='210'&&Number(v)!==0||c==='220'&&Number(v)!==0||c==='230'&&Number(v)!==1))throw Error('Use flat outlines without curved segments.');
+    if(attrs.some(([c,v])=>['39','30','31'].includes(c)&&Number(v)!==0)||attrs.some(([c,v])=>c==='210'&&Number(v)!==0||c==='220'&&Number(v)!==0||c==='230'&&Number(v)!==1))throw Error('Use flat 2D outlines.');
     if(type==='LINE')chains.push({points:[[value(attrs,'10',NaN),value(attrs,'20',NaN)],[value(attrs,'11',NaN),value(attrs,'21',NaN)]],closed:false});
-    else if(type==='LWPOLYLINE'){
-      const p=[];for(const [c,v] of attrs){if(c==='10')p.push([Number(v),NaN]);if(c==='20'&&p.length)p.at(-1)[1]=Number(v);}chains.push({points:p,closed:!!(value(attrs,'70')&1)});
+    else if(type==='ARC'||type==='CIRCLE'){
+      const start=value(attrs,'50',NaN)*Math.PI/180,end=value(attrs,'51',NaN)*Math.PI/180,sweep=type==='CIRCLE'?2*Math.PI:((end-start)%(2*Math.PI)+2*Math.PI)%(2*Math.PI);
+      chains.push({points:betaArcPoints(value(attrs,'10',NaN),value(attrs,'20',NaN),value(attrs,'40',NaN),type==='CIRCLE'?0:start,sweep),closed:type==='CIRCLE',curved:true});
+    }else if(type==='LWPOLYLINE'){
+      const vertices=[];for(const [c,v] of attrs){if(c==='10')vertices.push({point:[Number(v),NaN],bulge:0});if(c==='20'&&vertices.length)vertices.at(-1).point[1]=Number(v);if(c==='42'&&vertices.length)vertices.at(-1).bulge=Number(v);}chains.push(betaPolylinePoints(vertices,!!(value(attrs,'70')&1)));
     }else if(type==='POLYLINE'){
-      if(value(attrs,'70')&(~129))throw Error('Use 2D polylines.');const p=[];while(entities[i+1]?.type==='VERTEX'){const vertex=entities[++i].attrs;if(value(vertex,'42')!==0||value(vertex,'30')!==0)throw Error('Use flat outlines without curved segments.');p.push([value(vertex,'10',NaN),value(vertex,'20',NaN)]);}if(entities[i+1]?.type!=='SEQEND')throw Error('Incomplete DXF polyline.');i++;chains.push({points:p,closed:!!(value(attrs,'70')&1)});
-    }else throw Error('Unsupported drawing entity: '+type+'. Export only the sketch edges as lines or 2D polylines.');
+      if(value(attrs,'70')&(~129))throw Error('Use 2D polylines.');const p=[];while(entities[i+1]?.type==='VERTEX'){const vertex=entities[++i].attrs;if(value(vertex,'30')!==0)throw Error('Use flat 2D outlines.');p.push({point:[value(vertex,'10',NaN),value(vertex,'20',NaN)],bulge:value(vertex,'42')});}if(entities[i+1]?.type!=='SEQEND')throw Error('Incomplete DXF polyline.');i++;chains.push(betaPolylinePoints(p,!!(value(attrs,'70')&1)));
+    }else throw Error('Unsupported drawing entity: '+type+'. Supported sketch edges are lines, arcs, circles and 2D polylines.');
   }return betaJoinOutlines(chains);
 }

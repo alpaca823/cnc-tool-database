@@ -1,20 +1,5 @@
 [
   {
-    "version": "1.16.0",
-    "notes": [
-      "Import DWG outlines directly in the stock beta, including offline copies.",
-      "Join separate edges, close open outlines, and move multiple outlines together.",
-      "Text stamps such as IN PROGRESS are omitted from stock placement."
-    ]
-  },
-  {
-    "version": "1.15.0",
-    "notes": [
-      "Admins can test dragging DXF or SVG outlines onto stock in Beta Testing.",
-      "Record shaped remnants, with cut history, backups, and admin undo."
-    ]
-  },
-  {
     "version": "1.14.24",
     "notes": [
       "Moved What’s new to the sidebar directly below Settings."

@@ -1,13 +1,9 @@
-# v1.16.0 update
+# Admin-only beta validation — public version 1.14.24
 
-Passed: 19 shared-backend tests and 3 drawing-parser tests. Coverage includes grouped one-sheet cuts, atomic overlap rejection, backup/import and admin undo; shuffled/reversed LINE entities; open legacy POLYLINE closure; omission of IN PROGRESS text/dimensions; and rejection of branches, isolated lines, crossings and unsupported curves.
+The public version and What’s new/CHANGELOG are restored to the pre-beta release. Pending stock-beta work is tracked separately in BETA-CHANGELOG.md and packaged with --beta; immutable numbered archives remain unchanged.
 
-Passed in both supported editions: the stock-beta browser suite, including an actual AutoCAD 2018 DWG polygon fixture, direct uppercase DWG import, offline DWG decoding in a downloaded HTML copy, invalid DWG rejection, Onshape-style separate line groups, automatic closure, grouped cut recording, text omission, and clean DXF round-trip download. Existing SVG/DXF placement, physical dragging, rotation, bounds rejection, Cut List drawing reuse, admin-only DOM and logout remain covered.
+Passed: 5 drawing-parser tests covering joined/reversed edges, open legacy polyline closure, annotation removal, malformed geometry rejection, semicircular ARC plus LINE joins, wrapped arc angles, CIRCLE area, and positive/negative bulges in both modern and legacy 2D polylines. Circular edges use segments no larger than 2 degrees.
 
-Passed: What’s new, original DWG attachment/download preservation, report/undo, shared-site integration, and combined inventory/material browser suites. All binary conversion is on-device; routed tests allow no third-party conversion requests.
+Passed: 19 shared-backend regression tests. The stock-beta browser suite passes for local/shared editions, including a real AutoCAD 2018 DWG ARC fixture, curved-outline preview, clean DXF export, recording a curved cut and admin undo, original polygon DWG conversion, offline DWG import, grouped Onshape-style edges, annotation omission, dragging/rotation, and admin-only access/logout. Public What’s new rollback checks pass for both editions.
 
-The DWG worker is disposable, limited to 30 seconds, and cancelled on replacement/logout. LibreDWG is pinned to 0.8.8; the build verifies the decompressed WASM SHA256. Its license, upstream source archive and wrapper source are included in supported packages.
-
-No schema or credential changes were needed. Live API verification uses public reads and rejected unauthenticated beta writes without editing production data. Google Apps Script remains archived. This is focused release validation, not a claim that every legacy test passed.
-
-Beta limitations: no curved, branching, self-crossing, overlapping/touching or nested outlines, VCarve parsing, kerf compensation, or automatic scrap separation. Automatically added straight closing edges are highlighted for review before recording. Original attachments are retained; clean DXF contains only placed outline geometry.
+Circular geometry is represented by short straight segments for stock tracking, not machine toolpaths. Splines, nested/touching/overlapping outlines, branching edges and VCarve remain unsupported. This records focused beta validation, not a full legacy-suite pass. No schema, credentials or production inventory data changed. Google Apps Script remains archived.

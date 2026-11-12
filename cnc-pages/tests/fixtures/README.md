@@ -1,1 +1,3 @@
 polygon-2018.dwg is the closed 10-vertex polygon from LibreDWG test/test-data/2018/Polygon.dwg, commit 1f30f47d25cbfa4d22a600d9fdfe1fdd4e19aa0a. Source: https://github.com/LibreDWG/libredwg . Distributed under GPL-3.0-or-later; see cnc-local/vendor/libredwg/COPYING.
+
+arc-2018.dwg is test/test-data/2018/Arc.dwg from the same LibreDWG commit and license.

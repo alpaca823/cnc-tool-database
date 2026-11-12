@@ -9,8 +9,19 @@ test('shuffled/reversed edges join into closed groups; open chains flag a closin
 test('open legacy 2D polylines close, while text and dimensions do not become geometry',()=>{
  const p=parser(),rings=p.betaParse(dxf([['0','TEXT','1','IN PROGRESS'],['0','MTEXT','1','IN PROGRESS'],['0','DIMENSION'],['0','POLYLINE','70','128'],['0','VERTEX','10','0','20','0'],['0','VERTEX','10','3','20','0'],['0','VERTEX','10','3','20','2'],['0','VERTEX','10','0','20','2'],['0','SEQEND']]),'dxf');assert.equal(rings.length,1);assert.equal(rings.autoClosed[0],true);assert.equal(p.window.cncStockGeometry.area(rings[0]),6);
 });
-test('ambiguous, isolated, self-crossing and curved entities fail with no invented outline',()=>{
+test('ambiguous, isolated, self-crossing and malformed curved entities fail with no invented outline',()=>{
  const p=parser();
- for(const entities of [[line([0,0],[1,0])],[line([0,0],[1,0]),line([1,0],[1,1]),line([1,0],[2,0])],[['0','ARC','10','0','20','0','40','2']],[['0','LWPOLYLINE','70','1','10','0','20','0','42','1','10','2','20','0','10','2','20','2']]])assert.throws(()=>p.betaParse(dxf(entities),'dxf'));
+ for(const entities of [[line([0,0],[1,0])],[line([0,0],[1,0]),line([1,0],[1,1]),line([1,0],[2,0])],[['0','ARC','10','0','20','0','40','2']],[['0','LWPOLYLINE','70','1','10','0','20','0','42','NaN','10','2','20','0','10','2','20','2']]])assert.throws(()=>p.betaParse(dxf(entities),'dxf'));
  assert.throws(()=>p.betaJoinOutlines([{points:[[0,0],[3,3],[0,3],[3,0]],closed:false}]));assert.throws(()=>p.betaJoinOutlines([{points:[],closed:false}]));
+});
+
+test('ARC joins a line into a semicircle and wrapped angles keep the correct sweep',()=>{
+ const p=parser(),rings=p.betaParse(dxf([['0','ARC','10','0','20','0','40','2','50','0','51','180'],line([-2,0],[2,0])]),'dxf');assert.equal(rings.length,1);assert.equal(rings.autoClosed[0],false);assert.equal(rings.curved,true);assert.ok(Math.abs(p.window.cncStockGeometry.area(rings[0])-2*Math.PI)<.002);assert.ok(rings[0].every(v=>v[1]>=-1e-8));
+ const wrapped=p.betaParse(dxf([['0','ARC','10','0','20','0','40','2','50','270','51','90']]),'dxf');assert.equal(wrapped.autoClosed[0],true);assert.ok(wrapped[0].every(v=>v[0]>=-1e-8));assert.ok(Math.abs(p.window.cncStockGeometry.area(wrapped[0])-2*Math.PI)<.002);
+});
+test('CIRCLE and positive/negative bulges produce bounded, noncrossing curved outlines',()=>{
+ const p=parser(),circle=p.betaParse(dxf([['0','CIRCLE','10','3','20','3','40','2']]),'dxf');assert.equal(circle.autoClosed[0],false);assert.ok(Math.abs(p.window.cncStockGeometry.area(circle[0])-4*Math.PI)<.003);p.window.cncStockGeometry.validate(circle,6,6);
+ for(const bulge of ['1','-1']){const rings=p.betaParse(dxf([['0','LWPOLYLINE','70','1','10','-2','20','0','42',bulge,'10','2','20','0']]),'dxf');assert.ok(Math.abs(p.window.cncStockGeometry.area(rings[0])-2*Math.PI)<.002);assert.equal(rings.curved,true);assert.ok(rings[0].every(v=>Number(bulge)>0?v[1]<=1e-8:v[1]>=-1e-8));}
+ const legacy=p.betaParse(dxf([['0','POLYLINE','70','1'],['0','VERTEX','10','-2','20','0','42','1'],['0','VERTEX','10','2','20','0'],['0','SEQEND']]),'dxf');assert.ok(Math.abs(p.window.cncStockGeometry.area(legacy[0])-2*Math.PI)<.002);
+ for(const radius of ['0','-1','NaN'])assert.throws(()=>p.betaParse(dxf([['0','CIRCLE','10','3','20','3','40',radius]]),'dxf'));
 });

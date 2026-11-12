@@ -7,3 +7,5 @@ Every released change must increment the synchronized version and be recorded ac
 Visitors may manage all Cut List actions (add, edit, priority, order, reopen, delete, complete), record material cuts, and report broken mills. These public actions must remain logged and reversible only by admins; mill, material, note, and settings administration stays protected. Undo must never overwrite later changes.
 
 Each release must update cnc-local/whats-new.json with 1–3 short, factual bullets (at most 100 characters each) for the current version. Keep future ideas out of release highlights.
+
+User-authorized admin-only beta exception: keep public VERSION at 1.14.24 and exclude pending beta work from public CHANGELOG/What’s new until public release. Track work in BETA-CHANGELOG.md. Use separate --beta packages; never overwrite numbered release ZIPs.
