@@ -1,6 +1,6 @@
 """Build the GitHub Pages edition and its shared database engine."""
 from pathlib import Path
-import importlib.util,json
+import importlib.util,json,shutil
 ROOT=Path(__file__).resolve().parent.parent
 
 def load(name,path):
@@ -28,6 +28,9 @@ def build_pages():
  html=html.replace('/* GitHub Pages transport.', '/* GitHub Pages transport.',1)
  html=html.replace('<script>\n/* GitHub Pages transport.', '<script src="config.js"></script><script>\n/* GitHub Pages transport.',1)
  public=ROOT/'cnc-pages/public';public.mkdir(exist_ok=True)
+ shutil.copytree(ROOT/'cnc-local/vendor',public/'vendor',dirs_exist_ok=True)
+ shutil.copyfile(ROOT/'cnc-local/dwg-worker.js',public/'vendor/libredwg/dwg-worker.js')
+ shutil.copyfile(ROOT/'cnc-local/THIRD-PARTY-NOTICES.md',public/'THIRD-PARTY-NOTICES.md')
  (public/'index.html').write_text(html)
  (public/'.nojekyll').write_text('')
  preview=offline.replace('<span class="offline-pill">Offline</span>','<span class="offline-pill">Prototype preview</span>')

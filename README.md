@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.15.0
+# CNC Tool Database — v1.16.0
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -77,3 +77,7 @@ Update v1.14.23: DWG drawings can be attached and downloaded from the Cut List a
 Update v1.14.24: What’s new now has its own sidebar tab directly below Settings.
 
 Update v1.15.0: Admin-only Beta Testing places a closed straight-edged DXF LWPOLYLINE or SVG polygon/rectangle on existing stock. Select drawing units, verify width in inches, drag or set X/Y, and rotate. Recording consumes one sheet and creates a remnant with cutouts, logged for conflict-safe admin undo in Settings. Footprints survive backups and offline snapshots. Curves, DWG/VCarve files, kerf compensation, and automatic scrap separation are unsupported. Non-touching cuts must fit within available material; disconnected scraps remain grouped as one remnant. Stock dimensions describe its original bounds. SVG coordinates use the selected drawing unit per coordinate, so verify width explicitly before recording.
+
+Update v1.16.0: The admin stock beta reads DWG directly on your device, online or offline. Matching LINE endpoints join automatically; open 2D polylines close with a straight edge marked in orange. Separate outlines move and record as one group. Check every automatic closure before recording. Text stamps (including IN PROGRESS) and dimensions are excluded from placement, while original attachments stay intact. Supported outlines must not cross, branch, touch or overlap; curves, nested holes, VCarve and kerf compensation remain unsupported. The converter is embedded, so the HTML download is larger. See THIRD-PARTY-NOTICES.md for the separate LibreDWG converter license and source.
+
+Use Download clean DXF in Beta Testing to save the grouped, closed outlines without text stamps. This export uses the displayed position and inch dimensions.

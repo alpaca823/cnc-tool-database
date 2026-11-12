@@ -28,7 +28,7 @@ window.cncStockGeometry = (() => {
     const result=cuts.map(polygon);if(result.reduce((n,p)=>n+p.length,0)>2000)throw Error('A footprint can contain up to 2,000 vertices.');
     for(let i=0;i<result.length;i++){
       if(result[i].some(p=>p[0]<0||p[1]<0||p[0]>l||p[1]>w))throw Error('Place the entire outline inside the sheet.');
-      for(let j=0;j<i;j++)if(overlap(result[i],result[j]))throw Error('This outline touches or overlaps an earlier cut.');
+      for(let j=0;j<i;j++)if(overlap(result[i],result[j]))throw Error('Cut outlines must not touch or overlap each other or earlier cuts.');
     }
     if(result.reduce((s,p)=>s+area(p),0)>=l*w-1e-6)throw Error('The cut must leave some material.');
     return result;
@@ -797,7 +797,8 @@ window.cncStockGeometry = (() => {
       const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
       if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
       if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full.');
-      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),outline],Number(source.length),Number(source.width));
+      const outlines=Array.isArray(outline?.[0]?.[0])?outline:[outline];
+      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),...outlines],Number(source.length),Number(source.width));
       const leftover=validateRawMaterial({...source,quantity:1,cutouts});leftover.id=uid();leftover.version=uid();
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
       appendReport(state,'material','Beta shape cut · '+source.material,change,leftover,{details:'Recorded a straight-edged drawing cut. Dimensions describe the original footprint.'});

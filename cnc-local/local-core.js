@@ -758,7 +758,8 @@
       const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
       if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
       if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full.');
-      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),outline],Number(source.length),Number(source.width));
+      const outlines=Array.isArray(outline?.[0]?.[0])?outline:[outline];
+      const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),...outlines],Number(source.length),Number(source.width));
       const leftover=validateRawMaterial({...source,quantity:1,cutouts});leftover.id=uid();leftover.version=uid();
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
       appendReport(state,'material','Beta shape cut · '+source.material,change,leftover,{details:'Recorded a straight-edged drawing cut. Dimensions describe the original footprint.'});

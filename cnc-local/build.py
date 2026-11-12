@@ -1,6 +1,9 @@
 """Build the offline edition from the canonical shared interface and data core."""
 from pathlib import Path
 import json
+import base64
+import hashlib
+import gzip
 import re
 from html import escape
 
@@ -15,6 +18,14 @@ def render_shell(backend: str) -> str:
     if '</script' in backend.lower():
         raise ValueError('The backend must not contain an HTML script terminator.')
     built = shell.replace('/* LOCAL_CORE */', backend).replace('/* STOCK_GEOMETRY */',(ROOT / 'stock-geometry.js').read_text()).replace('__CNC_VERSION__', version)
+    vendor = ROOT / 'vendor/libredwg'
+    wasm = (vendor / 'libredwg-web.wasm.gz').read_bytes()
+    if hashlib.sha256(gzip.decompress(wasm)).hexdigest() != '8f8dbfe1ba3a0ae9ceb8856ed2090c0f44decd9d7febde68016df8c1fca50f9b':
+        raise ValueError('Unexpected DWG decoder binary.')
+    glue = (vendor / 'libredwg-web.js').read_text().replace('import.meta.url', "'cnc-dwg-worker'").replace('export default createModule;', '')
+    worker = glue + '\n' + (ROOT / 'dwg-worker.js').read_text()
+    runtime = 'window.cncDwgRuntime=' + json.dumps({'code':worker,'wasmGzip':base64.b64encode(wasm).decode()}).replace('<','\\u003c') + ';'
+    built = built.replace('/* DWG_RUNTIME */',runtime)
     highlights = json.loads((ROOT / 'whats-new.json').read_text(encoding='utf-8'))
     if not isinstance(highlights,list) or not highlights or highlights[0].get('version') != version:
         raise ValueError('Add short What’s new highlights for VERSION ' + version)
@@ -36,7 +47,7 @@ def render_shell(backend: str) -> str:
     if built.count('<!-- WHATS_NEW -->') != 1:
         raise ValueError('Missing What’s new build marker.')
     built = built.replace('<!-- WHATS_NEW -->',content)
-    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
+    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* DRAWING_OUTLINES */', 'drawing-outlines.js'), ('/* DWG_READER */', 'dwg-reader.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
         if built.count(token) != 1:
             raise ValueError('Missing or repeated workspace build marker: ' + token)
         built = built.replace(token, (ROOT / filename).read_text(encoding='utf-8'))

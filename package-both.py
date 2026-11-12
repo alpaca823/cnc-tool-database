@@ -30,6 +30,10 @@ if __name__ == '__main__':
     builder = importlib.util.module_from_spec(spec);spec.loader.exec_module(builder);builder.build_both()
     version = (ROOT / 'cnc-local/VERSION').read_text().strip()
     local = {n:ROOT / 'cnc-local' / n for n in ['CNC-Tool-Database.html','README.md','TEST-RESULTS.md','CHANGELOG.md']}
+    local['THIRD-PARTY-NOTICES.md']=ROOT/'cnc-local/THIRD-PARTY-NOTICES.md'
+    for f in (ROOT/'cnc-local/vendor').rglob('*'):
+        if f.is_file():local[str(f.relative_to(ROOT/'cnc-local'))]=f
+    local['vendor/libredwg/dwg-worker.js']=ROOT/'cnc-local/dwg-worker.js'
     local_zip = archive(f'CNC-Tool-Database-v{version}.zip',local)
     pages = {str(f.relative_to(ROOT/'cnc-pages/public')):f for f in (ROOT/'cnc-pages/public').rglob('*') if f.is_file()}
     archive(f'CNC-Tool-Database-GitHub-Pages-v{version}.zip',pages)

@@ -2,6 +2,14 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.16.0
+
+- Added local, offline-capable DWG decoding to the admin-only stock-placement beta, including reuse of DWG Cut List attachments. Conversion runs in a disposable browser worker with a timeout and cancellation.
+- Added automatic joining of matching DXF/DWG line endpoints, support for open and legacy 2D polylines, and grouped placement of separate outlines. Open outlines receive a straight closing edge highlighted in orange and called out before recording.
+- Excluded text annotations such as IN PROGRESS and dimension annotations from placement; original drawing attachments are preserved, with an optional clean DXF download of the placed outlines.
+- Grouped cuts consume one sheet and save all cutouts together, with atomic geometry validation, backups, and conflict-safe admin undo. Curves, branches, touching/nested outlines, and VCarve remain unsupported.
+- Bundled the pinned LibreDWG browser converter, its license, source archive, and real DWG regression fixture. Refreshed release-version expectations in supported tests.
+
 ## 1.15.0
 
 - Added an admin-only Beta Testing tab for placing one closed, straight-edged DXF or SVG outline on stock.

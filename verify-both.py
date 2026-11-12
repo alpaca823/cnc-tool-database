@@ -23,6 +23,7 @@ if __name__ == '__main__':
         ['node', 'cnc-pages/tests/solitaire.test.cjs'],
         ['node', '--test', 'cnc-local/tests/passwords.stress.cjs'],
         ['node', '--test', 'cnc-pages/tests/backend.test.cjs'],
+        ['node', '--test', 'cnc-pages/tests/drawing-outlines.test.cjs'],
     ]
     commands += [['node', str(file.relative_to(ROOT))]
                  for folder in ['cnc-local/tests', 'cnc-pages/tests']

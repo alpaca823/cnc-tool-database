@@ -232,3 +232,8 @@ test('beta shape cuts require admin, validate geometry, preserve stock, backup a
  remnant=(await f.ok('getRawMaterials')).find(r=>r.id===id2);const id3=await f.ok('adminRecordShapeCut',token,remnant,[[10,2],[12,2],[12,4],[10,4]]);assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).cutouts.length,2);
  const final=(await f.ok('getRawMaterials')).find(r=>r.id===id3);await f.ok('reportMaterialCut',final,null,{});assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).quantity,0);await f.ok('adminUndoReport',token,(await f.ok('adminListReports',token))[0]);assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id3).quantity,1);
 });
+
+test('grouped beta outlines consume one sheet, reject overlap atomically, and undo together',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveMaterial',token,{name:'Group'},null);await f.ok('adminSaveRawMaterial',token,{material:'Group',length:20,width:10,quantity:2},null);const source=(await f.ok('getRawMaterials'))[0],rings=[[[1,1],[3,1],[3,3],[1,3]],[[6,1],[8,1],[8,3],[6,3]]];
+ const before=structuredClone(f.getState());assert.equal((await f.call('adminRecordShapeCut',token,source,[rings[0],rings[0]])).ok,false);assert.deepEqual(f.getState(),before);const id=await f.ok('adminRecordShapeCut',token,source,rings);let rows=await f.ok('getRawMaterials');assert.equal(rows.find(r=>r.id===source.id).quantity,1);assert.deepEqual(rows.find(r=>r.id===id).cutouts,rings);const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);await f.ok('adminUndoReport',token,(await f.ok('adminListReports',token))[0]);rows=await f.ok('getRawMaterials');assert.equal(rows.length,1);assert.equal(rows[0].quantity,2);
+});
