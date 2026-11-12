@@ -4,6 +4,11 @@ Public version remains 1.14.24 at the user’s request. Beta work does not enter
 
 ## Current work
 
+- Tolerated tiny CAD rounding differences and constant nonzero drawing elevations; skipped page viewports and paper-space objects while retaining checks for tilted/nonplanar geometry.
+- Raised supported outlines to 5,000 vertices each, 20,000 vertices per footprint and 10,000 input entities. Added sweep-based intersection checks and bounded parser expansion for complex geometry.
+- Joined closed tab junctions and deduplicated drawing edges. Uses outer footprints for stock removal, with nested/internal drawing details visible as reference; loose construction branches remain rejected.
+- Verified the existing shared DWG in isolated local/shared test databases without publishing its contents or modifying production stock.
+
 - Added DWG/DXF ARC, CIRCLE and curved (bulged) 2D polyline support. Circular edges use segments no larger than 2 degrees for the stock footprint and clean DXF export.
 - Retained grouped placement, automatic open-outline closure, annotation removal, offline DWG conversion and admin-only access.
 - Removed premature beta version announcements from public What’s new, CHANGELOG and README updates.

@@ -25,3 +25,20 @@ test('CIRCLE and positive/negative bulges produce bounded, noncrossing curved ou
  const legacy=p.betaParse(dxf([['0','POLYLINE','70','1'],['0','VERTEX','10','-2','20','0','42','1'],['0','VERTEX','10','2','20','0'],['0','SEQEND']]),'dxf');assert.ok(Math.abs(p.window.cncStockGeometry.area(legacy[0])-2*Math.PI)<.002);
  for(const radius of ['0','-1','NaN'])assert.throws(()=>p.betaParse(dxf([['0','CIRCLE','10','3','20','3','40',radius]]),'dxf'));
 });
+
+test('rounding noise, constant elevation and paper viewports do not reject a flat sketch',()=>{
+ const p=parser(),shape=['0','ARC','10','0','20','0','30','5.000000000000001','40','2','50','0','51','180','210','-1.224646799147353E-16','220','-6.123233995736767E-17','230','1'];
+ const rings=p.betaParse(dxf([shape,[...line([-2,0],[2,0]),'30','5','31','5','39','2'],['0','VIEWPORT','67','1','30','100']]),'dxf');assert.equal(rings.length,1);assert.ok(Math.abs(p.window.cncStockGeometry.area(rings[0])-2*Math.PI)<.002);
+ assert.throws(()=>p.betaParse(dxf([[...line([0,0],[2,0]),'30','0','31','1'],line([2,0],[2,2]),line([2,2],[0,0])]),'dxf'),/different heights/);
+ assert.throws(()=>p.betaParse(dxf([['0','CIRCLE','10','3','20','3','40','2','210','1','220','0','230','0']]),'dxf'),/tilted/);
+});
+test('closed tab junctions and nested details keep the outer stock-removal footprint',()=>{
+ const p=parser(),shape=[line([0,0],[2,0]),line([2,0],[4,0]),line([4,0],[6,0]),line([6,0],[6,5]),line([6,5],[0,5]),line([0,5],[0,0]),line([2,0],[2,2]),line([2,2],[4,2]),line([4,2],[4,0]),line([2,0],[4,0]),line([1,3],[2,3]),line([2,3],[2,4]),line([2,4],[1,4]),line([1,4],[1,3])];
+ const rings=p.betaParse(dxf(shape),'dxf');assert.equal(rings.length,1);assert.equal(p.window.cncStockGeometry.area(rings[0]),30);assert.ok(rings.details.length>0);assert.equal(rings.autoClosed[0],false);
+});
+test('complex outlines support 5,000 vertices and still reject crossings and excessive size',()=>{
+ const p=parser(),ring=Array.from({length:5000},(_,i)=>[10+5*Math.cos(i*2*Math.PI/5000),10+5*Math.sin(i*2*Math.PI/5000)]);
+ assert.equal(p.window.cncStockGeometry.validate([ring],20,20)[0].length,5000);assert.equal(p.betaJoinOutlines([{points:ring,closed:true}])[0].length,5000);
+ const tooMany=Array.from({length:5001},(_,i)=>[10+5*Math.cos(i*2*Math.PI/5001),10+5*Math.sin(i*2*Math.PI/5001)]);assert.throws(()=>p.window.cncStockGeometry.polygon(tooMany),/5,000/);
+ assert.throws(()=>p.window.cncStockGeometry.polygon([[0,0],[.01,.01],[0,.008],[.015,0]]),/cross/);
+});
