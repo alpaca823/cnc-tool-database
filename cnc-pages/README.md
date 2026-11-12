@@ -65,3 +65,5 @@ Bug fix v1.14.22: Settings cards, including admin backup/password sections, now 
 Update v1.14.23: DWG drawings can be attached and downloaded from the Cut List and Dashboard. Open them in CAD software; DWG is not previewed in the app. Existing limits remain: 1 MB per file, up to 3 files and 2 MB total per cut. DWG files are retained in backups and attachment undo history.
 
 Update v1.14.24: What’s new now has its own sidebar tab directly below Settings.
+
+Update v1.14.25: Everyone can preview saved sheet and remnant shapes from Materials. Click a shape thumbnail for a larger view of cutouts, inch bounds, quantity and remaining area. Previews are read-only, update with stock changes, and work in offline copies.

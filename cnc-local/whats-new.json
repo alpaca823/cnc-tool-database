@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.14.25",
+    "notes": [
+      "Preview sheet and remnant shapes, cutouts, and remaining area in Materials."
+    ]
+  },
+  {
     "version": "1.14.24",
     "notes": [
       "Moved What’s new to the sidebar directly below Settings."

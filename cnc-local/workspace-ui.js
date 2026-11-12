@@ -233,7 +233,7 @@
     }
     document.querySelectorAll('#settingList > article').forEach(card => card.hidden = !!query && !card.textContent.toLowerCase().includes(query));
   }
-  function wsRenderAll() {betaRefresh();wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
+  function wsRenderAll() {wsRefreshStockPreview();betaRefresh();wsRenderDashboard(); wsRenderMills(); wsRenderInventory(); wsRenderInventoryMaterials(); wsRenderMaterials(); wsRenderRawMaterials(); wsRenderNotes(); wsRenderCuts(); wsRenderReports(); wsFilterFeeds();}
   function wsShowMillPhoto() {
     const img = el('millImagePreview'); img.hidden = !wsMillPhoto; el('removeMillImage').hidden = !wsMillPhoto;
     if (wsMillPhoto) img.src = wsMillPhoto; else img.removeAttribute('src');
@@ -335,7 +335,7 @@
     items.forEach(item => {
       const row = wsNode('tr'); const material = wsNode('td'); const identity = wsNode('div',null,'tool-identity');
       if (item.materialImage) {const img = wsNode('img'); img.className = 'tool-thumb'; img.src = item.materialImage; img.alt = ''; identity.append(img);}
-      identity.append(wsNode('strong',item.material)); material.append(identity);
+      identity.append(wsNode('strong',item.material)); material.append(identity);material.append(wsStockPreviewButton(item));
       const quantity = wsNode('td'); quantity.append(wsNode('span',String(item.quantity),'badge ' + (item.quantity === 0 ? 'out' : 'in')));
       const noteCell = wsNode('td'); const note = wsNode('span',item.notes || '—','raw-material-note'); note.title = item.notes || ''; noteCell.append(note);
       row.append(material,wsNode('td',item.length + ' × ' + item.width+(item.cutouts?.length?' · shaped remnant (bounds)':'')),wsNode('td',item.thickness || 'Not specified'),quantity,wsNode('td',item.location || '—'),noteCell);

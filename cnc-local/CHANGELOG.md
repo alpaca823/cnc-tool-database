@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.25
+
+- Added public read-only shape thumbnails in Materials, with an enlarged preview of sheet/remnant cutouts, inch dimensions, quantity, and remaining area.
+- Previews update with saved stock changes and undo, and work in both supported editions and downloaded offline copies. Stock editing remains protected.
+
 ## 1.14.24
 
 - Moved What’s new from inside Settings to its own sidebar tab directly below Settings.

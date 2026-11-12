@@ -29,9 +29,11 @@ def archive(name, entries, immutable=True):
 if __name__ == '__main__':
     parser=argparse.ArgumentParser()
     parser.add_argument('--beta',action='store_true',help='Build unnumbered admin beta packages without changing public releases')
+    parser.add_argument('--public-release',action='store_true',help='Package an explicitly promoted public feature while other beta work remains pending')
     args=parser.parse_args()
-    if (ROOT/'BETA-CHANGELOG.md').exists() and not args.beta:
-        parser.error('Pending admin beta: use --beta; public numbered releases must remain unchanged.')
+    if args.beta and args.public_release:parser.error('Choose beta or public release packaging, not both.')
+    if (ROOT/'BETA-CHANGELOG.md').exists() and not args.beta and not args.public_release:
+        parser.error('Pending admin beta: use --beta, or --public-release for an explicitly promoted feature.')
     spec = importlib.util.spec_from_file_location('cnc_build', ROOT / 'build-both.py')
     builder = importlib.util.module_from_spec(spec);spec.loader.exec_module(builder);builder.build_both()
     version = (ROOT / 'cnc-local/VERSION').read_text().strip()
@@ -48,6 +50,6 @@ if __name__ == '__main__':
     for folder in ['cnc-local','cnc-pages']:
         for f in (ROOT/folder).rglob('*'):
             if f.is_file() and not any(part in ['__pycache__','previews','archive'] for part in f.parts):source[str(f.relative_to(ROOT))]=f
-    if args.beta:source['BETA-CHANGELOG.md']=ROOT/'BETA-CHANGELOG.md'
+    if (ROOT/'BETA-CHANGELOG.md').exists():source['BETA-CHANGELOG.md']=ROOT/'BETA-CHANGELOG.md'
     archive('CNC-Tool-Database-Source-Beta.zip' if args.beta else f'CNC-Tool-Database-Source-v{version}.zip',source,immutable=not args.beta)
     if not args.beta:shutil.copyfile(local_zip, ROOT/'CNC-Tool-Database.zip')

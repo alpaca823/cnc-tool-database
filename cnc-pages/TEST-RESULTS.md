@@ -1,11 +1,7 @@
-# Admin-only beta validation — public version 1.14.24
+# v1.14.25 validation
 
-Public VERSION, CHANGELOG and What’s new stay at the pre-beta release. Pending work is logged in BETA-CHANGELOG.md and packaged with --beta. Numbered archives remain unchanged.
+The public read-only Materials stock-preview browser suite passed for both the local and shared builds: full-sheet and shaped-remnant thumbnails, even-odd cutouts, enlarged remaining-area/count preview, inch dimensions, light/dark fills, mobile dialog bounds, Escape/Close handling, offline copies, refresh after stock edits and undo, and public access after logout. Public dialogs expose only Close; editing remains protected.
 
-Passed: 20 shared-backend tests and 8 parser/geometry tests. Coverage includes 5,000-vertex outlines, over-limit and self-intersection rejection, complex footprint backup/import and safe undo, curve sampling, reversed/open edges, rounding noise, constant drawing elevation, paper viewports, nonplanar/tilted rejection, closed tab junctions, nested details and duplicate edges.
+The What’s new/version and combined inventory/material browser regression suites passed in both editions. Shared database engine output is unchanged, so no backend/schema deployment or production data edits were needed. Existing saved footprints supply the previews.
 
-Passed in both supported editions: stock-beta browser checks including the actual existing shared DWG (read from production, exercised only in isolated fixture databases), reused from a Cut List attachment, internal-reference preview, recording and undo; and a 600-vertex DXF import/record/undo. Original DWG ARC/polygon fixtures, offline conversion, dragging/rotation, footprint DXF export, grouped cuts and admin-only visibility/logout remain covered. The private drawing remains outside tracked source/release assets.
-
-Passed: public What’s new/version rollback, combined inventory/material browsing, and public report/admin undo regression suites. The updated shared engine retains existing credentials and API authorization. No schema change or production inventory write is needed.
-
-Limits are 5,000 vertices per outer outline, 20,000 total per stock footprint, and 10,000 input entities. Curves use short segments. Internal holes/details are preview references; recording and footprint DXF export use the outer part boundary. Loose construction branches, splines, tilted/noncoplanar drawings and VCarve remain unsupported. Google Apps Script remains archived. This is focused beta validation, not a full legacy-suite pass.
+Drawing placement remains admin-only pending beta work, tracked separately in BETA-CHANGELOG.md. Public release highlights describe only the promoted preview. Google Apps Script remains archived. This is focused release validation, not a full legacy-suite pass.

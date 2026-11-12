@@ -1,8 +1,10 @@
 # Admin-only stock beta — pending public release
 
-Public version remains 1.14.24 at the user’s request. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
+Public version is 1.14.25 after the user-authorized promotion of read-only Materials previews. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
 
 ## Current work
+
+Read-only Materials previews have moved to public release 1.14.25 and are documented in the public CHANGELOG. Drawing placement and the remaining work below stay admin-only beta.
 
 - Tolerated tiny CAD rounding differences and constant nonzero drawing elevations; skipped page viewports and paper-space objects while retaining checks for tilted/nonplanar geometry.
 - Raised supported outlines to 5,000 vertices each, 20,000 vertices per footprint and 10,000 input entities. Added sweep-based intersection checks and bounded parser expansion for complex geometry.

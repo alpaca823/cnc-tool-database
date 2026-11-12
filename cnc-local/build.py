@@ -47,7 +47,7 @@ def render_shell(backend: str) -> str:
     if built.count('<!-- WHATS_NEW -->') != 1:
         raise ValueError('Missing What’s new build marker.')
     built = built.replace('<!-- WHATS_NEW -->',content)
-    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* DRAWING_OUTLINES */', 'drawing-outlines.js'), ('/* DWG_READER */', 'dwg-reader.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
+    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* STOCK_PREVIEW */', 'stock-preview.js'), ('/* DRAWING_OUTLINES */', 'drawing-outlines.js'), ('/* DWG_READER */', 'dwg-reader.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
         if built.count(token) != 1:
             raise ValueError('Missing or repeated workspace build marker: ' + token)
         built = built.replace(token, (ROOT / filename).read_text(encoding='utf-8'))
