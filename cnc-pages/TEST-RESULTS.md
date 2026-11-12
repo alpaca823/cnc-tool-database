@@ -1,5 +1,7 @@
-# v1.14.17 update
+# v1.14.18 update
 
-Four relevant browser suites pass: What’s new, local workspace, public planning/Dashboard/undo, and visitor totals. Local/shared checks verify public Settings access, current-version highlights, 1–3 bullets per release of at most 100 characters, collapsed older updates, focus/back navigation, themes, 390 px layout, and offline embedding. Existing data, credentials, reports, undo, backup, and mentor-notice coverage passes in the selected suites.
+All 27 supported test commands pass via verify-both.py. Sixteen shared-backend cases include drawing validation, file/combined size limits, duplicate storage avoidance, missing-reference rejection, old-client preservation, metadata-only loading, inactive-file access rejection, backup import, cut deletion/undo, and attachment removal/undo. Undo history stores IDs rather than duplicate file bytes.
 
-Build guard checks reject mismatched versions, oversized bullets, and excessive detail. Highlights are embedded locally; no extra runtime requests, data migrations, backend changes, or Google Apps Script rebuilds were needed.
+Local/shared browser tests verify public uploads, raster previews, document downloads, safe SVG download-only behavior, existing Dashboard drawing links, file removal, size errors, admin undo, and functioning drawing downloads from fresh offline copies. Existing planning, reports, inventory, visitor totals, credentials, concise release notes, themes, and mentor notice pass their checks.
+
+The shared API is deployed and live metadata/missing-file checks pass without editing production cuts. No schema or credential changes were needed. Google Apps Script remains archived.

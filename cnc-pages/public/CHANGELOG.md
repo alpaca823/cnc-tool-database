@@ -2,6 +2,13 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.18
+
+- Added optional drawing attachments to cuts: PDF, SVG, DXF, PNG, JPG, and WebP, with upload/removal controls.
+- Added image previews and file downloads in the Cut List and existing Dashboard cut queue.
+- Added file-type/size validation, metadata-only workspace loading, and on-demand file retrieval.
+- Stored each drawing once; undo snapshots reference file IDs, and backups/offline copies retain drawings and attachment undo history.
+
 ## 1.14.17
 
 - Added a public What’s new page under Settings in both supported editions.

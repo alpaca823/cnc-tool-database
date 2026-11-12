@@ -271,6 +271,39 @@ export function createDatabase(host) {
     if (index < 0 || records[index].version !== original.version) throw new Error('This note changed or was deleted. Refresh and select Edit again.');
     return index;
   }
+  const DRAWING_TYPES={pdf:'application/pdf',svg:'image/svg+xml',dxf:'application/dxf',png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',webp:'image/webp'};
+  function validateDrawingFiles(records,newFiles=false) {
+    if(!Array.isArray(records)||records.length>250)throw new Error('The drawing library is invalid or full.');
+    const ids=new Set();let total=0;
+    return records.map(record=>{
+      if(!record||typeof record.name!=='string'||!record.name.trim()||record.name.length>200||/[\\/\x00-\x1f]/.test(record.name))throw new Error('Enter a valid drawing filename.');
+      const ext=record.name.split('.').pop().toLowerCase(),type=DRAWING_TYPES[ext];
+      if(!type||record.type!==type||typeof record.data!=='string'||record.data.length>1398104||record.data.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(record.data))throw new Error('Use a PDF, SVG, DXF, PNG, JPG, or WebP file of at most 1 MB.');
+      const size=record.data.length/4*3-(record.data.endsWith('==')?2:record.data.endsWith('=')?1:0);
+      if(size<1||size>1048576)throw new Error('Each drawing must be between 1 byte and 1 MB.');
+      if((type==='image/png'&&!record.data.startsWith('iVBORw0KGgo'))||(type==='image/jpeg'&&!record.data.startsWith('/9j/'))||(type==='image/webp'&&!record.data.startsWith('UklGR'))||(type==='application/pdf'&&!record.data.startsWith('JVBERi0')))throw new Error('The drawing contents do not match the file type.');
+      const id=newFiles?uid():record.id;
+      if(typeof id!=='string'||!id||id.length>100||ids.has(id))throw new Error('The drawing ID is invalid or duplicated.');
+      ids.add(id);total+=size;if(total>8388608)throw new Error('Drawing storage is full. No changes were saved.');
+      return {id,name:record.name.trim(),type,data:record.data,size};
+    });
+  }
+  function checkDrawingRefs(data) {
+    const ids=new Set(data.cutDrawings.map(file=>file.id)),cuts=[...data.cuts];
+    for(const report of data.reports)if(report.kind==='plan')cuts.push(...report.plan.before,...report.plan.after);
+    if(cuts.some(cut=>cut.drawingIds.some(id=>!ids.has(id))))throw new Error('A cut or its undo history refers to a missing drawing.');
+    const sizes=new Map(data.cutDrawings.map(file=>[file.id,file.size]));if(cuts.some(cut=>cut.drawingIds.reduce((sum,id)=>sum+sizes.get(id),0)>2097152))throw new Error('Drawings for one cut must total 2 MB or less.');
+  }
+  function prepareCutDrawings(state,record,index) {
+    let ids=record?.drawingIds===undefined&&index>=0?state.cuts[index].drawingIds:(record?.drawingIds===undefined?[]:record.drawingIds);
+    if(!Array.isArray(ids)||ids.length>3||ids.some(id=>typeof id!=='string')||new Set(ids).size!==ids.length)throw new Error('A cut can have up to 3 unique drawings.');
+    ids=ids.slice();if(ids.some(id=>!state.cutDrawings.some(file=>file.id===id)))throw new Error('A selected drawing no longer exists. Refresh and try again.');
+    const files=validateDrawingFiles(record?.newDrawings===undefined?[]:record.newDrawings,true);
+    for(const file of files){let existing=state.cutDrawings.find(row=>row.name===file.name&&row.type===file.type&&row.data===file.data);if(!existing){state.cutDrawings.push(file);existing=file;}if(!ids.includes(existing.id))ids.push(existing.id);}
+    if(ids.length>3||ids.reduce((sum,id)=>sum+state.cutDrawings.find(file=>file.id===id).size,0)>2097152)throw new Error('A cut can have up to 3 drawings, totaling at most 2 MB.');
+    if(state.cutDrawings.length>250||state.cutDrawings.reduce((sum,file)=>sum+file.size,0)>8388608)throw new Error('Drawing storage is full. No changes were saved.');
+    return ids;
+  }
   function validateCuts(value,keepVersions) {
     if (!Array.isArray(value) || value.length > 1000) throw new Error('The cut list must contain at most 1,000 entries.');
     const ids = new Set();
@@ -283,6 +316,9 @@ export function createDatabase(host) {
       const quantity = optionalInteger(record.quantity,'Cut quantity',1,1000000);
       if (quantity === undefined) throw new Error('Enter a cut quantity.');
       const item = {id:record.id,title:record.title.trim(),quantity,priority:record.priority || 'normal',completed:record.completed === true,version:keepVersions ? record.version : uid()};
+      const drawingIds=record.drawingIds===undefined?[]:record.drawingIds;
+      if(!Array.isArray(drawingIds)||drawingIds.length>3||drawingIds.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(drawingIds).size!==drawingIds.length)throw new Error('A cut can have up to 3 unique drawings.');
+      item.drawingIds=drawingIds.slice();
       for (const [name,max] of [['material',200],['notes',2000]]) {
         if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
         item[name] = (record[name] || '').trim();
@@ -429,7 +465,8 @@ export function createDatabase(host) {
     }
     const settings = validateSettings(value.settings,true);
     const rawMaterials = value.rawMaterials === undefined ? [] : validateRawMaterials(value.rawMaterials,true);
-    return {...value,settings,rawMaterials,reports:validateReports(value.reports===undefined?[]:value.reports,true),cuts:validateCuts(value.cuts === undefined ? [] : value.cuts,true),notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
+    const data = {...value,settings,rawMaterials,cutDrawings:validateDrawingFiles(value.cutDrawings===undefined?[]:value.cutDrawings),reports:validateReports(value.reports===undefined?[]:value.reports,true),cuts:validateCuts(value.cuts === undefined ? [] : value.cuts,true),notes:validateNotes(value.notes === undefined ? [] : value.notes,true),materials:materialLibrary(settings,value.materials,true,rawMaterials),mills:millLibrary(settings,value.mills,true)};
+    checkDrawingRefs(data);return data;
   }
   function readState() {
     const raw = storageRead();
@@ -613,8 +650,8 @@ export function createDatabase(host) {
       throw new Error('Choose a version 1 CNC database backup.');
     const settings = validateSettings(seed.settings,false);
     const rawMaterials = seed.rawMaterials === undefined ? [] : validateRawMaterials(seed.rawMaterials,false);
-    const data = {settings,rawMaterials,reports:validateReports(seed.reports===undefined?[]:seed.reports,false),cuts:validateCuts(seed.cuts === undefined ? [] : seed.cuts,false),notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
-    restoreReportVersions(data,seed.reportVersions);return data;
+    const data = {settings,rawMaterials,cutDrawings:validateDrawingFiles(seed.cutDrawings===undefined?[]:seed.cutDrawings),reports:validateReports(seed.reports===undefined?[]:seed.reports,false),cuts:validateCuts(seed.cuts === undefined ? [] : seed.cuts,false),notes:validateNotes(seed.notes === undefined ? [] : seed.notes,false),materials:materialLibrary(settings,seed.materials,false,rawMaterials),mills:millLibrary(settings,seed.mills,false)};
+    restoreReportVersions(data,seed.reportVersions);checkDrawingRefs(data);return data;
   }
 
   const ready = (async () => {
@@ -638,10 +675,19 @@ export function createDatabase(host) {
   ready.catch(() => {});
 
   const api = {
+    getCutDrawings() {
+      const state=readState(),active=new Set(state.cuts.flatMap(cut=>cut.drawingIds));
+      return state.cutDrawings.filter(file=>active.has(file.id)).map(({data,...file})=>file);
+    },
+    getCutDrawing(id) {
+      const state=readState();if(typeof id!=='string'||!state.cuts.some(cut=>cut.drawingIds.includes(id)))throw new Error('This drawing is not attached to a current cut.');
+      const file=state.cutDrawings.find(row=>row.id===id);if(!file)throw new Error('Drawing not found.');return file;
+    },
     getCuts() {return readState().cuts;},
     reportSaveCut(record,original,meta) {
       const state=readState(),index=original==null?-1:cutIndex(state.cuts,original),before=index<0?[]:[{...state.cuts[index]}];
-      const item=validateCuts([{...record,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
+      const drawingIds=prepareCutDrawings(state,record,index);
+      const item=validateCuts([{...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
       if(index<0){if(state.cuts.length>=1000)throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
       appendPlanReport(state,index<0?'create':'edit',(index<0?'Added cut':'Edited cut')+' · '+item.title,before,[item],{},meta);commit(state);return true;
     },
@@ -665,7 +711,8 @@ export function createDatabase(host) {
     adminSaveCut(token,record,original) {
       const state = readState(); requireAdmin(token,state);
       const index = original == null ? -1 : cutIndex(state.cuts,original);
-      const item = validateCuts([{...record,priority:record?.priority === undefined && index >= 0 ? state.cuts[index].priority : record?.priority,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
+      const drawingIds=prepareCutDrawings(state,record,index);
+      const item = validateCuts([{...record,drawingIds,priority:record?.priority === undefined && index >= 0 ? state.cuts[index].priority : record?.priority,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
       if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);} else state.cuts[index] = item;
       commit(state); return true;
     },
@@ -957,16 +1004,16 @@ export function createDatabase(host) {
     },
     adminExportBackup(token) {
       const state = readState(); requireAdmin(token,state);
-      return {...reportArchive(state),format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
+      return {...reportArchive(state),cutDrawings:state.cutDrawings,format:'cnc-local-backup',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item),exportedAt:new Date().toISOString()};
     },
     adminPortableData(token) {
       const state = readState(); requireAdmin(token,state);
-      return {...reportArchive(state),format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item)};
+      return {...reportArchive(state),cutDrawings:state.cutDrawings,format:'cnc-local-portable',schemaVersion:1,settings:plainSettings(state),materials:plainMaterials(state),mills:plainMills(state),rawMaterials:plainRawMaterials(state),notes:state.notes.map(({version,...item})=>item),cuts:state.cuts.map(({version,...item})=>item)};
     },
     adminImportBackup(token,backup) {
       const state = readState(); requireAdmin(token,state);
       const data = portable(backup); // Validate the complete backup before writing anything.
-      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; commit(state); return true;
+      state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; state.cutDrawings = data.cutDrawings; commit(state); return true;
     }
   };
   const writes = new Set(['reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);

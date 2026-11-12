@@ -179,3 +179,28 @@ test('public plan updates reject stale/invalid changes and undo respects depende
  reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports[0]);assert.equal((await f.ok('getCuts'))[0].completed,true);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>!r.undone&&r.kind==='cut'));assert.equal((await f.ok('getCuts'))[0].completed,false);
  assert.equal((await f.call('adminSaveMill','bad',{number:'FORGED'},null)).ok,false);assert.equal((await f.call('adminSaveMaterial','bad',{name:'FORGED'},null)).ok,false);assert.equal((await f.call('adminSaveNote','bad',{title:'FORGED',body:'No'},null)).ok,false);
 });
+
+test('cut drawings load on demand, deduplicate, survive backups, and support admin undo',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201'),drawing={name:'part.pdf',type:'application/pdf',data:Buffer.from('%PDF-1.4\nDrawing fixture').toString('base64')};
+ await f.ok('reportSaveCut',{title:'Drawing job',quantity:1,newDrawings:[drawing]},null,{});let cut=(await f.ok('getCuts'))[0];assert.equal(cut.drawingIds.length,1);const id=cut.drawingIds[0];
+ const workspace=await f.ok('getWorkspaceData');assert.equal(workspace.drawings[0].name,'part.pdf');assert.equal('data' in workspace.drawings[0],false);assert.equal('newDrawings' in cut,false);assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
+ let reports=await f.ok('adminListReports',token);assert.equal(JSON.stringify(reports).includes(drawing.data),false,'Undo history references IDs instead of repeating file bytes');
+ await f.ok('reportSaveCut',{title:'Edited drawing job',quantity:2},cut,{});cut=(await f.ok('getCuts'))[0];assert.deepEqual(cut.drawingIds,[id],'Older clients preserve drawings');
+ await f.ok('reportSaveCut',{...cut,newDrawings:[drawing]},cut,{});assert.equal(f.getState().data.cutDrawings.length,1,'An identical upload is stored once');cut=(await f.ok('getCuts'))[0];
+ await f.ok('reportSaveCut',{...cut,drawingIds:[]},cut,{});assert.equal((await f.call('getCutDrawing',id)).ok,false,'Removed drawings are not publicly served from history');reports=await f.ok('adminListReports',token);assert.equal((await f.call('adminUndoReport','bad',reports[0])).ok,false);await f.ok('adminUndoReport',token,reports[0]);assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
+ const backup=await f.ok('adminExportBackup',token);assert.equal(backup.cutDrawings.length,1);assert.equal('auth' in backup,false);await f.ok('adminImportBackup',token,backup);assert.equal((await f.ok('getCutDrawing',id)).data,drawing.data);
+ cut=(await f.ok('getCuts'))[0];await f.ok('reportDeleteCut',cut,{});assert.equal((await f.call('getCutDrawing',id)).ok,false);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports[0]);assert.equal((await f.ok('getCutDrawing',id)).name,'part.pdf');
+ const invalid=structuredClone(backup);invalid.cutDrawings=[];const saved=JSON.stringify(f.getState());assert.equal((await f.call('adminImportBackup',token,invalid)).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ const old={format:'cnc-local-backup',schemaVersion:1,settings:[]};await f.ok('adminImportBackup',token,old);assert.deepEqual(await f.ok('getCutDrawings'),[]);
+});
+
+test('invalid and oversized drawing uploads reject atomically',async()=>{
+ const f=await fixture();await f.ok('getCuts');const saved=JSON.stringify(f.getState());
+ const pdf={name:'part.pdf',type:'application/pdf',data:Buffer.from('%PDF-1.4\nFixture').toString('base64')};
+ const bad=[{...pdf,name:'script.html',type:'text/html'},{...pdf,name:'../part.pdf'},{...pdf,type:'image/png'},{...pdf,data:'javascript:alert(1)'},{...pdf,data:'AA='},{...pdf,data:'JVBERi0A'+'A'.repeat(1398104)}];
+ for(const drawing of bad){assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[drawing]},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);}
+ assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,drawingIds:['missing']},null,{})).ok,false);assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,drawingIds:false},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[0,1,2,3].map(i=>({...pdf,name:i+'.pdf'}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ const large=Buffer.alloc(800000,65);large.write('%PDF-1.4');assert.equal((await f.call('reportSaveCut',{title:'Large',quantity:1,newDrawings:[0,1,2].map(i=>({...pdf,name:i+'.pdf',data:large.toString('base64')}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[pdf,pdf,pdf,pdf]},null,{})).ok,true,'Identical content may deduplicate to one file');
+});
