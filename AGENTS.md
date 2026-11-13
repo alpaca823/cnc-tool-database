@@ -8,6 +8,6 @@ Visitors may manage all Cut List actions (add, edit, priority, order, reopen, de
 
 Each release must update cnc-local/whats-new.json with 1–3 short, factual bullets (at most 100 characters each) for the current version. Keep future ideas out of release highlights.
 
-User-authorized admin-only beta exception: keep public VERSION at 1.14.26 and exclude pending beta work from public CHANGELOG/What’s new until public release. Track work in BETA-CHANGELOG.md. Use separate --beta packages; never overwrite numbered release ZIPs.
+User-authorized admin-only beta exception: keep public VERSION at 1.14.27 and exclude pending beta work from public CHANGELOG/What’s new until public release. Track work in BETA-CHANGELOG.md. Use separate --beta packages; never overwrite numbered release ZIPs.
 
 The user promoted read-only Materials stock previews to the current public edition in v1.14.25. Drawing placement stays admin-only beta; further pending beta work must not bump the public version or enter public highlights.

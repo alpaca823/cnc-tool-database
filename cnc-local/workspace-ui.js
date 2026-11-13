@@ -17,7 +17,7 @@
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
     inventory:['Inventory','Track mills, full sheets, and leftover material pieces.'],
     materials:['Materials','Select a material to see sheet quantities, sizes, and storage locations.'],
-    cuts:['Cut List','Plan and track the cuts your shop needs to complete.'],
+    cuts:['Job Queue','Plan and track the cuts your shop needs to complete.'],
     notes:['Notes','Shop reminders and information.'],
     'whats-new':['What’s new','Short release highlights.'],
     settings:['Settings','Appearance, backups, and admin access for this workspace.']
@@ -495,7 +495,7 @@
 
   function wsRenderReports() {
     el('reportList').replaceChildren();const reports=token?wsReports:[];el('reportsEmpty').hidden=reports.length>0;
-    reports.forEach(report=>{const card=wsNode('article',null,'shop-note');card.append(wsNode('h3',({material:'Material cut',mill:'Broken mill',cut:'Completed cut',plan:'Cut List change'})[report.kind]+' · '+report.label),wsNode('p',new Date(report.time).toLocaleString()+(report.reporter?' · '+report.reporter:''),'hint'));
+    reports.forEach(report=>{const card=wsNode('article',null,'shop-note');card.append(wsNode('h3',({material:'Material cut',mill:'Broken mill',cut:'Completed cut',plan:'Job Queue change'})[report.kind]+' · '+report.label),wsNode('p',new Date(report.time).toLocaleString()+(report.reporter?' · '+report.reporter:''),'hint'));
       if(report.details)card.append(wsNode('p',report.details,'note-body'));
       if(report.undone)card.append(wsNode('span','Undone','badge'));else card.append(wsButton('Undo',()=>{if(window.confirm('Undo this report and restore its changes?'))wsSaveAction('adminUndoReport',{id:report.id,version:report.version});}));el('reportList').append(card);
     });

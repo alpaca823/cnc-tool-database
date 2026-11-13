@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.27
+
+- Renamed Cut List to Job Queue in navigation, page and Dashboard headings, history labels, drawing reuse, and backup/import messages. Existing jobs, quantities, priorities and order are preserved.
+
 ## 1.14.26
 
 - Added a consistent gap between Tool inventory and Material stock on the Inventory page, including mobile layouts.

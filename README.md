@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.26
+# CNC Tool Database — v1.14.27
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -79,3 +79,5 @@ Update v1.14.24: What’s new now has its own sidebar tab directly below Setting
 Update v1.14.25: Everyone can preview saved sheet and remnant shapes from Materials. Click a shape thumbnail for a larger view of cutouts, inch bounds, quantity and remaining area. Previews are read-only, update with stock changes, and work in offline copies.
 
 Update v1.14.26: Added spacing between Tool inventory and Material stock on desktop and mobile.
+
+Update v1.14.27: Cut List is now named Job Queue throughout the current app. Existing jobs, quantities, priorities and ordering are preserved.

@@ -20,7 +20,7 @@ const{fixture}=require('./shared-fixture.cjs');
     await page.setViewportSize({width,height:1200});await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
     const bounds=await page.locator('[data-page=dashboard].workspace-view').evaluate(panel=>{
      const rect=node=>{const r=node.getBoundingClientRect();return {top:r.top,bottom:r.bottom};};return {stats:rect(panel.querySelector('#dashboardStats')),middle:rect(panel.querySelector('.admin-layout')),alerts:rect(panel.querySelector('.admin-layout > .card')),cuts:rect(panel.querySelector('#dashboardCuts').closest('.card'))};
-    });assert.ok(bounds.middle.top-bounds.stats.bottom>=16,'Stats have a visible gap');assert.ok(bounds.cuts.top-bounds.middle.bottom>=16,'Cut List clears both preceding cards');assert.ok(bounds.cuts.top-bounds.alerts.bottom>=16,'Inventory alerts do not touch Cut List');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
+    });assert.ok(bounds.middle.top-bounds.stats.bottom>=16,'Stats have a visible gap');assert.ok(bounds.cuts.top-bounds.middle.bottom>=16,'Job Queue clears both preceding cards');assert.ok(bounds.cuts.top-bounds.alerts.bottom>=16,'Inventory alerts do not touch Job Queue');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true);
    }
   }
   if(mode==='local'){await page.setViewportSize({width:1440,height:1200});await page.evaluate(()=>document.documentElement.dataset.theme='dark');await page.screenshot({path:'/tmp/cnc-dashboard-spacing.png'});}

@@ -350,7 +350,7 @@ window.cncStockGeometry = (() => {
     return ids;
   }
   function validateCuts(value,keepVersions) {
-    if (!Array.isArray(value) || value.length > 1000) throw new Error('The cut list must contain at most 1,000 entries.');
+    if (!Array.isArray(value) || value.length > 1000) throw new Error('The job queue must contain at most 1,000 entries.');
     const ids = new Set();
     return value.map(record => {
       if (!record || typeof record.title !== 'string' || !record.title.trim() || record.title.trim().length > 120) throw new Error('A cut needs a title of up to 120 characters.');
@@ -734,7 +734,7 @@ window.cncStockGeometry = (() => {
       const state=readState(),index=original==null?-1:cutIndex(state.cuts,original),before=index<0?[]:[{...state.cuts[index]}];
       const drawingIds=prepareCutDrawings(state,record,index);
       const item=validateCuts([{...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
-      if(index<0){if(state.cuts.length>=1000)throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
+      if(index<0){if(state.cuts.length>=1000)throw new Error('The job queue has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
       appendPlanReport(state,index<0?'create':'edit',(index<0?'Added cut':'Edited cut')+' · '+item.title,before,[item],{},meta);commit(state);return true;
     },
     reportSetCutPriority(original,priority) {
@@ -759,7 +759,7 @@ window.cncStockGeometry = (() => {
       const index = original == null ? -1 : cutIndex(state.cuts,original);
       const drawingIds=prepareCutDrawings(state,record,index);
       const item = validateCuts([{...record,drawingIds,priority:record?.priority === undefined && index >= 0 ? state.cuts[index].priority : record?.priority,completed:record?.completed === undefined && index >= 0 ? state.cuts[index].completed : record?.completed,id:index < 0 ? uid() : state.cuts[index].id}],false)[0];
-      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The cut list has reached its 1,000 entry limit.');state.cuts.push(item);} else state.cuts[index] = item;
+      if (index < 0) {if (state.cuts.length >= 1000) throw new Error('The job queue has reached its 1,000 entry limit.');state.cuts.push(item);} else state.cuts[index] = item;
       commit(state); return true;
     },
     adminSetCutPriority(token,original,priority) {

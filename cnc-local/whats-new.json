@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.14.27",
+    "notes": [
+      "Renamed Cut List to Job Queue. Existing jobs and quantities stay the same."
+    ]
+  },
+  {
     "version": "1.14.26",
     "notes": [
       "Added space between Tool inventory and Material stock."
