@@ -11,7 +11,8 @@
   let wsTheme = 'dark', wsFeedSignature = '';
   let wsRawOriginal = null, wsRawEditorOpen = false, wsSelectedMaterialName = '';
   const wsPages = {
-    beta:['Beta Testing','Experimental drawing placement and shaped stock.'],
+    beta:['Beta Testing',''],
+    placement:['Drawing placement','Position a drawing on stock and record the remaining shape.'],
     dashboard:['Dashboard','Your tool library and stock levels at a glance.'],
     feeds:['Feeds & Speeds','Find the saved cutting settings for your mill and material.'],
     mills:['Mills','Manage your cutting tools, specifications, and saved cutting data.'],
@@ -44,11 +45,11 @@
     if(page==='settings'&&typeof wsRefreshVisits==='function')wsRefreshVisits(false);
     document.querySelectorAll('.workspace-view').forEach(panel => panel.hidden = panel.dataset.page !== page);
     document.querySelectorAll('.nav-button').forEach(button => {
-      const active = button.dataset.page === page; button.classList.toggle('active',active);
+      const active = button.dataset.page === page || (page==='placement'&&button.dataset.page==='materials'); button.classList.toggle('active',active);
       if (active) button.setAttribute('aria-current','page'); else button.removeAttribute('aria-current');
     });
     el('pageTitle').textContent = wsPages[page][0]; el('pageDescription').textContent = wsPages[page][1];
-    el('globalSearch').disabled = page === 'dashboard' || page === 'settings' || page === 'whats-new';
+    el('globalSearch').disabled = page === 'dashboard' || page === 'settings' || page === 'whats-new' || page === 'placement';
     el('globalSearch').placeholder = page === 'mills' ? 'Search mill numbers, names, types…' : page === 'inventory' ? 'Search mills, materials, or sizes…' : page === 'materials' ? 'Search materials, sheet sizes, or locations…' : 'Search this workspace…';
     el('sidebar').classList.remove('mobile-open'); el('menuToggle').setAttribute('aria-expanded','false');
     wsRenderAll();
@@ -190,7 +191,7 @@
       row.append(name,wsNode('td',item.length+' × '+item.width+(item.cutouts?.length?' · shaped remnant (bounds)':'')),wsNode('td',item.thickness||'Not specified'),wsNode('td',String(item.quantity)));
       const status=wsNode('td');status.append(wsNode('span',item.quantity>0?'In stock':'Out of stock','badge '+(item.quantity>0?'in':'out')));row.append(status);
       const actions=wsNode('td');if(item.quantity>0)actions.append(wsButton(item.cutouts?.length?'Use whole piece':'Record cut',()=>wsOpenSheetCut(item)));
-      if(token&&item.quantity>0&&item.cutouts?.length)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('beta');}));
+      if(item.quantity>0)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('placement');}));
       actions.append(wsButton('View material',()=>{wsSelectedMaterialName=item.material;wsGo('materials');}));
       if(token)actions.append(wsButton('Edit stock',()=>wsOpenRawMaterial(item)));row.append(actions);el('inventoryMaterialBody').append(row);
     });
@@ -345,7 +346,7 @@
       row.append(material,wsNode('td',item.length + ' × ' + item.width+(item.cutouts?.length?' · shaped remnant (bounds)':'')),wsNode('td',item.thickness || 'Not specified'),quantity,wsNode('td',item.location || '—'),noteCell);
       const actions = wsNode('td');
       if(item.quantity>0)actions.append(wsButton(item.cutouts?.length?'Use whole piece':'Record cut',()=>wsOpenSheetCut(item)));
-      if(token&&item.quantity>0&&item.cutouts?.length)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('beta');}));
+      if(item.quantity>0)actions.append(wsButton('Place drawing',()=>{betaStockId=item.id;wsGo('placement');}));
       if (token) {
         const group = wsNode('div',null,'actions'); group.append(wsButton('Edit',() => wsOpenRawMaterial(item)),wsButton('Delete',() => wsDeleteRawMaterial(item),'danger small')); actions.append(group);
       }

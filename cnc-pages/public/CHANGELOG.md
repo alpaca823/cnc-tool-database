@@ -2,6 +2,15 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.15.1
+
+- Promoted drawing placement to public Materials and Inventory actions. Visitors can reuse Job Queue drawings or upload DWG/DXF/SVG, drag/rotate/scale grouped outlines, and record a cut against one stock piece.
+- Added a public logged shape-cut action using the existing material-report history, atomic stock updates and conflict-safe admin-only undo. Stock administration remains protected; backups/offline snapshots retain shaped remnants.
+- Released local DWG decoding, lines/arcs/circles/2D polylines, automatic endpoint joining/closure, annotation omission, outer-footprint tracking with internal-reference previews, and footprint DXF downloads. Limits remain 5,000 vertices per outline and 20,000 per footprint.
+- Moved Job Queue to the first section of the Dashboard, above summary cards and inventory alerts.
+- Removed published sign-in credentials from the current README files without changing login behavior.
+- Left the admin-only Beta Testing tab empty for future work. Curves are approximated for stock tracking; toolpaths, kerf compensation, splines and automatic scrap separation remain unsupported.
+
 ## 1.14.29
 
 - Removed new-mill creation from Feeds & Speeds. Cutting settings now use only registered mills; new mills are added in the Mills tab.

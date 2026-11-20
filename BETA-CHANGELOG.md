@@ -1,8 +1,14 @@
+# Beta history — no pending features
+
+Drawing placement and its tested improvements were promoted to public release v1.15.1. The admin-only Beta Testing tab is empty. Public changes are recorded in CHANGELOG.md. This file retains development history only.
+
+## Archived development notes
+
 # Admin-only stock beta — pending public release
 
 Public version is 1.14.29 after the public Mills-only creation fix. Read-only Materials previews were promoted in 1.14.25. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
 
-## Current work
+## Former development work
 
 Read-only Materials previews have moved to public release 1.14.25 and are documented in the public CHANGELOG. Drawing placement and the remaining work below stay admin-only beta.
 

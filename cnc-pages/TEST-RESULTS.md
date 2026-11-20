@@ -1,7 +1,9 @@
-# v1.14.29 validation
+# v1.15.1 public-release validation
 
-Passed: 21 shared-backend cases, including new tests proving settings cannot create an unknown mill on add or edit, rejected operations leave data unchanged, and existing backups/settings restore correctly. Four standalone migration/inch-backup cases also passed.
+Passed: 22 shared-backend and 8 parser/geometry tests. Public drawing cuts are validated and atomic, decrement one source piece, create a shaped remnant, persist history/backups and reject stale edits. Only admins can read report history or undo; undo refuses to overwrite later changes. Legacy admin drawing-cut calls remain protected.
 
-The Feeds & Speeds admin browser suite passed in both editions: no new-mill controls in Feeds & Speeds, creation through the Mills tab, dropdown selection, saves/edits for registered mills, API rejection of unknown mills, refresh/cancel, mobile light/dark layouts, preserved lookup results, mentor notice and admin protection. What’s new/version browser checks passed in both editions. Legacy test setup helpers now create missing fixture mills through Mills.
+Browser suites passed for both supported editions: public drawing placement (including signed-out DWG ARC conversion, SVG recording, footprint DXF download, Materials preview, admin undo, and anonymous placement in downloaded offline snapshots); extensive drawing/complex-outline checks; read-only stock previews; existing-mill Feeds & Speeds workflows; public What’s new; and Dashboard spacing/order at five widths in both themes. Job Queue is the first Dashboard section. The reserved Beta Testing tab has no content and remains admin-only.
 
-The canonical backend was regenerated for the shared edition. No schema, credentials, stored identifiers or backup formats changed. Production inventory is not edited during deployment. Drawing placement remains pending admin-only beta and is excluded from public highlights. Google Apps Script remains archived. Focused validation is recorded here; a full legacy-suite pass is not claimed.
+Current root/local/Pages README files were checked to omit literal sign-in credentials; actual credentials and login behavior remain unchanged. Private diagnostic files remain outside source/release assets. No schema change or production inventory edits are required. Google Apps Script remains archived. This is focused release validation, not a full legacy-suite pass.
+
+Drawing limits and geometry approximations remain documented: 5,000 vertices per outline, 20,000 per footprint, sampled circular edges, outer-footprint stock removal, no toolpath/kerf generation or automatic scrap separation.

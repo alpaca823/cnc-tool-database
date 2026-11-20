@@ -1,15 +1,15 @@
-# CNC Tool Database — v1.14.29
+# CNC Tool Database — v1.15.1
 
 This workspace maintains two variants of the same CNC tool and material database:
 
 | Variant | Open it with | Data storage | Sharing |
 | --- | --- | --- | --- |
 | [Local](cnc-local/README.md) | Extracted `CNC-Tool-Database.html` in Chrome, Edge, or Firefox | This browser/profile on this computer | JSON backups or portable HTML snapshots |
-| [Google Apps Script](cnc-scripts/README.md) | Deployed web app URL | Shared Google Sheets and private Drive images | One online shop database |
+| [GitHub Pages / Supabase](cnc-pages/README.md) | Published GitHub Pages website | Shared Supabase database | One online shop database |
 
-Both variants have Dashboard, Feeds & Speeds, Mills, Inventory, one combined Materials tab, and Settings. They share inches throughout, optional plunge and coolant mist settings, tool/material photos, tool and sheet counts, themes, the mentor notice, and a common release version. Both editions use admin/Feds201 and optional additional admin passwords for editing. Visitors browse without app login.
+Both variants have Dashboard, Feeds & Speeds, Mills, Inventory, one combined Materials tab, Job Queue, Notes, and Settings. They share inches throughout, optional plunge and coolant mist settings, tool/material photos, tool and sheet counts, themes, the mentor notice, and a common release version. Both editions use the shop’s admin login and optional additional admin passwords for editing. Visitors browse without app login.
 
-The Google variant is supplied as a deployable package. It has not been installed or deployed to a Google account in this workspace. See its README for the setup and deployment steps.
+Google Apps Script is archived for reference and is not rebuilt or released. Use the local HTML or GitHub Pages/Supabase edition.
 
 ## Shared development
 
@@ -35,9 +35,9 @@ See each variant's **TEST-RESULTS.md** for completed validation. Keep numbered r
 
 ## GitHub Pages prototype and shared database
 
-The GitHub Pages edition is built in cnc-pages/. It uses Supabase for shared storage and keeps the same admin/Feds201 workflow, data validation, and backup format. See cnc-pages/README.md for setup. Until connected, the site offers an explicitly browser-only preview. Creating the repository or Pages site alone does not provision the database.
+The GitHub Pages edition is built in cnc-pages/. It uses Supabase for shared storage and uses the same admin sign-in workflow, data validation, and backup format. See cnc-pages/README.md for setup. Until connected, the site offers an explicitly browser-only preview. Creating the repository or Pages site alone does not provision the database.
 
-As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case.
+As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Admin sign-in is case-insensitive; ask the shop owner for access.
 
 
 
@@ -85,3 +85,5 @@ Update v1.14.27: Cut List is now named Job Queue throughout the current app. Exi
 Update v1.14.28: Removed the extra reminder below Feeds & Speeds results; the mentor notice remains. Admins now select library mills from a standard dropdown, or choose New mill to enter a new number.
 
 Update v1.14.29: Add new mills from the Mills tab. Feeds & Speeds selects registered mills only, and its save API rejects unknown mill numbers. Existing settings and backups are preserved.
+
+Update v1.15.1: Drawing placement is public. In Materials or Inventory, choose Place drawing beside an available piece. Upload DWG/DXF/SVG or reuse a Job Queue drawing, verify inch dimensions, drag/rotate/scale, and record one piece’s cutout. Circular edges are approximated, open outlines close with highlighted edges, and annotations are omitted. Internal details remain reference lines; recording/export uses the outer part footprint. Reports are logged, with conflict-safe admin-only undo. Shaped remnants survive backups and offline copies. Limits: 5,000 vertices per outline, 20,000 per footprint. No toolpath/kerf generation or automatic scrap separation. Job Queue is first on the Dashboard. The admin-only Beta Testing tab is empty.

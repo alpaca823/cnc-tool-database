@@ -8,8 +8,8 @@ Visitors may manage all Cut List actions (add, edit, priority, order, reopen, de
 
 Each release must update cnc-local/whats-new.json with 1–3 short, factual bullets (at most 100 characters each) for the current version. Keep future ideas out of release highlights.
 
-User-authorized admin-only beta exception: keep public VERSION at 1.14.29 and exclude pending beta work from public CHANGELOG/What’s new until public release. Track work in BETA-CHANGELOG.md. Use separate --beta packages; never overwrite numbered release ZIPs.
+Drawing placement was promoted to public release v1.15.1. Visitors may place drawings and record shaped material cuts, with logging and admin-only conflict-safe undo. Material administration stays protected. The admin-only Beta Testing tab is reserved and empty. Future unreleased experiments belong in BETA-CHANGELOG.md and separate --beta packages, with no public version/highlight changes until released.
 
-The user promoted read-only Materials stock previews to the current public edition in v1.14.25. Drawing placement stays admin-only beta; further pending beta work must not bump the public version or enter public highlights.
+Read-only Materials stock previews remain public (since v1.14.25).
 
 New mills are created through the Mills tab. Feeds & Speeds must select an existing registered mill; saving settings must not create a mill implicitly. Preserve legacy backup restoration.

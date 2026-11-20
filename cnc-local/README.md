@@ -1,8 +1,8 @@
-# CNC Tool Database — v1.14.29
+# CNC Tool Database — v1.15.1
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
-**A mentor must be present for all CNC cutting.** This notice remains visible throughout the workspace. The version appears at the bottom of the page.
+**A mentor must be present for all CNC cutting.** This notice is shown under Feeds & Speeds. The version appears at the bottom of the page.
 
 ## Open the local app
 
@@ -12,12 +12,15 @@ Your data saves in this browser/profile on this computer. Keep using the same fi
 
 ## Sidebar pages
 
-- **Dashboard:** counts of mills, materials, cutting settings, and counted units, plus low/out-of-stock tools. Counts come from saved records.
+- **Dashboard:** Job Queue first, followed by counts of mills, materials, cutting settings, counted tools, and inventory alerts.
 - **Feeds & Speeds:** select a mill and material to see saved RPM, feed, plunge, axial depth, coolant mist, notes, and optional images. No cutting recommendations are calculated. Admins can expand **Manage cutting settings** to add/edit/delete data for a mill/material pair.
 - **Mills:** searchable tool table and selected-mill details. Admins can add/edit tool numbers, names, types, diameters, flute counts, coatings, notes, and shared tool photos. Mills can exist before they have cutting settings. Renaming a mill updates its cutting-setting references. Deleting a mill is blocked while cutting settings use it.
-- **Inventory:** on-hand quantities, low-stock thresholds, and storage locations. Admins can select **Update stock** or choose a mill in the inventory form. Quantities must be whole numbers of zero or more. Unknown quantities show **Not counted**; they are not assumed to be zero. Zero is **Out of stock**; positive quantities at or below the saved threshold are **Low stock**; other positive quantities are **In stock**. Use **Refresh inventory** to reload counts before another edit. Counts are maintained manually and do not change automatically when a cut is made.
+- **Inventory:** on-hand quantities, low-stock thresholds, and storage locations. Admins can select **Update stock** or choose a mill in the inventory form. Quantities must be whole numbers of zero or more. Unknown quantities show **Not counted**; they are not assumed to be zero. Zero is **Out of stock**; positive quantities at or below the saved threshold are **Low stock**; other positive quantities are **In stock**. Use **Refresh inventory** to reload counts before another edit. Tool counts are maintained through inventory updates and broken-mill reports. Material cuts update source-piece and remnant quantities when recorded.
 - **Materials:** shared reusable material names, photos, and sheet inventory in one page. Select a material on the left to see its sheet entries, sizes, quantities, locations, and notes on the right. Dimensions are inches; keep separate entries for different sizes or batches. Operators can browse and search. Admins can use **+ Add material** or **Edit material** to open **Manage materials**, and **+ Add sheet entry** to record inventory for the selected material. A material used by cutting settings or raw sheet entries cannot be deleted. The cutting-settings form uses this library as a dropdown.
+- **Job Queue:** part quantities, priorities, planned order, drawings and completion. Visitors can manage jobs; admins can undo logged changes.
+- **Notes:** shared shop notes maintained by admins.
 - **Settings:** appearance for everyone, plus data backups/imports and admin password management after login.
+- **Beta Testing (admin only):** an empty reserved tab.
 
 The header search filters the active library. On Feeds & Speeds it narrows matching mill/material choices and saved-setting cards. Press **Ctrl+K** (or **Cmd+K**) to focus search. Small screens use the menu button to open the sidebar.
 
@@ -27,7 +30,7 @@ Open **Settings → Appearance** and choose **Light**, **Dark**, or **System**. 
 
 ## Add tools and cutting data
 
-1. Select **Admin** in the header. Username is **admin**, and the permanent fallback password is **admin**.
+1. Select **Admin** in the header. Use the credentials provided by your shop administrator.
 2. Open **Materials → + Add material** to create the materials your shop uses and optional shared photos.
 3. Open **Mills → Add mill** for tool details and an optional tool image.
 4. Open **Feeds & Speeds → Manage cutting settings**. Enter a mill number, choose its material, and enter your approved cutting values. Saving settings for a new mill number also creates a minimal mill record, which you can complete under Mills.
@@ -73,9 +76,9 @@ Before upgrading, export a JSON backup. Replace the HTML at the same path and us
 
 ## Admin passwords
 
-Open **Settings → Admin passwords**. Every password uses username **admin**.
+Open **Settings → Admin passwords**. Use your shop’s shared administrator username with an accepted password.
 
-- The permanent **admin / Feds201** fallback cannot be changed or removed. Anyone who knows it can edit this local database.
+- The permanent default admin fallback cannot be changed or removed. Anyone who knows it can edit this local database.
 - Add up to 20 labeled additional passwords of 8–128 characters. Labels are unique ignoring letter case; duplicate passwords are rejected.
 - Edit a label/password, or leave both password fields blank to change only the label.
 - Removing or editing a custom password signs out sessions using it; other sessions continue working. The fallback stays enabled.
@@ -93,11 +96,11 @@ Run `node tests/raw-materials.browser.cjs` for sheet CRUD, validation, material 
 
 ## Local and Google editions
 
-The Google Apps Script edition uses the same interface and data rules. Both editions use admin/Feds201 and optional additional admin passwords for editing; visitors browse without app login. Both editions are built from the canonical source files, with a common version in `VERSION`. Run `python build-both.py` from the full source bundle root to regenerate both; `python build.py` inside this directory builds only the local edition. Future product changes should be checked in both editions.
+The supported GitHub Pages/Supabase edition uses the same interface and data rules. Both editions use the shop’s admin login and optional additional admin passwords for editing; visitors browse without app login. Both editions are built from the canonical source files, with a common version in `VERSION`. Run `python build-both.py` from the full source bundle root to regenerate both; `python build.py` inside this directory builds only the local edition. Future product changes should be checked in both editions.
 
 The local edition continues to work offline with its existing browser storage. The Google edition uses a shared Google database and private Drive images. Its setup instructions are in the separate Google package. You can move data and photos between the editions using JSON exports/imports, and the Google edition can download an offline HTML snapshot. Their live databases remain independent. Admin passwords and appearance preferences are not transferred.
 
-As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Default username admin and password Feds201 accept any letter case.
+As of v1.14.10, supported editions are GitHub Pages/Supabase and local HTML. Google Apps Script is archived. Admin sign-in is case-insensitive; ask the shop owner for access.
 
 
 
@@ -145,3 +148,5 @@ Update v1.14.27: Cut List is now named Job Queue throughout the current app. Exi
 Update v1.14.28: Removed the extra reminder below Feeds & Speeds results; the mentor notice remains. Admins now select library mills from a standard dropdown, or choose New mill to enter a new number.
 
 Update v1.14.29: Add new mills from the Mills tab. Feeds & Speeds selects registered mills only, and its save API rejects unknown mill numbers. Existing settings and backups are preserved.
+
+Update v1.15.1: Drawing placement is public. In Materials or Inventory, choose Place drawing beside an available piece. Upload DWG/DXF/SVG or reuse a Job Queue drawing, verify inch dimensions, drag/rotate/scale, and record one piece’s cutout. Circular edges are approximated, open outlines close with highlighted edges, and annotations are omitted. Internal details remain reference lines; recording/export uses the outer part footprint. Reports are logged, with conflict-safe admin-only undo. Shaped remnants survive backups and offline copies. Limits: 5,000 vertices per outline, 20,000 per footprint. No toolpath/kerf generation or automatic scrap separation. Job Queue is first on the Dashboard. The admin-only Beta Testing tab is empty.

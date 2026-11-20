@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.15.1",
+    "notes": [
+      "Place DWG, DXF, or SVG drawings on stock from Materials.",
+      "Record shaped remnants, with admin undo and offline support.",
+      "Job Queue now appears first on the Dashboard."
+    ]
+  },
+  {
     "version": "1.14.29",
     "notes": [
       "Add new mills in the Mills tab. Feeds & Speeds uses existing mills only."
