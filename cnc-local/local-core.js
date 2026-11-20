@@ -418,7 +418,7 @@
     appendReport(state,'material',source.material+' · '+source.length+' × '+source.width+' inch',change,leftover,meta);
     source.quantity--;source.version=change.afterVersion;if(leftover)state.rawMaterials.push(leftover);commit(state);return true;
   }
-  function recordShapeCut(state,original,outline,meta={}) {
+  function recordShapeCut(state,original,outline,meta={},commitNow=true) {
       const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
       if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
       if(state.rawMaterials.length>=MAX_SETTINGS)throw new Error('The sheet list is full.');
@@ -426,8 +426,8 @@
       const cutouts=window.cncStockGeometry.validate([...(source.cutouts||[]),...outlines],Number(source.length),Number(source.width));
       const leftover=validateRawMaterial({...source,quantity:1,cutouts});leftover.id=uid();leftover.version=uid();
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
-      appendReport(state,'material','Drawing cut · '+source.material,change,leftover,{...meta,details:'Recorded a drawing footprint cut. Dimensions describe the original footprint.'});
-      source.quantity--;source.version=change.afterVersion;state.rawMaterials.push(leftover);commit(state);return leftover.id;
+      appendReport(state,'material','Drawing cut · '+source.material,change,leftover,{...meta,details:meta.details===undefined?'Recorded a drawing footprint cut. Dimensions describe the original footprint.':meta.details});
+      source.quantity--;source.version=change.afterVersion;state.rawMaterials.push(leftover);if(commitNow)commit(state);return leftover.id;
   }
   function reportArchive(state) {
     return {reports:state.reports.map(({version,...row})=>row),reportVersions:{mills:state.mills.map(row=>({key:row.number,version:row.version})),rawMaterials:state.rawMaterials.map(row=>({key:row.id,version:row.version})),cuts:state.cuts.map(row=>({key:row.id,version:row.version}))}};
@@ -764,6 +764,15 @@
       const state=readState(),source=state.cuts[cutIndex(state.cuts,original)];if(source.completed)throw new Error('This cut is already completed.');
       const change={key:source.id,beforeVersion:source.version,afterVersion:uid()};appendReport(state,'cut',source.title,change,null,meta);source.completed=true;source.version=change.afterVersion;commit(state);return true;
     },
+    reportCompletedShapeCut(jobOriginal,stockOriginal,outline,drawingId,meta={}) {
+      const state=readState(),job=state.cuts[cutIndex(state.cuts,jobOriginal)];if(job.completed)throw new Error('This job is already completed.');
+      const drawing=state.cutDrawings.find(file=>file.id===drawingId);if(!drawing||!['image/vnd.dwg','application/dxf','image/svg+xml'].includes(drawing.type)||!state.cuts.some(cut=>cut.drawingIds.includes(drawingId)))throw new Error('Select an available DWG, DXF or SVG drawing.');
+      if(state.reports.length>9998)throw new Error('Report history is full. No changes were saved.');
+      const stock=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,stockOriginal)];
+      const details=('Drawing: '+drawing.name+' ['+drawing.id+'] · Stock: '+stock.material+' '+stock.length+' × '+stock.width+' inch').slice(0,500);
+      const id=recordShapeCut(state,stockOriginal,outline,{reporter:meta?.reporter,details},false);
+      const change={key:job.id,beforeVersion:job.version,afterVersion:uid()};appendReport(state,'cut',job.title,change,null,{reporter:meta?.reporter,details});job.completed=true;job.version=change.afterVersion;commit(state);return id;
+    },
     reportShapeCut(original,outline,meta) {return recordShapeCut(readState(),original,outline,meta);},
     adminRecordShapeCut(token,original,outline) {const state=readState();requireAdmin(token,state);return recordShapeCut(state,original,outline);},
     adminListReports(token) {const state=readState();requireAdmin(token,state);return state.reports;},
@@ -1024,7 +1033,7 @@
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; state.cutDrawings = data.cutDrawings; commit(state); return true;
     }
   };
-  const writes = new Set(['reportShapeCut','adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['reportCompletedShapeCut','reportShapeCut','adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

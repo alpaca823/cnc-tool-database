@@ -13,3 +13,5 @@ Drawing placement was promoted to public release v1.15.1. Visitors may place dra
 Read-only Materials stock previews remain public (since v1.14.25).
 
 New mills are created through the Mills tab. Feeds & Speeds must select an existing registered mill; saving settings must not create a mill implicitly. Preserve legacy backup restoration.
+
+Mark done in the UI must select a drawing and stock, then complete the job only when the material cut is recorded. Combined recording must be atomic, logged and reversible by admins without overwriting later edits.

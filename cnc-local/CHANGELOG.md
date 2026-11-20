@@ -2,6 +2,12 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.15.2
+
+- Mark done in Job Queue and on the Dashboard now opens a drawing/stock selection dialog before placement. Canceling or leaving placement keeps the job pending.
+- Recording the placed cut saves the material change and job completion in one transaction. Both reports identify the chosen drawing/stock and retain existing admin-only, conflict-safe undo and backup support.
+- The dialog requires an available DWG/DXF/SVG drawing and an in-stock piece, with guidance when either is missing. Existing standalone material-cut recording remains available.
+
 ## 1.15.1
 
 - Promoted drawing placement to public Materials and Inventory actions. Visitors can reuse Job Queue drawings or upload DWG/DXF/SVG, drag/rotate/scale grouped outlines, and record a cut against one stock piece.

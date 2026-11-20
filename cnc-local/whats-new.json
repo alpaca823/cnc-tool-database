@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.15.2",
+    "notes": [
+      "Mark done now asks for the drawing and stock used.",
+      "Record the placed cut to update stock and complete the job together."
+    ]
+  },
+  {
     "version": "1.15.1",
     "notes": [
       "Place DWG, DXF, or SVG drawings on stock from Materials.",

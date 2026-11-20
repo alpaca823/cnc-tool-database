@@ -40,6 +40,7 @@
   function wsGo(page) {
     if (page === 'raw-materials') page = 'materials';
     if (!wsPages[page] || (page==='beta'&&!token)) return;
+    if(page!=='placement'&&wsCompletionJob)wsClearCutCompletion();
     if (wsPage !== page) el('globalSearch').value = '';
     wsPage = page;
     if(page==='settings'&&typeof wsRefreshVisits==='function')wsRefreshVisits(false);
@@ -505,11 +506,7 @@
       if(report.undone)card.append(wsNode('span','Undone','badge'));else card.append(wsButton('Undo',()=>{if(window.confirm('Undo this report and restore its changes?'))wsSaveAction('adminUndoReport',{id:report.id,version:report.version});}));el('reportList').append(card);
     });
   }
-  async function wsReportDone(item) {
-    if(adminBusy||!window.confirm('Mark “'+item.title+'” as done? An admin can undo this report.'))return;setBusy(true);
-    try {await rpc('reportCompletedCut',{id:item.id,version:item.version},{});await refreshWorkspaceData();el('adminStatus').textContent='Cut completion recorded.';}
-    catch(error){el('adminStatus').textContent=message(error);}finally{setBusy(false);}
-  }
+  function wsReportDone(item) {wsOpenCutCompletion(item);}
   function wsOpenBroken(item) {
     if(adminBusy)return;wsBrokenOriginal={number:item.number,version:item.version};el('brokenMillForm').reset();el('brokenMillStatus').textContent='';el('brokenMillSubject').textContent=(item.name||'Mill')+' · '+item.number+' · '+item.quantity+' available';el('brokenMillDialog').showModal();el('brokenReporter').focus();
   }
