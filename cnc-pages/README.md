@@ -1,4 +1,4 @@
-# CNC Tool Database — GitHub Pages + Supabase
+# CNC Database — GitHub Pages + Supabase
 
 GitHub Pages hosts the interface. Supabase stores shared inventory, images, cutting settings, password hashes, and temporary sessions. The browser never receives the database service-role key or credential records. App editing uses the shop’s admin login and optional additional passwords. Visitors can browse without an account.
 

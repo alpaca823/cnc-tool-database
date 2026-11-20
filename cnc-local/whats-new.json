@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.15.3",
+    "notes": [
+      "Renamed the app to CNC Database."
+    ]
+  },
+  {
     "version": "1.15.2",
     "notes": [
       "Mark done now asks for the drawing and stock used.",

@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.15.3
+
+- Renamed the displayed app title, header and footer to CNC Database. Existing data and download filenames are preserved.
+
 ## 1.15.2
 
 - Mark done in Job Queue and on the Dashboard now opens a drawing/stock selection dialog before placement. Canceling or leaving placement keeps the job pending.
