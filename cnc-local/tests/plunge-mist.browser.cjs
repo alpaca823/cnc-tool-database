@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 // Plunge/coolant checks use the exact standalone HTML at an intercepted loopback origin.
 const {chromium} = require('playwright');
 const assert = require('node:assert/strict');
@@ -61,7 +62,7 @@ const legacySetting = {mill:'099',material:'Legacy material',rpm:'9000',feed:'10
     await go(page,'feeds');
     assert.equal(await page.locator('#editCoolantMist').isChecked(), false);
     assert.equal(await page.locator('#editCoolantMist').evaluate(el => el.indeterminate), false);
-    for (const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture only.'})) await page.locator('#'+id).fill(value);
+    for (const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture only.'})) await fillSettingField(page,id,value);
     await page.locator('#editMaterial').selectOption('Aluminum');
     await save(page); await show(page,'001','Aluminum');
     assert.equal(await page.locator('#plungeRate').textContent(), 'Not specified');

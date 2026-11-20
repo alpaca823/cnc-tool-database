@@ -1,5 +1,5 @@
-# v1.14.27 validation
+# v1.14.28 validation
 
-Renamed current app labels from Cut List to Job Queue across navigation, page and Dashboard headings, history, drawing reuse and backup/import messages. Internal record keys, action names and data formats remain unchanged.
+Passed the new Feeds & Speeds admin browser suite in both supported editions: native library-mill select, explicit new-mill entry, creation of settings for existing/new mills, editing saved settings, refresh preserving selected/new input values, clearing the editor, public lookup results, mobile layouts in both themes, logout protection, removed result reminder and retained mentor notice.
 
-Passed: 20 shared-backend regression cases; public Job Queue browser workflows (add/edit, quantities, priority/order, reopen/delete/complete, Dashboard actions, admin undo and offline snapshot undo); and What’s new/version checks in both supported editions. No production inventory edits or schema/credential changes are part of this rename. Drawing placement remains pending admin-only beta and is excluded from public highlights. Google Apps Script remains archived.
+The What’s new/version suite passed in both editions. Legacy standalone form drivers were updated for the new native mill selector; a full legacy-suite pass is not claimed. Generated shared-engine output is unchanged, so no database/schema, credential, or production-data changes were needed. Drawing placement remains pending admin-only beta, excluded from public highlights. Google Apps Script remains archived.

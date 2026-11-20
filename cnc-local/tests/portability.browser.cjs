@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 const {chromium} = require('playwright');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
@@ -29,7 +30,7 @@ const {pathToFileURL} = require('node:url');
     await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('saved') && !document.getElementById('settingFields').disabled);
     await go(page,'feeds');
     const note = '</script><script>window.__injected = true</script><img src=x onerror="window.__injected = true">';
-    for(const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'800',editDepth:'0.5',editNotes:note})) await page.locator('#'+id).fill(value);
+    for(const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'800',editDepth:'0.5',editNotes:note})) await fillSettingField(page,id,value);
     await page.locator('#editMaterial').selectOption('Shop material');
     await page.locator('#saveSetting').click();
     await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('saved') && !document.getElementById('settingFields').disabled);

@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 // Image-feature checks use an intercepted loopback origin because managed Chromium blocks file://.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
@@ -47,7 +48,7 @@ const URL='http://localhost:31460/images.html';
     await page.locator('#saveMaterial').click();
     await page.waitForFunction(()=>document.getElementById('adminStatus').textContent.includes('saved') && !document.getElementById('settingFields').disabled);
     await go('feeds');
-    for(const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture; not a machining recommendation.'})) await page.locator('#'+id).fill(value);
+    for(const [id,value] of Object.entries({editMill:'001',editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture; not a machining recommendation.'})) await fillSettingField(page,id,value);
     await page.locator('#editMaterial').selectOption('Test material');
     await save(); await show();
     assert.equal(await page.locator('#resultImages').isHidden(),true);

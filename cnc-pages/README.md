@@ -71,3 +71,5 @@ Update v1.14.25: Everyone can preview saved sheet and remnant shapes from Materi
 Update v1.14.26: Added spacing between Tool inventory and Material stock on desktop and mobile.
 
 Update v1.14.27: Cut List is now named Job Queue throughout the current app. Existing jobs, quantities, priorities and ordering are preserved.
+
+Update v1.14.28: Removed the extra reminder below Feeds & Speeds results; the mentor notice remains. Admins now select library mills from a standard dropdown, or choose New mill to enter a new number.

@@ -11,15 +11,15 @@
       </div>
       <dl class="result-metrics"><div><dt>Spindle speed</dt><dd id="rpm"></dd></div><div><dt>Feed rate</dt><dd id="feed"></dd></div><div><dt>Plunge rate</dt><dd id="plungeRate"></dd></div><div><dt>Axial depth of cut</dt><dd id="depth"></dd></div><div><dt>Coolant mist</dt><dd id="coolantMist"></dd></div></dl>
       <p id="notes"></p>
-      <p class="hint">Use with the tool, operation, machine, and setup specified by your shop. Confirm settings before cutting.</p>
     </section>
   </section><details id="cuttingDetails" class="card admin-only" hidden><summary>Manage cutting settings</summary><div class="admin-layout">
         <section class="card">
           <h2 id="editorTitle">Add mill / settings</h2>
           <p class="hint">Save one setting per mill and material. A new mill appears in the user dropdown when you save its first setting.</p>
           <form id="settingForm"><fieldset id="settingFields">
-            <label for="editMill">Mill number</label><input list="millSuggestions" id="editMill" name="mill" required maxlength="100" placeholder="e.g. 001">
-            <datalist id="millSuggestions"></datalist>
+            <label for="editMill">Mill number</label><select id="editMill" name="mill" required><option value="">Select mill</option></select>
+            <button id="toggleNewSettingMill" type="button" class="secondary small" aria-expanded="false" aria-controls="newSettingMillGroup">+ New mill</button>
+            <div id="newSettingMillGroup" hidden><label for="newSettingMill">New mill number</label><input id="newSettingMill" maxlength="100" placeholder="e.g. 001" disabled></div>
             <label for="editMaterial">Material</label><select id="editMaterial" name="material" required aria-describedby="materialSelectHelp"><option value="">Select material</option></select>
             <p id="materialSelectHelp" class="hint">Choose from your material library above.</p>
             <img id="selectedMaterialPreview" alt="Selected material from your library" hidden>
@@ -284,8 +284,19 @@
     el('coolantMistHelp').textContent = checkbox.indeterminate ? 'Not specified for this older setting. Click the checkbox to choose enabled or disabled.' : (checkbox.checked ? 'Coolant mist is enabled for this setting.' : 'Unchecked means coolant mist is disabled for this setting.');
   }
   el('editCoolantMist').addEventListener('change', updateCoolantMistHelp);
+  function toggleNewSettingMill(adding) {
+    el('newSettingMillGroup').hidden=!adding;el('newSettingMill').disabled=!adding;el('newSettingMill').required=adding;
+    el('editMill').disabled=adding;el('editMill').required=!adding;
+    el('toggleNewSettingMill').textContent=adding?'Choose existing mill':'+ New mill';el('toggleNewSettingMill').setAttribute('aria-expanded',String(adding));
+  }
+  function selectSettingMill(number) {
+    toggleNewSettingMill(false);el('newSettingMill').value='';
+    if(number&&!Array.from(el('editMill').options).some(option=>option.value===number)){const option=document.createElement('option');option.value=number;option.textContent=number;el('editMill').append(option);}
+    el('editMill').value=number||'';
+  }
+  el('toggleNewSettingMill').addEventListener('click',()=>{if(adminBusy)return;const adding=el('newSettingMillGroup').hidden;toggleNewSettingMill(adding);el(adding?'newSettingMill':'editMill').focus();});
   function resetEditor() {
-    original = null; el('settingForm').reset(); updateUnitLabels();
+    original = null; el('settingForm').reset();toggleNewSettingMill(false); updateUnitLabels();
     el('editCoolantMist').indeterminate = false; updateCoolantMistHelp();
     imageValues.toolImage = ''; refreshImageEditor(); updateSelectedMaterial();
     el('editorTitle').textContent = 'Add mill / settings'; el('saveSetting').textContent = 'Save setting'; el('cancelEdit').textContent = 'Clear form';
@@ -339,7 +350,7 @@
       const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary small'; edit.textContent = 'Edit';
       edit.addEventListener('click', () => {
         if (adminBusy) return;
-        original = {key:item.key,version:item.version};
+        original = {key:item.key,version:item.version};selectSettingMill(item.mill);
         const ids = {mill:'editMill',material:'editMaterial',rpm:'editRpm',feed:'editFeed',plungeRate:'editPlungeRate',depth:'editDepth',units:'editUnits',notes:'editNotes'};
         Object.keys(ids).forEach(key => el(ids[key]).value = item[key] == null ? '' : item[key]); updateUnitLabels();
         el('editCoolantMist').checked = item.coolantMist === true;
@@ -434,7 +445,7 @@
   el('cancelEdit').addEventListener('click', () => {if (!adminBusy) resetEditor();});
   el('settingForm').addEventListener('submit', async event => {
     event.preventDefault(); if (!token || adminBusy) return;
-    const setting = {mill:el('editMill').value.trim(),material:el('editMaterial').value.trim(),rpm:el('editRpm').value.trim(),feed:el('editFeed').value.trim(),plungeRate:el('editPlungeRate').value.trim(),depth:el('editDepth').value.trim(),units:el('editUnits').value,notes:el('editNotes').value,...imageValues};
+    const setting = {mill:(el('newSettingMillGroup').hidden?el('editMill').value:el('newSettingMill').value).trim(),material:el('editMaterial').value.trim(),rpm:el('editRpm').value.trim(),feed:el('editFeed').value.trim(),plungeRate:el('editPlungeRate').value.trim(),depth:el('editDepth').value.trim(),units:el('editUnits').value,notes:el('editNotes').value,...imageValues};
     if (!el('editCoolantMist').indeterminate) setting.coolantMist = el('editCoolantMist').checked;
     const active = token; setBusy(true); el('adminStatus').textContent = 'Saving…';
     try {

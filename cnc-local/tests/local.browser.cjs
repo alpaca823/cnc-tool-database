@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 // Exercises the standalone app via file://, or an intercepted loopback origin when managed Chromium blocks files.
 const {chromium} = require('playwright');
 const assert = require('node:assert/strict');
@@ -38,7 +39,7 @@ const setting = {mill:'001',material:'Aluminum 6061',rpm:'12000',feed:'800',dept
   const fill = async values => {
     await go('feeds');
     for (const [name,id] of Object.entries({mill:'editMill',rpm:'editRpm',feed:'editFeed',depth:'editDepth',notes:'editNotes'}))
-      if (values[name] !== undefined) await page.locator('#'+id).fill(values[name]);
+      if (values[name] !== undefined) await fillSettingField(page,id,values[name]);
     if (values.material !== undefined) await page.locator('#editMaterial').selectOption(values.material);
     if (values.units) assert.equal(await page.locator('#editUnits').inputValue(), values.units);
   };

@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.28
+
+- Removed the tool/operation/machine/setup reminder below Feeds & Speeds results while keeping the mentor-required notice.
+- Replaced the admin mill-number suggestion field with a standard dropdown of library mills. A separate New mill control preserves adding new mill numbers while saving settings; editing, clearing and refreshing preserve the appropriate input mode.
+
 ## 1.14.27
 
 - Renamed Cut List to Job Queue in navigation, page and Dashboard headings, history labels, drawing reuse, and backup/import messages. Existing jobs, quantities, priorities and order are preserved.

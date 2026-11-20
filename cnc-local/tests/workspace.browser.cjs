@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 // End-to-end coverage for the standalone v1.10 workspace. The intercepted origin
 // serves the exact built HTML without running a server or contacting the network.
 const {chromium}=require('playwright');
@@ -68,6 +69,7 @@ async function assertChromeTheme(page,theme){
     }
   }
   async function field(page,id,value){
+    if(id==='editMill')return fillSettingField(page,id,value);
     const locator=page.locator('#'+id);
     if(await locator.evaluate(element=>element.tagName)==='SELECT'){
       const options=await locator.locator('option').evaluateAll(elements=>elements.map(element=>({value:element.value,label:element.textContent.trim()})));
@@ -113,7 +115,7 @@ async function assertChromeTheme(page,theme){
     assert.match(await page.locator('body').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('html').getAttribute('data-theme'),'dark','Fresh browsers default to dark');
     await assertChromeTheme(page,'dark');
-    assert.match(await page.locator('body').innerText(),/1\.14\.27/);
+    assert.match(await page.locator('body').innerText(),/1\.14\.28/);
     assert.equal(await page.locator('.nav-button').count(),pages.length);
     for(const name of pages){await navigate(page,name);assert.equal(await page.locator('#mentorNotice').isVisible(),name==='feeds','Mentor notice belongs only to Feeds & Speeds');}
     await navigate(page,'mills');assert.equal(await page.locator('#addMill').isVisible(),false);

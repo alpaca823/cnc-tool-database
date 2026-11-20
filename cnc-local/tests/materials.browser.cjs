@@ -1,3 +1,4 @@
+const {fillSettingField}=require('./setting-mill.cjs');
 // Shared-material checks use an intercepted loopback origin; no external server is needed.
 const {chromium}=require('playwright');
 const assert=require('node:assert/strict');
@@ -48,7 +49,7 @@ const origin='http://localhost:31460/materials.html';
     }
     async function setting(mill,material,extra={}){
       await go('feeds');
-      for(const [id,value]of Object.entries({editMill:mill,editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture only.',...extra}))await page.locator('#'+id).fill(value);
+      for(const [id,value]of Object.entries({editMill:mill,editRpm:'12000',editFeed:'10',editDepth:'.125',editNotes:'Automated test fixture only.',...extra}))await fillSettingField(page,id,value);
       await page.locator('#editMaterial').selectOption(material);
       await page.locator('#saveSetting').click();
       await page.waitForFunction(({mill,material})=>[...document.querySelectorAll('#settingList article')].some(a=>a.textContent.includes('Mill '+mill)&&a.textContent.includes(material)),{mill,material});

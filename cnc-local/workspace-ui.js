@@ -95,7 +95,11 @@
     const selected = el('inventoryMill').value;
     fill(el('inventoryMill'),mills.map(item => item.number),'Select mill');
     if (mills.some(item => item.number === selected)) el('inventoryMill').value = selected;
-    const datalist = el('millSuggestions'); datalist.replaceChildren(...mills.map(item => {const option = wsNode('option'); option.value = item.number; option.label = item.name || item.number; return option;}));
+    const settingMill=el('editMill').value;
+    fill(el('editMill'),mills.map(item=>item.number),'Select mill');
+    const settingMillNames=new Map(mills.map(item=>[item.number,item.name]));
+    for(const option of el('editMill').options)if(settingMillNames.get(option.value))option.textContent=option.value+' · '+settingMillNames.get(option.value);
+    if(mills.some(item=>item.number===settingMill))el('editMill').value=settingMill;
     el('cutMaterialChoices').replaceChildren(...materials.map(item=>{const option=wsNode('option');option.value=item.name;return option;}));
     wsRenderAll();
   }

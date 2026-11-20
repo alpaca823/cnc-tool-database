@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.14.28",
+    "notes": [
+      "Removed the extra reminder below Feeds & Speeds results.",
+      "Admin mill selection now uses a dropdown, with a separate New mill option."
+    ]
+  },
+  {
     "version": "1.14.27",
     "notes": [
       "Renamed Cut List to Job Queue. Existing jobs and quantities stay the same."
