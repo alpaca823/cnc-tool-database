@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.14.29
+
+- Removed new-mill creation from Feeds & Speeds. Cutting settings now use only registered mills; new mills are added in the Mills tab.
+- Enforced the existing-mill requirement in both supported backends, rejecting unknown mills without changing settings or inventory. Existing backups and mill/settings data remain supported.
+
 ## 1.14.28
 
 - Removed the tool/operation/machine/setup reminder below Feeds & Speeds results while keeping the mentor-required notice.

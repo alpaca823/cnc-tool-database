@@ -1,5 +1,7 @@
-# v1.14.28 validation
+# v1.14.29 validation
 
-Passed the new Feeds & Speeds admin browser suite in both supported editions: native library-mill select, explicit new-mill entry, creation of settings for existing/new mills, editing saved settings, refresh preserving selected/new input values, clearing the editor, public lookup results, mobile layouts in both themes, logout protection, removed result reminder and retained mentor notice.
+Passed: 21 shared-backend cases, including new tests proving settings cannot create an unknown mill on add or edit, rejected operations leave data unchanged, and existing backups/settings restore correctly. Four standalone migration/inch-backup cases also passed.
 
-The What’s new/version suite passed in both editions. Legacy standalone form drivers were updated for the new native mill selector; a full legacy-suite pass is not claimed. Generated shared-engine output is unchanged, so no database/schema, credential, or production-data changes were needed. Drawing placement remains pending admin-only beta, excluded from public highlights. Google Apps Script remains archived.
+The Feeds & Speeds admin browser suite passed in both editions: no new-mill controls in Feeds & Speeds, creation through the Mills tab, dropdown selection, saves/edits for registered mills, API rejection of unknown mills, refresh/cancel, mobile light/dark layouts, preserved lookup results, mentor notice and admin protection. What’s new/version browser checks passed in both editions. Legacy test setup helpers now create missing fixture mills through Mills.
+
+The canonical backend was regenerated for the shared edition. No schema, credentials, stored identifiers or backup formats changed. Production inventory is not edited during deployment. Drawing placement remains pending admin-only beta and is excluded from public highlights. Google Apps Script remains archived. Focused validation is recorded here; a full legacy-suite pass is not claimed.

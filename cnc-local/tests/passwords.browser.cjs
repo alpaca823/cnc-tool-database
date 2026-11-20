@@ -67,7 +67,7 @@ const replacementPassword='Mentor-Lathe-92';
   }
   try {
     const page=await open();
-    assert.equal((await page.locator('#appVersion').textContent()).trim(),'Version 1.14.28 · CNC Tool Database');
+    assert.equal((await page.locator('#appVersion').textContent()).trim(),'Version 1.14.29 · CNC Tool Database');
     assert.equal(await page.locator('#mentorNotice').isVisible(),false);
     assert.match(await page.locator('#mentorNotice').textContent(),/mentor must be present/i);
     await loginUI(page);
@@ -95,7 +95,7 @@ const replacementPassword='Mentor-Lathe-92';
     assert.equal((await rpc(page,'adminListPasswords',secondSession.token)).length,3);
     await assert.rejects(rpc(page,'adminLogin','admin','Incorrect-password-99'),/incorrect|password/i);
     await assert.rejects(rpc(page,'adminLogin','mentor',firstPassword),/incorrect|username|password/i);
-    console.log('PASS: Version 1.14.28, mentor notice, immutable fallback display, mismatch feedback, and two additional working admin passwords.');
+    console.log('PASS: Version 1.14.29, mentor notice, immutable fallback display, mismatch feedback, and two additional working admin passwords.');
 
     for(const malformed of [null,{},[],5,'forged-token']){
       await assert.rejects(rpc(page,'adminListPasswords',malformed),/AUTH_REQUIRED/);
@@ -156,6 +156,7 @@ const replacementPassword='Mentor-Lathe-92';
     console.log('PASS: credentials and removal survive reload, old tokens expire, and saved auth contains no plaintext custom passwords.');
 
     await rpc(page,'adminSaveMaterial',current.token,{name:'Test aluminum',materialImage:''},null);
+    if(!(await rpc(page,'getMills')).some(m=>m.number==='001'))await rpc(page,'adminSaveMill',current.token,{number:'001'},null);
     await rpc(page,'adminSaveSetting',current.token,{mill:'001',material:'Test aluminum',rpm:'12000',feed:'8',depth:'.05',plungeRate:'2',coolantMist:true,units:'inch',notes:'Password portability fixture.'},null);
     const jsonPromise=page.waitForEvent('download');await page.locator('#exportBackup').click();
     const jsonDownload=await jsonPromise;const jsonPath=path.join(temp,'backup.json');await jsonDownload.saveAs(jsonPath);
@@ -177,7 +178,7 @@ const replacementPassword='Mentor-Lathe-92';
     assert.equal((await rpc(receiving,'adminListPasswords',receivedAuth.token)).length,1);
     await assert.rejects(rpc(receiving,'adminLogin','admin',replacementPassword),/incorrect|password/i);
     assert.equal((await rpc(receiving,'getSettings','001','Test aluminum')).feed,8);
-    assert.equal((await receiving.locator('#appVersion').textContent()).trim(),'Version 1.14.28 · CNC Tool Database');
+    assert.equal((await receiving.locator('#appVersion').textContent()).trim(),'Version 1.14.29 · CNC Tool Database');
     assert.equal(await receiving.locator('#mentorNotice').isVisible(),false);
 
     const beforeImport=await rpc(page,'adminListPasswords',current.token);

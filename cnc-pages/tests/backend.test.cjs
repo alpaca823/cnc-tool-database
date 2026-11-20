@@ -242,3 +242,10 @@ test('complex beta footprints persist above the old vertex cap and retain safe u
  const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveMaterial',token,{name:'Complex'},null);await f.ok('adminSaveRawMaterial',token,{material:'Complex',length:30,width:30,quantity:2},null);const source=(await f.ok('getRawMaterials'))[0],ring=Array.from({length:5000},(_,i)=>[10+5*Math.cos(i*2*Math.PI/5000),10+5*Math.sin(i*2*Math.PI/5000)]);
  assert.equal((await f.call('adminRecordShapeCut','forged',source,ring)).ok,false);const id=await f.ok('adminRecordShapeCut',token,source,ring);assert.equal((await f.ok('getRawMaterials')).find(r=>r.id===id).cutouts[0].length,5000);const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);await f.ok('adminUndoReport',token,(await f.ok('adminListReports',token))[0]);assert.equal((await f.ok('getRawMaterials'))[0].quantity,2);
 });
+
+test('cutting settings require a registered mill and never create one implicitly',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');await f.ok('adminSaveMaterial',token,{name:'Existing material'},null);const record={mill:'NEW',material:'Existing material',rpm:'10000',feed:'20',depth:'.1',units:'inch'};
+ let before=structuredClone(f.getState());assert.equal((await f.call('adminSaveSetting',token,record,null)).ok,false);assert.deepEqual(f.getState(),before);assert.equal((await f.ok('getMills')).length,0);
+ await f.ok('adminSaveMill',token,{number:'NEW'},null);await f.ok('adminSaveSetting',token,record,null);const setting=(await f.ok('adminListSettings',token))[0];before=structuredClone(f.getState());const result=await f.call('adminSaveSetting',token,{...record,mill:'UNKNOWN'},{key:setting.key,version:setting.version});assert.equal(result.ok,false);assert.match(result.error,/Mills tab/);assert.deepEqual(f.getState(),before);
+ const backup=await f.ok('adminExportBackup',token);await f.ok('adminImportBackup',token,backup);assert.equal((await f.ok('getMills'))[0].number,'NEW');assert.equal((await f.ok('adminListSettings',token))[0].mill,'NEW');
+});

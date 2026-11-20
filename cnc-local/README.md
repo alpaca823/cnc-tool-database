@@ -1,4 +1,4 @@
-# CNC Tool Database — v1.14.28
+# CNC Tool Database — v1.14.29
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -143,3 +143,5 @@ Update v1.14.26: Added spacing between Tool inventory and Material stock on desk
 Update v1.14.27: Cut List is now named Job Queue throughout the current app. Existing jobs, quantities, priorities and ordering are preserved.
 
 Update v1.14.28: Removed the extra reminder below Feeds & Speeds results; the mentor notice remains. Admins now select library mills from a standard dropdown, or choose New mill to enter a new number.
+
+Update v1.14.29: Add new mills from the Mills tab. Feeds & Speeds selects registered mills only, and its save API rejects unknown mill numbers. Existing settings and backups are preserved.

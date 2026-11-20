@@ -1,6 +1,6 @@
 # Admin-only stock beta — pending public release
 
-Public version is 1.14.28 after public Feeds & Speeds interface fixes. Read-only Materials previews were promoted in 1.14.25. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
+Public version is 1.14.29 after the public Mills-only creation fix. Read-only Materials previews were promoted in 1.14.25. Beta work does not enter public release notes or increment that version until approved for public release. Existing numbered archives are retained unchanged; these beta changes are packaged separately.
 
 ## Current work
 

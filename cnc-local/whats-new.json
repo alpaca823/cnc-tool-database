@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.14.29",
+    "notes": [
+      "Add new mills in the Mills tab. Feeds & Speeds uses existing mills only."
+    ]
+  },
+  {
     "version": "1.14.28",
     "notes": [
       "Removed the extra reminder below Feeds & Speeds results.",

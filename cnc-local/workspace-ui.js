@@ -133,7 +133,7 @@
     if (!items.some(item => item.number === wsSelectedMill)) wsSelectedMill = items[0]?.number || '';
     el('millListCount').textContent = items.length + ' of ' + wsMills.length + ' mills';
     el('millListBody').replaceChildren(); el('millEmpty').hidden = !!items.length;
-    el('millEmpty').textContent = wsMills.length ? 'No mills match your search.' : 'No mills yet. Add a mill or save cutting settings to start your library.';
+    el('millEmpty').textContent = wsMills.length ? 'No mills match your search.' : 'No mills yet. Add a mill to start your library.';
     items.forEach(item => {
       const row = wsNode('tr'); row.classList.toggle('selected',item.number === wsSelectedMill);
       row.setAttribute('aria-selected',String(item.number === wsSelectedMill));

@@ -984,10 +984,7 @@
       if (index >= 0 && state.settings[index].material === item.material && state.settings[index].materialImage)
         item.materialImage = state.settings[index].materialImage;
       if (state.settings.some((saved,i) => i !== index && sameKey(saved,item))) throw new Error('That mill and material already have settings. Edit the existing entry instead.');
-      if (!state.mills.some(mill => mill.number === item.mill)) {
-        if (state.mills.length >= MAX_SETTINGS) throw new Error('The mill list has reached its 10,000 entry limit.');
-        state.mills.push(validateMills([{number:item.mill}],false)[0]);
-      }
+      if (!state.mills.some(mill => mill.number === item.mill)) throw new Error('Choose an existing mill. Add new mills in the Mills tab first.');
       if (index < 0) {
         if (state.settings.length >= MAX_SETTINGS) throw new Error('The database has reached its 10,000 entry limit.');
         state.settings.push(item);

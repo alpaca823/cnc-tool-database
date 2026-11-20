@@ -73,3 +73,5 @@ Update v1.14.26: Added spacing between Tool inventory and Material stock on desk
 Update v1.14.27: Cut List is now named Job Queue throughout the current app. Existing jobs, quantities, priorities and ordering are preserved.
 
 Update v1.14.28: Removed the extra reminder below Feeds & Speeds results; the mentor notice remains. Admins now select library mills from a standard dropdown, or choose New mill to enter a new number.
+
+Update v1.14.29: Add new mills from the Mills tab. Feeds & Speeds selects registered mills only, and its save API rejects unknown mill numbers. Existing settings and backups are preserved.

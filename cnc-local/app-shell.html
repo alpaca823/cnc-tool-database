@@ -14,12 +14,10 @@
     </section>
   </section><details id="cuttingDetails" class="card admin-only" hidden><summary>Manage cutting settings</summary><div class="admin-layout">
         <section class="card">
-          <h2 id="editorTitle">Add mill / settings</h2>
-          <p class="hint">Save one setting per mill and material. A new mill appears in the user dropdown when you save its first setting.</p>
+          <h2 id="editorTitle">Add cutting settings</h2>
+          <p class="hint">Choose an existing mill and material. Add new mills in the Mills tab first.</p>
           <form id="settingForm"><fieldset id="settingFields">
             <label for="editMill">Mill number</label><select id="editMill" name="mill" required><option value="">Select mill</option></select>
-            <button id="toggleNewSettingMill" type="button" class="secondary small" aria-expanded="false" aria-controls="newSettingMillGroup">+ New mill</button>
-            <div id="newSettingMillGroup" hidden><label for="newSettingMill">New mill number</label><input id="newSettingMill" maxlength="100" placeholder="e.g. 001" disabled></div>
             <label for="editMaterial">Material</label><select id="editMaterial" name="material" required aria-describedby="materialSelectHelp"><option value="">Select material</option></select>
             <p id="materialSelectHelp" class="hint">Choose from your material library above.</p>
             <img id="selectedMaterialPreview" alt="Selected material from your library" hidden>
@@ -45,7 +43,7 @@
           <div class="toolbar"><h2>Saved settings</h2><button id="refreshList" class="secondary small" type="button">Refresh</button></div>
           <p id="listStatus" class="hint" role="status" aria-live="polite"></p><div id="settingList"></div>
         </section>
-      </div></details></section><section class="workspace-view" data-page="mills" hidden><div class="table-toolbar"><p id="millListCount" class="hint"></p><button id="addMill" class="admin-only" hidden type="button">+ Add mill</button></div><div class="workspace-split"><section class="table-card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Type</th><th>Diameter</th><th>Flutes</th><th>Stock</th><th>Quantity</th><th></th></tr></thead><tbody id="millListBody"></tbody></table></div><p id="millEmpty" class="empty-state" hidden>No mills yet. Add a mill or save cutting settings to start your library.</p></section><aside id="millDetails" class="detail-card"><p class="empty-state">Select a mill to view its details.</p></aside></div>
+      </div></details></section><section class="workspace-view" data-page="mills" hidden><div class="table-toolbar"><p id="millListCount" class="hint"></p><button id="addMill" class="admin-only" hidden type="button">+ Add mill</button></div><div class="workspace-split"><section class="table-card"><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Type</th><th>Diameter</th><th>Flutes</th><th>Stock</th><th>Quantity</th><th></th></tr></thead><tbody id="millListBody"></tbody></table></div><p id="millEmpty" class="empty-state" hidden>No mills yet. Add a mill to start your library.</p></section><aside id="millDetails" class="detail-card"><p class="empty-state">Select a mill to view its details.</p></aside></div>
 <section id="millEditor" class="card admin-only" hidden><div class="toolbar"><h2 id="millEditorTitle">Add mill</h2></div><form id="millForm"><fieldset id="millFields"><div class="grid"><div><label for="millNumber">Mill number</label><input id="millNumber" required maxlength="100" placeholder="e.g. 001"></div><div><label for="millName">Tool name</label><input id="millName" maxlength="160" placeholder='e.g. 1/4 inch end mill'></div><div><label for="millType">Tool type</label><input id="millType" maxlength="80" placeholder="e.g. End mill"></div><div><label for="millDiameter">Diameter (inch, optional)</label><input id="millDiameter" inputmode="decimal" placeholder="e.g. 0.25"></div><div><label for="millFlutes">Flutes (optional)</label><input id="millFlutes" type="number" min="1" max="100" step="1"></div><div><label for="millCoating">Coating (optional)</label><input id="millCoating" maxlength="80" placeholder="e.g. TiAlN"></div></div><label for="millPurchaseUrl">Purchase link (optional)</label><input id="millPurchaseUrl" type="url" maxlength="2048" placeholder="https://supplier.example/product"><p class="hint">Link to the product page for this exact mill. A buy link appears in its details and when inventory is low.</p><label for="millNotes">Tool notes</label><textarea id="millNotes" maxlength="2000"></textarea><div class="image-editor"><label for="millImageUpload">Tool image (optional)</label><input id="millImageUpload" type="file" accept="image/jpeg,image/png,image/webp"><img id="millImagePreview" alt="Mill image preview" hidden><button id="removeMillImage" class="secondary small" type="button" hidden>Remove tool image</button><p class="hint">Shared tool photos appear in cutting results when an entry has no separate photo.</p></div><div class="actions"><button id="saveMill" type="submit">Save mill</button><button id="cancelMillEdit" class="secondary" type="button">Cancel</button></div><p id="millFormStatus" class="status" role="status"></p></fieldset></form></section></section><section class="workspace-view" data-page="inventory" hidden><div class="stats-grid" id="inventoryStats"></div><section class="table-card"><div class="table-toolbar"><h2>Tool inventory</h2><p class="hint">Counts are entered by your shop. Uncounted tools remain untracked.</p><button id="refreshInventory" type="button" class="secondary small">Refresh inventory</button></div><div class="table-scroll"><table class="data-table"><thead><tr><th>Mill / tool</th><th>Quantity</th><th>Low-stock threshold</th><th>Status</th><th></th></tr></thead><tbody id="inventoryListBody"></tbody></table></div><p id="inventoryEmpty" class="empty-state" hidden>No mills to track. Add a mill first.</p></section><section class="table-card"><div class="table-toolbar"><div><h2>Material stock</h2><p class="hint">Full sheets and leftover pieces · All dimensions in inches</p></div><button id="addInventoryStock" type="button" class="admin-only" hidden>+ Add material stock</button></div><p id="inventoryMaterialCount" class="hint stock-list-count"></p><div class="table-scroll"><table class="data-table"><thead><tr><th>Material</th><th>Size (inch)</th><th>Thickness (inch)</th><th>Pieces on hand</th><th>Status</th><th></th></tr></thead><tbody id="inventoryMaterialBody"></tbody></table></div><p id="inventoryMaterialEmpty" class="empty-state" hidden>No material stock recorded. Add sheet entries in Materials to start tracking stock.</p></section><section class="card admin-only" id="inventoryEditor" hidden><h2>Update stock</h2><form id="inventoryForm"><fieldset id="inventoryFields"><div class="grid"><div><label for="inventoryMill">Mill</label><select id="inventoryMill" required><option value="">Select mill</option></select></div><div><label for="inventoryQuantity">Quantity on hand</label><input id="inventoryQuantity" type="number" min="0" step="1" required></div><div><label for="inventoryReorderLevel">Low-stock threshold (optional)</label><input id="inventoryReorderLevel" type="number" min="0" step="1"></div></div><div class="actions"><button id="saveInventory" type="submit">Save inventory</button></div><p id="inventoryStatus" class="status" role="status"></p></fieldset></form></section><p class="hint login-callout">Anyone can report a broken mill. Admins manage counts and can undo reports in Settings.</p></section><section class="workspace-view" data-page="materials" hidden>
 <div class="materials-workspace">
 <section id="publicMaterials" class="card material-picker-card"><div class="toolbar"><h2>Materials</h2><button id="manageMaterials" type="button" class="secondary small admin-only" hidden>+ Add material</button></div><p class="hint">Select a material to see its sheets, sizes, and storage locations.</p><div id="publicMaterialList" class="material-choice-list"></div></section>
@@ -284,22 +282,11 @@
     el('coolantMistHelp').textContent = checkbox.indeterminate ? 'Not specified for this older setting. Click the checkbox to choose enabled or disabled.' : (checkbox.checked ? 'Coolant mist is enabled for this setting.' : 'Unchecked means coolant mist is disabled for this setting.');
   }
   el('editCoolantMist').addEventListener('change', updateCoolantMistHelp);
-  function toggleNewSettingMill(adding) {
-    el('newSettingMillGroup').hidden=!adding;el('newSettingMill').disabled=!adding;el('newSettingMill').required=adding;
-    el('editMill').disabled=adding;el('editMill').required=!adding;
-    el('toggleNewSettingMill').textContent=adding?'Choose existing mill':'+ New mill';el('toggleNewSettingMill').setAttribute('aria-expanded',String(adding));
-  }
-  function selectSettingMill(number) {
-    toggleNewSettingMill(false);el('newSettingMill').value='';
-    if(number&&!Array.from(el('editMill').options).some(option=>option.value===number)){const option=document.createElement('option');option.value=number;option.textContent=number;el('editMill').append(option);}
-    el('editMill').value=number||'';
-  }
-  el('toggleNewSettingMill').addEventListener('click',()=>{if(adminBusy)return;const adding=el('newSettingMillGroup').hidden;toggleNewSettingMill(adding);el(adding?'newSettingMill':'editMill').focus();});
   function resetEditor() {
-    original = null; el('settingForm').reset();toggleNewSettingMill(false); updateUnitLabels();
+    original = null; el('settingForm').reset(); updateUnitLabels();
     el('editCoolantMist').indeterminate = false; updateCoolantMistHelp();
     imageValues.toolImage = ''; refreshImageEditor(); updateSelectedMaterial();
-    el('editorTitle').textContent = 'Add mill / settings'; el('saveSetting').textContent = 'Save setting'; el('cancelEdit').textContent = 'Clear form';
+    el('editorTitle').textContent = 'Add cutting settings'; el('saveSetting').textContent = 'Save setting'; el('cancelEdit').textContent = 'Clear form';
   }
   function endSession(text, showLogin = false) {
     token = ''; original = null; setBusy(false); resetEditor(); resetMaterialEditor();
@@ -337,7 +324,7 @@
   });
   function renderSettings(items) {
     el('settingList').replaceChildren();
-    el('listStatus').textContent = items.length ? items.length + (items.length === 1 ? ' saved setting' : ' saved settings') : 'No settings yet. Add your first mill and material.';
+    el('listStatus').textContent = items.length ? items.length + (items.length === 1 ? ' saved setting' : ' saved settings') : 'No settings yet. Choose an existing mill and material to add settings.';
     items.forEach(item => {
       const card = document.createElement('article'); card.className = 'setting';
       const heading = document.createElement('h3'); heading.textContent = 'Mill ' + item.mill + ' · ' + item.material;
@@ -350,7 +337,7 @@
       const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary small'; edit.textContent = 'Edit';
       edit.addEventListener('click', () => {
         if (adminBusy) return;
-        original = {key:item.key,version:item.version};selectSettingMill(item.mill);
+        original = {key:item.key,version:item.version};
         const ids = {mill:'editMill',material:'editMaterial',rpm:'editRpm',feed:'editFeed',plungeRate:'editPlungeRate',depth:'editDepth',units:'editUnits',notes:'editNotes'};
         Object.keys(ids).forEach(key => el(ids[key]).value = item[key] == null ? '' : item[key]); updateUnitLabels();
         el('editCoolantMist').checked = item.coolantMist === true;
@@ -445,7 +432,7 @@
   el('cancelEdit').addEventListener('click', () => {if (!adminBusy) resetEditor();});
   el('settingForm').addEventListener('submit', async event => {
     event.preventDefault(); if (!token || adminBusy) return;
-    const setting = {mill:(el('newSettingMillGroup').hidden?el('editMill').value:el('newSettingMill').value).trim(),material:el('editMaterial').value.trim(),rpm:el('editRpm').value.trim(),feed:el('editFeed').value.trim(),plungeRate:el('editPlungeRate').value.trim(),depth:el('editDepth').value.trim(),units:el('editUnits').value,notes:el('editNotes').value,...imageValues};
+    const setting = {mill:el('editMill').value.trim(),material:el('editMaterial').value.trim(),rpm:el('editRpm').value.trim(),feed:el('editFeed').value.trim(),plungeRate:el('editPlungeRate').value.trim(),depth:el('editDepth').value.trim(),units:el('editUnits').value,notes:el('editNotes').value,...imageValues};
     if (!el('editCoolantMist').indeterminate) setting.coolantMist = el('editCoolantMist').checked;
     const active = token; setBusy(true); el('adminStatus').textContent = 'Saving…';
     try {
