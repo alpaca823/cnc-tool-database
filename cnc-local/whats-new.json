@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.15.5",
+    "notes": [
+      "Improved website deployment reliability."
+    ]
+  },
+  {
     "version": "1.15.4",
     "notes": [
       "Job Queue drawings now allow up to 5 MB combined across 3 files."

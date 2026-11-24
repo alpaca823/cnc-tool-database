@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.15.5
+
+- Added artifact-read permission and an artifact-visibility check before GitHub Pages deployment to address failed artifact discovery during the 5 MB upload-limit release.
+
 ## 1.15.4
 
 - Raised Job Queue drawing attachments to 5 MB combined per job and 5 MB per file, retaining the three-file limit. Updated validation, backup checks and placement upload guidance. Existing total-library and browser storage limits still apply.
