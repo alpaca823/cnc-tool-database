@@ -1,3 +1,3 @@
-# v1.15.3 validation
+# v1.15.4 validation
 
-Both supported editions build with CNC Database as the displayed app name. What’s new browser checks cover both editions, navigation, themes, mobile layout and offline embedding. This is a display-name change; storage keys, credentials, data formats and download filenames remain unchanged.
+Passed: 5 MB boundary/over-limit atomic rejection test, 23 shared backend cases, drawing upload/download/undo/offline browser checks, and What’s new checks in both editions. Three-file and total-library limits remain. Browser storage quotas still apply to offline saves. No credentials or schema changes.

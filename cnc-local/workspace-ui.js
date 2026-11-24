@@ -575,10 +575,10 @@
       if(adminBusy)return;const files=Array.from(el('cutDrawingUpload').files);if(!files.length)return;
       setBusy(true);el('cutFields').disabled=true;el('cutDrawingStatus').textContent='Reading drawings…';
       try {if(wsDrawingIds.length+wsNewDrawingFiles.length+files.length>3)throw new Error('A cut can have up to 3 drawings.');const added=[];
-        for(const file of files){const type=wsDrawingTypes[file.name.split('.').pop().toLowerCase()];if(!type||file.size<1||file.size>1048576)throw new Error('Use PDF, SVG, DXF, DWG, PNG, JPG, or WebP files up to 1 MB each.');
+        for(const file of files){const type=wsDrawingTypes[file.name.split('.').pop().toLowerCase()];if(!type||file.size<1||file.size>5242880)throw new Error('Use PDF, SVG, DXF, DWG, PNG, JPG, or WebP files up to 5 MB each.');
           const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('This drawing could not be read.'));reader.readAsDataURL(file);});added.push({name:file.name,type,data,size:file.size});
         }
-        const total=wsDrawingIds.reduce((sum,id)=>sum+(wsDrawingFiles.find(file=>file.id===id)?.size||0),0)+[...wsNewDrawingFiles,...added].reduce((sum,file)=>sum+file.size,0);if(total>2097152)throw new Error('Drawings for one cut must total 2 MB or less.');
+        const total=wsDrawingIds.reduce((sum,id)=>sum+(wsDrawingFiles.find(file=>file.id===id)?.size||0),0)+[...wsNewDrawingFiles,...added].reduce((sum,file)=>sum+file.size,0);if(total>5242880)throw new Error('Drawings for one cut must total 5 MB or less.');
         wsNewDrawingFiles.push(...added);wsRenderDrawingEditor();el('cutDrawingStatus').textContent='Drawings ready. Save the cut to attach them.';
       }catch(error){el('cutDrawingStatus').textContent=message(error);}finally{el('cutDrawingUpload').value='';el('cutFields').disabled=false;setBusy(false);}
     });

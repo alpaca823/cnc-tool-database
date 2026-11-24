@@ -1,4 +1,4 @@
-# CNC Database — v1.15.3
+# CNC Database — v1.15.4
 
 A single HTML file that runs offline in Chrome, Edge, or Firefox. The Materials workspace combines the material library and raw sheet inventory in one **Materials** tab. Select a material on the left to see its sheet quantities, dimensions, locations, notes, and shared photo on the right. Dashboard tool counts still use **Inventory alerts** and **Tools on hand**. The header search field follows Light, Dark, and System appearance. The sidebar, header, search, and workspace follow Light/Dark/System appearance. The workspace includes searchable libraries, a mill details panel, and inventory tracking. All cutting dimensions use inches; feed and plunge rates use inches per minute.
 
@@ -152,3 +152,5 @@ Update v1.14.29: Add new mills from the Mills tab. Feeds & Speeds selects regist
 Update v1.15.1: Drawing placement is public. In Materials or Inventory, choose Place drawing beside an available piece. Upload DWG/DXF/SVG or reuse a Job Queue drawing, verify inch dimensions, drag/rotate/scale, and record one piece’s cutout. Circular edges are approximated, open outlines close with highlighted edges, and annotations are omitted. Internal details remain reference lines; recording/export uses the outer part footprint. Reports are logged, with conflict-safe admin-only undo. Shaped remnants survive backups and offline copies. Limits: 5,000 vertices per outline, 20,000 per footprint. No toolpath/kerf generation or automatic scrap separation. Job Queue is first on the Dashboard. The admin-only Beta Testing tab is empty.
 
 Update v1.15.2: Mark done opens a dialog to select a DWG/DXF/SVG drawing and an available stock piece. Position the drawing, then Record cut to save the stock change and complete the entire job together. Canceling keeps the job pending. If no supported drawing is listed, attach one to a Job Queue job first; admins can add stock through Materials. Completion and material changes are separate reports saved atomically; admins can undo the reports individually in Settings, newest first, unless later edits conflict.
+
+Update v1.15.4: Drawing attachments allow 5 MB per file and 5 MB combined per job, across at most 3 files. Existing library and browser storage limits still apply; large offline saves may require freeing browser storage.

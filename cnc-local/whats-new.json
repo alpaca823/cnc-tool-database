@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.15.4",
+    "notes": [
+      "Job Queue drawings now allow up to 5 MB combined across 3 files."
+    ]
+  },
+  {
     "version": "1.15.3",
     "notes": [
       "Renamed the app to CNC Database."

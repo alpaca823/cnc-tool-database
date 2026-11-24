@@ -197,11 +197,11 @@ test('cut drawings load on demand, deduplicate, survive backups, and support adm
 test('invalid and oversized drawing uploads reject atomically',async()=>{
  const f=await fixture();await f.ok('getCuts');const saved=JSON.stringify(f.getState());
  const pdf={name:'part.pdf',type:'application/pdf',data:Buffer.from('%PDF-1.4\nFixture').toString('base64')};
- const bad=[{...pdf,name:'script.html',type:'text/html'},{...pdf,name:'../part.pdf'},{...pdf,type:'image/png'},{...pdf,data:'javascript:alert(1)'},{...pdf,data:'AA='},{...pdf,data:'JVBERi0A'+'A'.repeat(1398104)}];
+ const bad=[{...pdf,name:'script.html',type:'text/html'},{...pdf,name:'../part.pdf'},{...pdf,type:'image/png'},{...pdf,data:'javascript:alert(1)'},{...pdf,data:'AA='},{...pdf,data:'JVBERi0A'+'A'.repeat(6990508)}];
  for(const drawing of bad){assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[drawing]},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);}
  assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,drawingIds:['missing']},null,{})).ok,false);assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,drawingIds:false},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
  assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[0,1,2,3].map(i=>({...pdf,name:i+'.pdf'}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
- const large=Buffer.alloc(800000,65);large.write('%PDF-1.4');assert.equal((await f.call('reportSaveCut',{title:'Large',quantity:1,newDrawings:[0,1,2].map(i=>({...pdf,name:i+'.pdf',data:large.toString('base64')}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
+ const large=Buffer.alloc(1800000,65);large.write('%PDF-1.4');assert.equal((await f.call('reportSaveCut',{title:'Large',quantity:1,newDrawings:[0,1,2].map(i=>({...pdf,name:i+'.pdf',data:large.toString('base64')}))},null,{})).ok,false);assert.equal(JSON.stringify(f.getState()),saved);
  assert.equal((await f.call('reportSaveCut',{title:'Bad',quantity:1,newDrawings:[pdf,pdf,pdf,pdf]},null,{})).ok,true,'Identical content may deduplicate to one file');
 });
 

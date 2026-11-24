@@ -273,9 +273,9 @@
     return records.map(record=>{
       if(!record||typeof record.name!=='string'||!record.name.trim()||record.name.length>200||/[\\/\x00-\x1f]/.test(record.name))throw new Error('Enter a valid drawing filename.');
       const ext=record.name.split('.').pop().toLowerCase(),type=DRAWING_TYPES[ext];
-      if(!type||record.type!==type||typeof record.data!=='string'||record.data.length>1398104||record.data.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(record.data))throw new Error('Use a PDF, SVG, DXF, DWG, PNG, JPG, or WebP file of at most 1 MB.');
+      if(!type||record.type!==type||typeof record.data!=='string'||record.data.length>6990508||record.data.length%4!==0||!/^[A-Za-z0-9+/]+={0,2}$/.test(record.data))throw new Error('Use a PDF, SVG, DXF, DWG, PNG, JPG, or WebP file of at most 5 MB.');
       const size=record.data.length/4*3-(record.data.endsWith('==')?2:record.data.endsWith('=')?1:0);
-      if(size<1||size>1048576)throw new Error('Each drawing must be between 1 byte and 1 MB.');
+      if(size<1||size>5242880)throw new Error('Each drawing must be between 1 byte and 5 MB.');
       if((type==='image/png'&&!record.data.startsWith('iVBORw0KGgo'))||(type==='image/jpeg'&&!record.data.startsWith('/9j/'))||(type==='image/webp'&&!record.data.startsWith('UklGR'))||(type==='application/pdf'&&!record.data.startsWith('JVBERi0')))throw new Error('The drawing contents do not match the file type.');
       const id=newFiles?uid():record.id;
       if(typeof id!=='string'||!id||id.length>100||ids.has(id))throw new Error('The drawing ID is invalid or duplicated.');
@@ -287,7 +287,7 @@
     const ids=new Set(data.cutDrawings.map(file=>file.id)),cuts=[...data.cuts];
     for(const report of data.reports)if(report.kind==='plan')cuts.push(...report.plan.before,...report.plan.after);
     if(cuts.some(cut=>cut.drawingIds.some(id=>!ids.has(id))))throw new Error('A cut or its undo history refers to a missing drawing.');
-    const sizes=new Map(data.cutDrawings.map(file=>[file.id,file.size]));if(cuts.some(cut=>cut.drawingIds.reduce((sum,id)=>sum+sizes.get(id),0)>2097152))throw new Error('Drawings for one cut must total 2 MB or less.');
+    const sizes=new Map(data.cutDrawings.map(file=>[file.id,file.size]));if(cuts.some(cut=>cut.drawingIds.reduce((sum,id)=>sum+sizes.get(id),0)>5242880))throw new Error('Drawings for one cut must total 5 MB or less.');
   }
   function prepareCutDrawings(state,record,index) {
     let ids=record?.drawingIds===undefined&&index>=0?state.cuts[index].drawingIds:(record?.drawingIds===undefined?[]:record.drawingIds);
@@ -295,7 +295,7 @@
     ids=ids.slice();if(ids.some(id=>!state.cutDrawings.some(file=>file.id===id)))throw new Error('A selected drawing no longer exists. Refresh and try again.');
     const files=validateDrawingFiles(record?.newDrawings===undefined?[]:record.newDrawings,true);
     for(const file of files){let existing=state.cutDrawings.find(row=>row.name===file.name&&row.type===file.type&&row.data===file.data);if(!existing){state.cutDrawings.push(file);existing=file;}if(!ids.includes(existing.id))ids.push(existing.id);}
-    if(ids.length>3||ids.reduce((sum,id)=>sum+state.cutDrawings.find(file=>file.id===id).size,0)>2097152)throw new Error('A cut can have up to 3 drawings, totaling at most 2 MB.');
+    if(ids.length>3||ids.reduce((sum,id)=>sum+state.cutDrawings.find(file=>file.id===id).size,0)>5242880)throw new Error('A cut can have up to 3 drawings, totaling at most 5 MB.');
     if(state.cutDrawings.length>250||state.cutDrawings.reduce((sum,file)=>sum+file.size,0)>8388608)throw new Error('Drawing storage is full. No changes were saved.');
     return ids;
   }
