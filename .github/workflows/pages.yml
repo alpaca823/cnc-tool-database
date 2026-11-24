@@ -39,5 +39,29 @@ jobs:
               await new Promise(resolve => setTimeout(resolve, 5000));
             }
             throw new Error('Pages artifact is not visible yet.');
-      - uses: actions/deploy-pages@v4
-        id: deployment
+      - name: Deploy verified Pages artifact
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const result = await github.rest.actions.listWorkflowRunArtifacts({
+              ...context.repo, run_id: context.runId
+            });
+            const artifact = result.data.artifacts.find(a => a.name === 'github-pages' && !a.expired);
+            if (!artifact) throw new Error('Verified Pages artifact is missing.');
+            const idToken = await core.getIDToken();
+            core.setSecret(idToken);
+            const created = await github.request('POST /repos/{owner}/{repo}/pages/deployments', {
+              ...context.repo, artifact_id: artifact.id,
+              pages_build_version: context.sha, oidc_token: idToken
+            });
+            const deploymentId = created.data.id || created.data.status_url?.split('/').pop() || context.sha;
+            for (let attempt = 0; attempt < 36; attempt++) {
+              const status = await github.request('GET /repos/{owner}/{repo}/pages/deployments/{deployment_id}', {
+                ...context.repo, deployment_id: deploymentId
+              });
+              core.info('Pages deployment status: ' + status.data.status);
+              if (status.data.status === 'succeed') return;
+              if (/fail|error|cancel/.test(status.data.status)) throw new Error('Pages deployment failed: ' + status.data.status);
+              await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+            throw new Error('Pages deployment did not finish in time.');
