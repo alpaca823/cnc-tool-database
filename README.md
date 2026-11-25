@@ -1,4 +1,4 @@
-# CNC Database — v1.16.1
+# CNC Database — v1.16.2
 
 This workspace maintains two variants of the same CNC tool and material database:
 

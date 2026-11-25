@@ -1,5 +1,12 @@
 [
   {
+    "version": "1.16.2",
+    "notes": [
+      "Improved spacing around the job editor and drawing requirements.",
+      "Simplified drawing requirements guidance."
+    ]
+  },
+  {
     "version": "1.16.1",
     "notes": [
       "Jobs require material, decimal thickness, author and approval.",

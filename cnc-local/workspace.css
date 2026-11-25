@@ -768,3 +768,11 @@ details[open] > summary { margin-bottom: 14px; }
 @media(max-width:600px) {
   .workspace-view[data-page="inventory"] > .table-card + .table-card { margin-top:17px; }
 }
+
+/* Separate the job editor and its requirements card from adjacent boxes. */
+.workspace-view[data-page="cuts"] { display:grid; gap:22px; }
+#cutFields > .card { margin-top:22px; }
+@media(max-width:600px) {
+  .workspace-view[data-page="cuts"] { gap:17px; }
+  #cutFields > .card { margin-top:17px; }
+}

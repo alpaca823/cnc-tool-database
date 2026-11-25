@@ -2,6 +2,11 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.16.2
+
+- Added consistent desktop/mobile spacing above the Job Queue editor and its drawing requirements card.
+- Simplified drawing requirements to mention DWG/DXF and removed the whole-inch rounding sentence from that guidance. Existing drawing support and sizing behavior are preserved.
+
 ## 1.16.1
 
 - Job forms require a saved material or Other, positive decimal thickness, Added / edited by, and Approved by. Length and width are calculated from a selected DWG/DXF/SVG outline, converted to inches and rounded upward to whole inches. Legacy jobs/backups remain readable and metadata survives older-client edits.

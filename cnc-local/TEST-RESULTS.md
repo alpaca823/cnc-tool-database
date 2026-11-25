@@ -1,3 +1,7 @@
+# v1.16.2 validation
+
+Passed in both editions: existing job form checks; measured job-editor/requirements gaps at 1440, 1024 and 390 pixels in light and dark themes (22px desktop, 17px mobile); input spacing and no horizontal overflow; requirements copy excludes SVG and whole-inch rounding. Existing Settings and Dashboard spacing browser checks also passed. No backend or data-rule changes.
+
 # v1.16.1 validation
 
 All 37 verification commands were exercised. Outdated sidebar, public-action and release-version expectations were corrected; affected tests passed on rerun. No unresolved test failures remain. The final generated release also passed the focused checks below.
