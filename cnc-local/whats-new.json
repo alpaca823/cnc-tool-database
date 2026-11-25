@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.16.4",
+    "notes": [
+      "Update instructions now cover connected Codex and Claude app cloud sessions."
+    ]
+  },
+  {
     "version": "1.16.3",
     "notes": [
       "Simplified guides with team handoff and Codex/Claude Code update instructions."

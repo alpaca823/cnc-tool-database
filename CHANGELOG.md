@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.16.4
+
+- Replaced terminal/clone instructions in the main README with separate Codex app and Claude app Code cloud-session steps, plus a shared request, review and publish workflow. No manual repository download or file upload is required for these workflows.
+
 ## 1.16.3
 
 - Replaced accumulated README update history with concise usage, maintenance, Codex/Claude Code and team ownership handoff instructions. Documented continued collaborator access and the separate GitHub, Supabase and app permissions; no ownership or account settings were changed.

@@ -1,3 +1,7 @@
+# v1.16.4 validation
+
+Documentation/release change only. Passed supported-edition build, What’s new browser checks in both editions, README app-workflow structure, relative-link and credential-omission checks, and whitespace checks. No runtime, ownership, account or database changes.
+
 # v1.16.3 validation
 
 Documentation/release change only. Passed: supported-edition build; README relative links and credential-omission checks; What’s new browser checks in both editions; isolated rebuild from the handoff source file set, producing the exact website with active deployment workflows included; whitespace checks. No ownership, permission, credential, production database or server changes were made.

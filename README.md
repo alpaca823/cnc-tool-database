@@ -1,4 +1,4 @@
-# CNC Database — v1.16.3
+# CNC Database — v1.16.4
 
 A robotics shop database for mills, feeds & speeds, tool and material inventory, drawings, jobs and notes. A mentor must be present for CNC cutting.
 
@@ -13,34 +13,37 @@ A robotics shop database for mills, feeds & speeds, tool and material inventory,
 
 Google Apps Script is archived and no longer supported. Detailed use/setup: [offline edition](cnc-local/README.md), [shared edition](cnc-pages/README.md).
 
-## Updating with Codex or Claude Code
+## Updating from the Codex or Claude app
 
-1. Get write access to this repository using your own GitHub account.
-2. **Codex:** connect GitHub, authorize this repository, and select it as the task workspace. After an ownership transfer, select/authorize its new location. Organization owners may need to approve the app.
-3. **Claude Code:** clone the repository, open a terminal in its folder, sign in to Claude Code and start `claude`. GitHub push/PR access uses your Git credentials separately. Install it using the [official instructions](https://code.claude.com/docs/en/setup).
-4. Start from the latest `main`, use a feature branch, and give the assistant a small, specific request. Ask it to read `AGENTS.md` first; Claude Code should be told this explicitly.
-5. Review the diff and tests, then merge the pull request. UI changes publish automatically from `main`. Server changes also need the database deployment described below.
+Use your own GitHub account with write access to this repository. Both apps can work from the connected GitHub repository in a cloud session: you do not need to download a ZIP, upload the files, or use a terminal. The app fetches the repository for you. App features and cloud access depend on your account and organization settings.
 
-Example prompt for either assistant:
+### Codex app
+
+1. Open the Codex app and connect GitHub if it is not already connected.
+2. Authorize this repository and select it for a **cloud task/workspace**. A team organization owner may need to approve repository access.
+3. Start a new task, paste the example request below, and describe the update you want.
+4. Read the changes and test results. Ask Codex to open a pull request, then review and merge it in GitHub.
+
+### Claude app — Code
+
+1. Open the Claude app and go to **Code** (Claude Code).
+2. Choose a **cloud session**, connect GitHub, and authorize/select this repository. Use the repository selector for a cloud session; a local-folder session is a different workflow.
+3. Start a task, paste the same example request below, and describe your update. Claude retrieves the code automatically.
+4. Read the changes and test results. Ask Claude to open a pull request, then review and merge it in GitHub.
+
+If a repository is missing in either app, check that the correct GitHub account is connected and that the app has permission to access the team’s repository. After ownership changes, authorize/select the repository at its new location. General chat or a file attachment is not the connected coding workspace.
+
+### Example request for either app
 
 > Read AGENTS.md and README.md. Add [describe the change] on a new branch. Update both supported editions from the canonical sources. Preserve existing data, permissions, backups and mentor notice. Increment the version, update CHANGELOG.md and add short What’s new notes. Build, run relevant tests, explain the results and open a pull request. Do not change ownership, credentials or production data.
 
-### Build and release
+### Review and publish
 
-Use Python 3, Node.js, Playwright and Chromium (`/usr/bin/chromium` for these tests). From the repository root:
+Ask the coding assistant to handle the build, relevant tests and release packages, following `AGENTS.md`. Check its results before merging. Every release needs a version increment, an accurate change log and short What’s new notes; numbered ZIPs must stay unchanged.
 
-```sh
-npm ci
-python build-both.py
-python verify-both.py
-python package-both.py --public-release
-```
+Merging into `main` starts **GitHub Actions → Publish CNC website**. Confirm that it succeeds, then open the website and check the version and the changed screen.
 
-For a small change, run the relevant checks; use the full verification for broader changes. Report actual results. The version lives in `cnc-local/VERSION`; every release also updates `CHANGELOG.md` and `cnc-local/whats-new.json` (1–3 short bullets). Never overwrite a numbered ZIP.
-
-Edit `cnc-local/app-shell.html`, `workspace.css`, `workspace-ui.js` and the related JS modules. Data rules live in `cnc-local/local-core.js`. The build generates both editions, the root website files and the shared engine; avoid editing generated HTML or `engine.mjs` directly.
-
-GitHub **Actions → Publish CNC website** deploys the root website files. If server code changed, an authorized maintainer must also run **Deploy shared database API** using the existing project, then check the site. A frontend push alone does not deploy Supabase. That workflow needs repository secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`. Enter secrets directly in GitHub Settings, never in code or chat. Keep `config.js` limited to the public project URL/key.
+If the assistant changed shared server code, an authorized maintainer must also run **Actions → Deploy shared database API** for the existing project. A frontend publish alone does not update Supabase. That workflow uses the repository secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`. Enter secrets directly in GitHub Settings, never in an AI chat or code. Keep `config.js` limited to the public project URL/key.
 
 ## Ownership handoff to the robotics team
 
@@ -50,7 +53,7 @@ When the team is ready:
 
 1. Export a current shop backup and save the repository/source ZIP. Record the current GitHub and Supabase owners, project reference, recovery contacts and deployment access in the team’s private records.
 2. In GitHub **repository Settings → General → Danger Zone → Transfer**, transfer the existing repository to the team’s organization/account and complete any acceptance steps. Keep its history and backup branches. Verify that the graduating maintainer and incoming students can still push or open PRs.
-3. Check **Settings → Pages → Source: GitHub Actions**, Actions permissions, the `github-pages` environment, repository protections and deployment secrets. Reauthorize Codex/other GitHub apps for the new repository. Update local Git remotes to its new URL.
+3. Check **Settings → Pages → Source: GitHub Actions**, Actions permissions, the `github-pages` environment, repository protections and deployment secrets. Reauthorize both coding apps and select the repository at its new location.
 4. Update the website link above and the environment URLs in `.github/workflows/pages.yml` and the reference copy `cnc-pages/workflows/pages.yml`. The new default site address is `https://TEAM.github.io/cnc-tool-database/` if the repository name stays the same. Confirm the actual URL in Pages settings; do not rely on the old Pages address redirecting.
 5. **Supabase is separate from GitHub.** Give team mentors access to its organization, retaining appropriate access for the graduating maintainer. Arrange team ownership of the existing project/organization; do not create an empty replacement database. A project transfer requires a source-organization Owner and membership in the target organization. Review the [transfer requirements and plan limits](https://supabase.com/docs/guides/platform/project-transfer) first.
 6. Before using the new website, set the Edge Function secret `CNC_ALLOWED_ORIGINS` to the allowed origins, such as `https://alpaca823.github.io,https://TEAM.github.io` during the move. Origins have no repository path. The fallback is in `cnc-pages/supabase/functions/cnc-api/index.ts`. Replace any personal deployment token with an authorized team maintainer’s token and verify the deployment workflow’s access.
