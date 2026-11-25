@@ -314,7 +314,7 @@
       const drawingIds=record.drawingIds===undefined?[]:record.drawingIds;
       if(!Array.isArray(drawingIds)||drawingIds.length>3||drawingIds.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(drawingIds).size!==drawingIds.length)throw new Error('A cut can have up to 3 unique drawings.');
       item.drawingIds=drawingIds.slice();
-      for (const [name,max] of [['material',200],['notes',2000]]) {
+      for (const [name,max] of [['material',200],['notes',2000],['editedBy',80],['approvedBy',80],['sizingDrawingName',200],['drawingUnits',10]]) {
         if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
         item[name] = (record[name] || '').trim();
       }
@@ -401,7 +401,7 @@
     }
     report.undone=true;report.version=uid();commit(state);return true;
   }
-  function reportMaterial(state,original,remainder,meta) {
+  function reportMaterial(state,original,remainder,meta,commitNow=true) {
     const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
     if(source.quantity<1)throw new Error('There are no pieces left in this entry.');
     if(source.cutouts?.length&&remainder!==null)throw new Error('Use Beta Testing to cut a shaped remnant, or use the whole piece.');
@@ -416,7 +416,7 @@
     }
     const change={key:source.id,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
     appendReport(state,'material',source.material+' · '+source.length+' × '+source.width+' inch',change,leftover,meta);
-    source.quantity--;source.version=change.afterVersion;if(leftover)state.rawMaterials.push(leftover);commit(state);return true;
+    source.quantity--;source.version=change.afterVersion;if(leftover)state.rawMaterials.push(leftover);if(commitNow)commit(state);return true;
   }
   function recordShapeCut(state,original,outline,meta={},commitNow=true) {
       const source=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,original)];
@@ -691,10 +691,20 @@
       const file=state.cutDrawings.find(row=>row.id===id);if(!file)throw new Error('Drawing not found.');return file;
     },
     getCuts() {return readState().cuts;},
+    reportSaveJob(record,original,meta) {
+      const state=readState(),material=typeof record?.material==='string'?record.material.trim():'';
+      if(!material||(material!=='Other'&&!state.materials.some(item=>item.name===material)))throw new Error('Choose a registered material or Other.');
+      for(const field of ['editedBy','approvedBy'])if(typeof record[field]!=='string'||!record[field].trim()||record[field].trim().length>80)throw new Error('Added/edited by and approved by are required (up to 80 characters each).');
+      if(!/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(String(record.thickness||''))||!Number.isFinite(Number(record.thickness))||Number(record.thickness)<=0)throw new Error('Thickness must be a positive decimal in inches, not a fraction.');
+      const existing=original?state.cuts[cutIndex(state.cuts,original)]:null,files=[...(record.drawingIds||[]).map(id=>({key:'id:'+id,...state.cutDrawings.find(file=>file.id===id)})),...(record.newDrawings||[]).map((file,i)=>({...file,key:'new:'+i}))],cad=files.filter(file=>/\.(dwg|dxf|svg)$/i.test(file.name||'')),next={...record,material};
+      if(cad.length){const size=record.cadSize,file=cad.find(file=>file.key===size?.reference);if(!file||![size.length,size.width].every(n=>typeof n==='number'&&Number.isFinite(n)&&n>0&&n<=100000)||!['inch','mm'].includes(record.drawingUnits))throw new Error('Select a valid CAD drawing and drawing units for automatic sizing.');const factor=record.drawingUnits==='mm'?1/25.4:1;next.length=String(Math.ceil(Number((size.length*factor).toPrecision(12))));next.width=String(Math.ceil(Number((size.width*factor).toPrecision(12))));next.sizingDrawingName=file.name.trim();}
+      else{delete next.length;delete next.width;if(existing?.length)next.length=existing.length;if(existing?.width)next.width=existing.width;delete next.sizingDrawingName;}
+      return api.reportSaveCut(next,original,{...meta,reporter:record.editedBy.trim()});
+    },
     reportSaveCut(record,original,meta) {
       const state=readState(),index=original==null?-1:cutIndex(state.cuts,original),before=index<0?[]:[{...state.cuts[index]}];
       const drawingIds=prepareCutDrawings(state,record,index);
-      const item=validateCuts([{...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
+      const item=validateCuts([{...(index>=0?state.cuts[index]:{}),...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
       if(index<0){if(state.cuts.length>=1000)throw new Error('The job queue has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
       appendPlanReport(state,index<0?'create':'edit',(index<0?'Added cut':'Edited cut')+' · '+item.title,before,[item],{},meta);commit(state);return true;
     },
@@ -760,13 +770,22 @@
       const change={key:source.number,beforeVersion:source.version,afterVersion:uid(),quantityBefore:source.quantity};
       appendReport(state,'mill',(source.name||'Mill')+' · '+source.number,change,null,meta);source.quantity--;source.version=change.afterVersion;commit(state);return true;
     },
-    reportCompletedCut(original,meta) {
-      const state=readState(),source=state.cuts[cutIndex(state.cuts,original)];if(source.completed)throw new Error('This cut is already completed.');
-      const change={key:source.id,beforeVersion:source.version,afterVersion:uid()};appendReport(state,'cut',source.title,change,null,meta);source.completed=true;source.version=change.afterVersion;commit(state);return true;
+    reportCompletedCut() {throw new Error('Select the job drawing and stock to record completion. Only admins may bypass selections.');},
+    adminCompleteJob(token,original,drawingId) {
+      const state=readState();requireAdmin(token,state);const job=state.cuts[cutIndex(state.cuts,original)];if(job.completed)throw new Error('This job is already completed.');
+      const drawing=drawingId&&state.cutDrawings.find(file=>file.id===drawingId&&job.drawingIds.includes(drawingId));if(drawingId&&!drawing)throw new Error('Select a drawing attached to this job.');
+      const change={key:job.id,beforeVersion:job.version,afterVersion:uid()};appendReport(state,'cut',job.title,change,null,{details:('Admin completion without stock changes.'+(drawing?' Drawing: '+drawing.name:'')).slice(0,500)});job.completed=true;job.version=change.afterVersion;commit(state);return true;
+    },
+    reportCompletedStockJob(original,stockOriginal,drawingId,meta={}) {
+      const state=readState(),job=state.cuts[cutIndex(state.cuts,original)];if(job.completed)throw new Error('This job is already completed.');
+      const drawing=state.cutDrawings.find(file=>file.id===drawingId&&job.drawingIds.includes(drawingId));if(job.drawingIds.length&&!drawing)throw new Error('Select this job’s attached drawing.');if(drawingId&&!drawing)throw new Error('Drawing is not attached to this job.');
+      if(state.reports.length>9998)throw new Error('Report history is full. No changes were saved.');
+      const details=(drawing?'Drawing: '+drawing.name+'. ':'No drawing attached. ')+'One whole stock piece used.';reportMaterial(state,stockOriginal,null,{reporter:meta?.reporter,details:details.slice(0,500)},false);
+      const change={key:job.id,beforeVersion:job.version,afterVersion:uid()};appendReport(state,'cut',job.title,change,null,{reporter:meta?.reporter,details:details.slice(0,500)});job.completed=true;job.version=change.afterVersion;commit(state);return true;
     },
     reportCompletedShapeCut(jobOriginal,stockOriginal,outline,drawingId,meta={}) {
       const state=readState(),job=state.cuts[cutIndex(state.cuts,jobOriginal)];if(job.completed)throw new Error('This job is already completed.');
-      const drawing=state.cutDrawings.find(file=>file.id===drawingId);if(!drawing||!['image/vnd.dwg','application/dxf','image/svg+xml'].includes(drawing.type)||!state.cuts.some(cut=>cut.drawingIds.includes(drawingId)))throw new Error('Select an available DWG, DXF or SVG drawing.');
+      const drawing=state.cutDrawings.find(file=>file.id===drawingId);if(!drawing||!['image/vnd.dwg','application/dxf','image/svg+xml'].includes(drawing.type)||!job.drawingIds.includes(drawingId))throw new Error('Select a DWG, DXF or SVG drawing attached to this job.');
       if(state.reports.length>9998)throw new Error('Report history is full. No changes were saved.');
       const stock=state.rawMaterials[originalRawMaterialIndex(state.rawMaterials,stockOriginal)];
       const details=('Drawing: '+drawing.name+' ['+drawing.id+'] · Stock: '+stock.material+' '+stock.length+' × '+stock.width+' inch').slice(0,500);
@@ -1033,7 +1052,7 @@
       state.settings = data.settings; state.materials = data.materials; state.mills = data.mills; state.rawMaterials = data.rawMaterials; state.notes = data.notes; state.cuts = data.cuts; state.reports = data.reports; state.cutDrawings = data.cutDrawings; commit(state); return true;
     }
   };
-  const writes = new Set(['reportCompletedShapeCut','reportShapeCut','adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
+  const writes = new Set(['adminCompleteJob','reportCompletedStockJob','reportSaveJob','reportCompletedShapeCut','reportShapeCut','adminRecordShapeCut','reportSaveCut','reportSetCutPriority','reportReopenCut','reportDeleteCut','reportMoveCut','reportMaterialCut','reportBrokenMill','reportCompletedCut','adminUndoReport','adminSetCutPriority','adminMoveCut','adminSaveCut','adminSetCutCompleted','adminDeleteCut','adminSetNotePinned','adminCutRawMaterial','adminSaveNote','adminDeleteNote','adminSaveSetting','adminDeleteSetting','adminChangePassword','adminAddPassword','adminUpdatePassword','adminDeletePassword','adminImportBackup','adminSaveMaterial','adminDeleteMaterial','adminSaveMill','adminDeleteMill','adminSetInventory','adminSaveRawMaterial','adminDeleteRawMaterial']);
   window.cncLocal = Object.freeze({
     ready,
     async call(name,...args) {

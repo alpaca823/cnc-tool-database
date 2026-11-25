@@ -102,7 +102,7 @@
     const settingMillNames=new Map(mills.map(item=>[item.number,item.name]));
     for(const option of el('editMill').options)if(settingMillNames.get(option.value))option.textContent=option.value+' · '+settingMillNames.get(option.value);
     if(mills.some(item=>item.number===settingMill))el('editMill').value=settingMill;
-    el('cutMaterialChoices').replaceChildren(...materials.map(item=>{const option=wsNode('option');option.value=item.name;return option;}));
+    const jobMaterial=el('cutMaterial').value;el('cutMaterial').replaceChildren(new Option('Select material',''),...materials.map(item=>new Option(item.name,item.name)));if(!materials.some(item=>item.name==='Other'))el('cutMaterial').append(new Option('Other','Other'));if(Array.from(el('cutMaterial').options).some(option=>option.value===jobMaterial))el('cutMaterial').value=jobMaterial;
     wsRenderAll();
   }
   function wsStats(target,items) {
@@ -445,6 +445,7 @@
       card.append(wsNode('span',item.completed?'Completed':'To do','badge '+(item.completed?'in':'low')),wsNode('span',wsPriorities[item.priority]||'Normal','badge priority-'+(item.priority||'normal')),wsNode('h3',item.title));
       if(!item.completed)card.append(wsNode('p','Planned order: #'+(position+1),'hint'));
       const size=['length','width','thickness'].map(key=>item[key]||'—').join(' × ');
+      if(item.editedBy||item.approvedBy)card.append(wsNode('p','Added/edited by: '+(item.editedBy||'Not recorded')+' · Approved by: '+(item.approvedBy||'Not recorded'),'hint'));
       card.append(wsNode('p','Quantity: '+item.quantity+' · Material: '+(item.material||'Not specified')),wsNode('p','Size: '+size+' inch','hint'));if(item.notes)card.append(wsNode('p',item.notes,'note-body'));
       wsAppendDrawings(card,item);
       {
@@ -464,10 +465,10 @@
     });
   }
   function wsOpenCut(item) {
-    if(adminBusy)return;wsCutOriginal=item?{id:item.id,version:item.version}:null;
+    if(adminBusy)return;wsJobSizingName=item?.sizingDrawingName||'';el('jobSizingDrawing').value='';wsCutOriginal=item?{id:item.id,version:item.version}:null;
     for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])el('cut'+name[0].toUpperCase()+name.slice(1)).value=item?.[name]??(name==='quantity'?'1':name==='priority'?'normal':'');
-    wsDrawingIds=(item?.drawingIds||[]).slice();wsNewDrawingFiles=[];el('cutDrawingUpload').value='';el('cutDrawingStatus').textContent='';wsRenderDrawingEditor();
-    el('planReporter').value='';
+    wsDrawingIds=(item?.drawingIds||[]).slice();wsNewDrawingFiles=[];el('cutDrawingUpload').value='';el('cutDrawingStatus').textContent='';
+    el('planReporter').value='';el('jobApprovedBy').value=item?.approvedBy||'';el('jobDrawingUnits').value=item?.drawingUnits||'inch';wsJobSizingName=item?.sizingDrawingName||'';jobSize=null;wsRenderDrawingEditor();
     el('cutEditorTitle').textContent=item?'Edit cut':'Add cut';el('cutStatus').textContent='';el('cutEditor').hidden=false;el('cutTitle').focus();
   }
   function wsOpenSheetCut(item) {
@@ -484,9 +485,10 @@
     el('cancelCut').addEventListener('click',()=>{if(!adminBusy){el('cutEditor').hidden=true;wsCutOriginal=null;}});
     el('cutForm').addEventListener('submit',async event=>{
       event.preventDefault();if(adminBusy)return;const record={};for(const name of ['title','material','quantity','length','width','thickness','notes','priority'])record[name]=el('cut'+name[0].toUpperCase()+name.slice(1)).value;
+      record.editedBy=el('planReporter').value;record.approvedBy=el('jobApprovedBy').value;record.drawingUnits=el('jobDrawingUnits').value;record.cadSize=jobSize;
       record.drawingIds=wsDrawingIds.slice();record.newDrawings=wsNewDrawingFiles.slice();
       setBusy(true);el('cutFields').disabled=true;el('cutStatus').textContent='Saving cut…';
-      try {await rpc('reportSaveCut',record,wsCutOriginal,{reporter:el('planReporter').value});if(!wsCutOriginal)el('cutFilter').value='pending';el('globalSearch').value='';el('cutEditor').hidden=true;wsCutOriginal=null;await refreshWorkspaceData();}
+      try {await jobEnsureSize();record.cadSize=jobSize;await rpc('reportSaveJob',record,wsCutOriginal,{reporter:el('planReporter').value});if(!wsCutOriginal)el('cutFilter').value='pending';el('globalSearch').value='';el('cutEditor').hidden=true;wsCutOriginal=null;await refreshWorkspaceData();}
       catch(error){el('cutStatus').textContent=message(error);}finally{el('cutFields').disabled=false;setBusy(false);}
     });
     el('keepRemainder').addEventListener('change',wsToggleRemainder);
@@ -566,7 +568,7 @@
   function wsRenderDrawingEditor() {
     el('cutDrawingEditor').replaceChildren();
     const files=[...wsDrawingIds.map(id=>({id,...wsDrawingFiles.find(row=>row.id===id)})),...wsNewDrawingFiles.map((file,index)=>({...file,newIndex:index}))];
-    files.forEach(file=>{const row=wsNode('div',null,'drawing-file');row.append(wsNode('span',(file.name||'Drawing')+' · '+Math.ceil((file.size||0)/1024)+' KB'),wsButton('Remove',()=>{if(adminBusy)return;if(file.newIndex!==undefined)wsNewDrawingFiles.splice(file.newIndex,1);else wsDrawingIds=wsDrawingIds.filter(id=>id!==file.id);wsRenderDrawingEditor();}));el('cutDrawingEditor').append(row);});
+    files.forEach(file=>{const row=wsNode('div',null,'drawing-file');row.append(wsNode('span',(file.name||'Drawing')+' · '+Math.ceil((file.size||0)/1024)+' KB'),wsButton('Remove',()=>{if(adminBusy)return;if(file.newIndex!==undefined)wsNewDrawingFiles.splice(file.newIndex,1);else wsDrawingIds=wsDrawingIds.filter(id=>id!==file.id);wsRenderDrawingEditor();}));el('cutDrawingEditor').append(row);});jobRefreshSizing();
   }
   function wsInitDrawings() {
     el('closeDrawingPreview').addEventListener('click',()=>el('drawingPreviewDialog').close());

@@ -115,7 +115,7 @@ const URL='http://localhost:31460/images.html';
     const receivingPage=await receiver.newPage(); await receivingPage.goto(URL);
     const received=await receivingPage.evaluate(()=>window.cncLocal.call('getSettings','001','Test material'));
     assert.equal(received.toolImage,both.toolImage); assert.equal(received.materialImage,both.materialImage);
-    await receivingPage.locator('#mill').selectOption('001'); await receivingPage.locator('#material').selectOption('Test material');
+    await receivingPage.locator('.nav-button[data-page=feeds]').click();await receivingPage.locator('#mill').selectOption('001'); await receivingPage.locator('#material').selectOption('Test material');
     await receivingPage.locator('#show').click();
     await receivingPage.waitForFunction(()=>document.getElementById('resultToolImage').naturalWidth>0 && document.getElementById('resultMaterialImage').naturalWidth>0);
     await receiver.close();

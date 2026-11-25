@@ -1,3 +1,4 @@
+const expectedVersion=require('node:fs').readFileSync(require('node:path').join(__dirname,'../VERSION'),'utf8').trim();
 // Regressions for the single Materials master/detail workspace in the exact download.
 // An intercepted loopback URL keeps these standalone-file checks server-free.
 const {chromium}=require('playwright');
@@ -114,14 +115,14 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
   }
   async function assertReadOnly(page){
     for(const id of ['manageMaterials','materialManagement','addRawMaterial','rawMaterialEditor'])assert.equal(await page.locator('#'+id).isVisible(),false,'Operators cannot see '+id);
-    assert.equal(await page.locator('#rawMaterialListBody button').filter({hasNotText:'Record cut'}).count(),0,'Operators can only record cuts');
+    assert.equal(await page.locator('#rawMaterialListBody button').filter({hasNotText:/Record cut|Place drawing|Preview/}).count(),0,'Operators can record cuts, place drawings and preview stock');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),3,'Operators retain the material selector');
   }
   async function assertNavigation(page){
-    assert.equal(await page.locator('.nav-button').count(),8,'Eight sidebar destinations');
+    assert.equal(await page.locator('.nav-button:not([data-page=beta])').count(),9,'Nine public sidebar destinations');
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1,'One Materials sidebar tab');
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0,'No duplicate raw-material sidebar tab');
-    for(const name of ['dashboard','feeds','mills','inventory','materials','cuts','notes','settings']){
+    for(const name of ['dashboard','feeds','mills','inventory','materials','cuts','notes','settings','whats-new']){
       await navigate(page,name);
       assert.equal(await page.locator('.workspace-view:visible').count(),1,'Only '+name+' is displayed');
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),true,name+' fits the viewport');
@@ -131,8 +132,8 @@ const databaseKeys=['settings','materials','mills','rawMaterials'];
     const {page,rpc}=await open();await navigate(page,'materials');
     assert.equal(await page.locator('.nav-button[data-page="materials"]').count(),1);
     assert.equal(await page.locator('.nav-button[data-page="raw-materials"]').count(),0);
-    assert.equal(await page.locator('.nav-button').count(),8);
-    assert.match(await page.locator('#appVersion').innerText(),/1\.15\.3/);
+    assert.equal(await page.locator('.nav-button').count(),9);
+    assert.match(await page.locator('#appVersion').innerText(),new RegExp(expectedVersion.replaceAll('.', '\\.')));
     assert.match(await page.locator('#mentorNotice').innerText(),/mentor.*present/i);
     assert.equal(await page.locator('#materialDetailEmpty').isVisible(),true,'A new installation has a material-selection empty state');
     assert.equal(await page.locator('#publicMaterialList button.material-choice').count(),0);

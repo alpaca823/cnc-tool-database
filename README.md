@@ -1,4 +1,4 @@
-# CNC Database — v1.15.5
+# CNC Database — v1.16.1
 
 This workspace maintains two variants of the same CNC tool and material database:
 
@@ -18,18 +18,15 @@ The interface and data rules have one canonical source:
 - `cnc-local/app-shell.html`: shared markup and established UI handlers.
 - `cnc-local/workspace-ui.js` and `workspace.css`: shared navigation, library views, inventory UI, and appearance.
 - `cnc-local/local-core.js`: local storage/authentication plus canonical record validation and operations.
-- `cnc-scripts/build_engine.py`: generates the server data engine from those canonical record rules and operations.
-- `cnc-scripts/`: Google transport, server storage/authentication, deployment manifest, and generated deployment files.
+- `cnc-pages/build.py`: generates the shared frontend and Supabase engine from the canonical source.
+- `cnc-pages/supabase/functions/cnc-api/`: shared API, custom admin authentication, and persistence.
+- `cnc-local/job-form.js`: CAD sizing and the drawing example dialog.
 
-Run `python build-both.py` to build both variants after a source change. Check the local and Google variants before releasing them with the same version. Apps Script deployment files must then be installed in the existing Google project and published as a new deployment version; local users install the matching HTML release.
+Run `python build-both.py` after a source change. Run `python verify-both.py` to rebuild and verify the local and shared editions. Tests require Python 3, Node.js, Playwright, and Chromium; install dependencies with `npm ci`. Browser tests use intercepted loopback pages and isolated data, without modifying the live shop database.
 
-The common release number is stored in `cnc-local/VERSION`. Run `python verify-both.py` to rebuild and run both test sets. This requires Python 3, Node.js, Playwright, and Chromium. Install the browser test dependency with `npm install`; set `CHROMIUM_PATH` when Chromium is not at `/usr/bin/chromium`. The verification runner uses intercepted loopback pages so it does not require a web server or a Google account. Google-service tests use local mocks; verify the deployed link in Google after installation.
+After verification, run `python package-both.py --public-release` to create matching local, GitHub Pages, and source ZIPs. Numbered releases cannot be replaced with changed contents. Deploy the generated Supabase API, then publish `cnc-pages/public` with GitHub Actions. Google Apps Script is archived and is not rebuilt or deployed.
 
-After verification, run `python package-both.py` to create matching local, Google, combined, and source ZIPs. The packager refuses to replace a numbered release with changed contents; use a new version for a changed release.
-
-The variants share features and backup formats, but each has its own live data. JSON import/export moves a snapshot between them. An offline HTML download from the Google app is an independent local copy. They do not automatically synchronize after a snapshot is copied.
-
-The older `cnc-feeds-speeds/` directory is a legacy project. Use a fresh Apps Script project for the current variant, then import a compatible JSON backup through the app.
+Both supported editions share features and backup formats, but their live data is independent. An offline HTML download is a snapshot and does not synchronize after copying. JSON imports replace the current database contents.
 
 See each variant's **TEST-RESULTS.md** for completed validation. Keep numbered release ZIPs unchanged so an earlier release remains available.
 
@@ -91,3 +88,13 @@ Update v1.15.1: Drawing placement is public. In Materials or Inventory, choose P
 Update v1.15.2: Mark done opens a dialog to select a DWG/DXF/SVG drawing and an available stock piece. Position the drawing, then Record cut to save the stock change and complete the entire job together. Canceling keeps the job pending. If no supported drawing is listed, attach one to a Job Queue job first; admins can add stock through Materials. Completion and material changes are separate reports saved atomically; admins can undo the reports individually in Settings, newest first, unless later edits conflict.
 
 Update v1.15.4: Drawing attachments allow 5 MB per file and 5 MB combined per job, across at most 3 files. Existing library and browser storage limits still apply; large offline saves may require freeing browser storage.
+
+## CAD job planning
+
+Choose a saved material or **Other**, enter positive decimal thickness in inches, and provide **Added / edited by** and **Approved by** on every save. Fractions are rejected. Names are user-entered records, not verified account approvals. Existing jobs and backups remain readable; editing an older job requires the new fields.
+
+Attach a clean DWG, DXF or SVG and choose the drawing used for sizing. Set its actual units (inches or millimeters). Length and width are calculated from the grouped outer geometry, converted to inches, and rounded upward to whole inches. Manual length and width inputs are removed. Other attachment formats can still be saved, but do not provide automatic dimensions; legacy recorded dimensions are retained when no CAD is attached. The existing drawing limits remain 3 attachments and 5 MB combined per job.
+
+Use part geometry only, one view at 1:1 scale, without dimensions, labels, border or title block. **View example** opens a clean part illustration. The app checks supported geometry; the person preparing the job must verify scale, units and intended view. Approximate curved outlines and automatically closed edges should be checked before cutting.
+
+Mark done shows only that job’s attachments. Visitors select available stock; jobs without drawings skip drawing selection. CAD drawings open placement; no drawing or a non-CAD attachment requires confirmation to use one whole stock piece without a remnant. Only admins can mark done without stock/drawing selections. Reports and conflict-safe admin undo remain available in Settings.

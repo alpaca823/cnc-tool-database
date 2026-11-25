@@ -2,6 +2,13 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.16.1
+
+- Job forms require a saved material or Other, positive decimal thickness, Added / edited by, and Approved by. Length and width are calculated from a selected DWG/DXF/SVG outline, converted to inches and rounded upward to whole inches. Legacy jobs/backups remain readable and metadata survives older-client edits.
+- Added drawing requirements and an offline example image: clean part geometry, one view, 1:1 scale, and no dimensions, labels or border. Users explicitly select drawing units and confirm scale. Unsupported CAD geometry blocks a form save; non-CAD attachments remain supported without automatic sizing.
+- Completion lists only the job’s drawings. Jobs without drawings skip drawing selection; visitors still select stock. CAD placement records the remaining shape; no CAD uses a confirmed whole stock piece. Only authenticated admins may complete without selections. Both completion routes retain atomic reports and conflict-safe admin undo.
+- Synchronized the generated root website entrypoints with the canonical build used by tests and packaging. Updated supported-edition documentation and outdated navigation/version regression checks.
+
 ## 1.15.5
 
 - Added artifact-read permission and an artifact-visibility check before GitHub Pages deployment to address failed artifact discovery during the 5 MB upload-limit release.

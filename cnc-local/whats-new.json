@@ -1,5 +1,13 @@
 [
   {
+    "version": "1.16.1",
+    "notes": [
+      "Jobs require material, decimal thickness, author and approval.",
+      "CAD drawings calculate inch sizes; drawing requirements include an example.",
+      "Completion uses job drawings; only admins can finish without stock selections."
+    ]
+  },
+  {
     "version": "1.15.5",
     "notes": [
       "Improved website deployment reliability."
@@ -66,7 +74,7 @@
   {
     "version": "1.14.24",
     "notes": [
-      "Moved What’s new to the sidebar directly below Settings."
+      "Moved What\u2019s new to the sidebar directly below Settings."
     ]
   },
   {
@@ -111,7 +119,7 @@
   {
     "version": "1.14.17",
     "notes": [
-      "Find short release highlights in Settings → What’s new.",
+      "Find short release highlights in Settings \u2192 What\u2019s new.",
       "Open Older updates to see earlier changes."
     ]
   },
@@ -125,7 +133,7 @@
   {
     "version": "1.14.15",
     "notes": [
-      "See today’s and total website visits in Settings.",
+      "See today\u2019s and total website visits in Settings.",
       "No ads. Offline use is not counted."
     ]
   },

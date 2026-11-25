@@ -14,4 +14,6 @@ Read-only Materials stock previews remain public (since v1.14.25).
 
 New mills are created through the Mills tab. Feeds & Speeds must select an existing registered mill; saving settings must not create a mill implicitly. Preserve legacy backup restoration.
 
-Mark done in the UI must select a drawing and stock, then complete the job only when the material cut is recorded. Combined recording must be atomic, logged and reversible by admins without overwriting later edits.
+Mark done lists only the job’s drawings. Visitors must select stock and a drawing when one is attached; no drawing skips only drawing selection. CAD placement records a shaped cut; other/no drawings explicitly consume a whole stock piece. Only authenticated admins may complete without selections. Combined recording must be atomic, logged and reversible by admins without overwriting later edits.
+
+Job form saves require a registered material or Other, positive decimal thickness, added/edited by and approved by. CAD bounds determine length/width rounded upward to whole inches. Preserve legacy jobs/backups and optional metadata during old-client edits.

@@ -34,7 +34,7 @@ const {fixture}=require('./shared-fixture.cjs');
   assert.ok(await page.locator('dialog.arcade').evaluate(n=>n.scrollWidth<=n.clientWidth),'Mobile dialog fits');
   await page.keyboard.press('Escape');assert.equal(await page.locator('dialog.arcade').evaluate(n=>n.open),false);assert.equal(await logo.evaluate(n=>n===document.activeElement),true);
   await page.setViewportSize({width:1440,height:1000});
-  const search=page.locator('#globalSearch');await search.fill('old search');await page.keyboard.press('Control+k');await page.keyboard.type('new');assert.equal(await search.inputValue(),'new');
+  await page.locator('.nav-button[data-page=mills]').click();const search=page.locator('#globalSearch');await search.fill('old search');await page.keyboard.press('Control+k');await page.keyboard.type('new');assert.equal(await search.inputValue(),'new');
   await logo.focus();for(let i=0;i<5;i++)await page.keyboard.press('Enter');await page.locator('dialog.arcade[open]').waitFor();await page.getByRole('button',{name:'Close',exact:true}).click();
   await page.emulateMedia({reducedMotion:'no-preference'});
   for(let i=0;i<5;i++)await logo.click();

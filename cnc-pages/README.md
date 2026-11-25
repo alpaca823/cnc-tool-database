@@ -81,3 +81,13 @@ Update v1.15.1: Drawing placement is public. In Materials or Inventory, choose P
 Update v1.15.2: Mark done opens a dialog to select a DWG/DXF/SVG drawing and an available stock piece. Position the drawing, then Record cut to save the stock change and complete the entire job together. Canceling keeps the job pending. If no supported drawing is listed, attach one to a Job Queue job first; admins can add stock through Materials. Completion and material changes are separate reports saved atomically; admins can undo the reports individually in Settings, newest first, unless later edits conflict.
 
 Update v1.15.4: Drawing attachments allow 5 MB per file and 5 MB combined per job, across at most 3 files. Existing library and browser storage limits still apply; large offline saves may require freeing browser storage.
+
+## CAD job planning
+
+Choose a saved material or **Other**, enter positive decimal thickness in inches, and provide **Added / edited by** and **Approved by** on every save. Fractions are rejected. Names are user-entered records, not verified account approvals. Existing jobs and backups remain readable; editing an older job requires the new fields.
+
+Attach a clean DWG, DXF or SVG and choose the drawing used for sizing. Set its actual units (inches or millimeters). Length and width are calculated from the grouped outer geometry, converted to inches, and rounded upward to whole inches. Manual length and width inputs are removed. Other attachment formats can still be saved, but do not provide automatic dimensions; legacy recorded dimensions are retained when no CAD is attached. The existing drawing limits remain 3 attachments and 5 MB combined per job.
+
+Use part geometry only, one view at 1:1 scale, without dimensions, labels, border or title block. **View example** opens a clean part illustration. The app checks supported geometry; the person preparing the job must verify scale, units and intended view. Approximate curved outlines and automatically closed edges should be checked before cutting.
+
+Mark done shows only that job’s attachments. Visitors select available stock; jobs without drawings skip drawing selection. CAD drawings open placement; no drawing or a non-CAD attachment requires confirmation to use one whole stock piece without a remnant. Only admins can mark done without stock/drawing selections. Reports and conflict-safe admin undo remain available in Settings.

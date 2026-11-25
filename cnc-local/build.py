@@ -26,6 +26,7 @@ def render_shell(backend: str) -> str:
     worker = glue + '\n' + (ROOT / 'dwg-worker.js').read_text()
     runtime = 'window.cncDwgRuntime=' + json.dumps({'code':worker,'wasmGzip':base64.b64encode(wasm).decode()}).replace('<','\\u003c') + ';'
     built = built.replace('/* DWG_RUNTIME */',runtime)
+    built=built.replace('__DRAWING_EXAMPLE__','data:image/png;base64,'+base64.b64encode((ROOT/'drawing-example.png').read_bytes()).decode())
     highlights = json.loads((ROOT / 'whats-new.json').read_text(encoding='utf-8'))
     if not isinstance(highlights,list) or not highlights or highlights[0].get('version') != version:
         raise ValueError('Add short What’s new highlights for VERSION ' + version)
@@ -47,7 +48,7 @@ def render_shell(backend: str) -> str:
     if built.count('<!-- WHATS_NEW -->') != 1:
         raise ValueError('Missing What’s new build marker.')
     built = built.replace('<!-- WHATS_NEW -->',content)
-    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* STOCK_PREVIEW */', 'stock-preview.js'), ('/* CUT_COMPLETION */', 'cut-completion.js'), ('/* DRAWING_OUTLINES */', 'drawing-outlines.js'), ('/* DWG_READER */', 'dwg-reader.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
+    for token, filename in [('/* WORKSPACE_CSS */', 'workspace.css'), ('/* WORKSPACE_UI */', 'workspace-ui.js'), ('/* STOCK_BETA */', 'stock-beta.js'), ('/* STOCK_PREVIEW */', 'stock-preview.js'), ('/* CUT_COMPLETION */', 'cut-completion.js'), ('/* JOB_FORM */', 'job-form.js'), ('/* DRAWING_OUTLINES */', 'drawing-outlines.js'), ('/* DWG_READER */', 'dwg-reader.js'), ('/* SOLITAIRE_UI */', 'solitaire.js'), ('/* ARCADE_UI */', 'arcade.js')]:
         if built.count(token) != 1:
             raise ValueError('Missing or repeated workspace build marker: ' + token)
         built = built.replace(token, (ROOT / filename).read_text(encoding='utf-8'))
