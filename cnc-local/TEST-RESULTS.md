@@ -1,3 +1,7 @@
+# v1.16.3 validation
+
+Documentation/release change only. Passed: supported-edition build; README relative links and credential-omission checks; What’s new browser checks in both editions; isolated rebuild from the handoff source file set, producing the exact website with active deployment workflows included; whitespace checks. No ownership, permission, credential, production database or server changes were made.
+
 # v1.16.2 validation
 
 Passed in both editions: existing job form checks; measured job-editor/requirements gaps at 1440, 1024 and 390 pixels in light and dark themes (22px desktop, 17px mobile); input spacing and no horizontal overflow; requirements copy excludes SVG and whole-inch rounding. Existing Settings and Dashboard spacing browser checks also passed. No backend or data-rule changes.

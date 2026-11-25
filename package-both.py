@@ -46,8 +46,8 @@ if __name__ == '__main__':
     local_zip = archive('CNC-Tool-Database-Beta.zip' if args.beta else f'CNC-Tool-Database-v{version}.zip',local,immutable=not args.beta)
     pages = {str(f.relative_to(ROOT/'cnc-pages/public')):f for f in (ROOT/'cnc-pages/public').rglob('*') if f.is_file()}
     archive('CNC-Tool-Database-GitHub-Pages-Beta.zip' if args.beta else f'CNC-Tool-Database-GitHub-Pages-v{version}.zip',pages,immutable=not args.beta)
-    source = {n:ROOT/n for n in ['README.md','CHANGELOG.md','AGENTS.md','build-both.py','verify-both.py','package-both.py','package.json','package-lock.json','ROLLBACK.md']}
-    for folder in ['cnc-local','cnc-pages']:
+    source = {n:ROOT/n for n in ['README.md','CHANGELOG.md','AGENTS.md','build-both.py','verify-both.py','package-both.py','package.json','package-lock.json','ROLLBACK.md','config.js','.nojekyll','.gitignore']}
+    for folder in ['cnc-local','cnc-pages','.github/workflows']:
         for f in (ROOT/folder).rglob('*'):
             if f.is_file() and not any(part in ['__pycache__','previews','archive'] for part in f.parts):source[str(f.relative_to(ROOT))]=f
     if (ROOT/'BETA-CHANGELOG.md').exists():source['BETA-CHANGELOG.md']=ROOT/'BETA-CHANGELOG.md'

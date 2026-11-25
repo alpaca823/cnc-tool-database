@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.16.3",
+    "notes": [
+      "Simplified guides with team handoff and Codex/Claude Code update instructions."
+    ]
+  },
+  {
     "version": "1.16.2",
     "notes": [
       "Improved spacing around the job editor and drawing requirements.",
