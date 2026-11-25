@@ -1238,7 +1238,7 @@ window.cncStockGeometry = (() => {
       const drawingIds=record.drawingIds===undefined?[]:record.drawingIds;
       if(!Array.isArray(drawingIds)||drawingIds.length>3||drawingIds.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(drawingIds).size!==drawingIds.length)throw new Error('A cut can have up to 3 unique drawings.');
       item.drawingIds=drawingIds.slice();
-      for (const [name,max] of [['material',200],['notes',2000]]) {
+      for (const [name,max] of [['material',200],['notes',2000],['editedBy',80],['approvedBy',80],['sizingDrawingName',200],['drawingUnits',10]]) {
         if (record[name] !== undefined && (typeof record[name] !== 'string' || record[name].length > max)) throw new Error(name + ' is too long or invalid.');
         item[name] = (record[name] || '').trim();
       }
@@ -1618,7 +1618,7 @@ window.cncStockGeometry = (() => {
     reportSaveCut(record,original,meta) {
       const state=readState(),index=original==null?-1:cutIndex(state.cuts,original),before=index<0?[]:[{...state.cuts[index]}];
       const drawingIds=prepareCutDrawings(state,record,index);
-      const item=validateCuts([{...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
+      const item=validateCuts([{...(index>=0?state.cuts[index]:{}),...record,drawingIds,priority:record?.priority===undefined&&index>=0?state.cuts[index].priority:record?.priority,completed:record?.completed===undefined&&index>=0?state.cuts[index].completed:record?.completed,id:index<0?uid():state.cuts[index].id}],false)[0];
       if(index<0){if(state.cuts.length>=1000)throw new Error('The job queue has reached its 1,000 entry limit.');state.cuts.push(item);}else state.cuts[index]=item;
       appendPlanReport(state,index<0?'create':'edit',(index<0?'Added cut':'Edited cut')+' · '+item.title,before,[item],{},meta);commit(state);return true;
     },
