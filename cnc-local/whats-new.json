@@ -1,5 +1,11 @@
 [
   {
+    "version": "1.16.5",
+    "notes": [
+      "Jobs now have an editable revision number, shown in the queue and Dashboard."
+    ]
+  },
+  {
     "version": "1.16.4",
     "notes": [
       "Update instructions now cover connected Codex and Claude app cloud sessions."

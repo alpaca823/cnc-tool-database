@@ -8,7 +8,7 @@ Visitors can browse, manage jobs and report cuts or broken mills. Admins maintai
 
 ## Jobs and drawings
 
-Jobs require material (a saved entry or Other), decimal thickness, Added / edited by and Approved by. Use clean part geometry at 1:1 scale, one view, without dimensions, labels or borders. Confirm drawing units and the calculated size. View example shows a sample drawing.
+Jobs include an editable revision number (starting at 1), shown in the Job Queue and Dashboard. It does not increase automatically. Jobs require material (a saved entry or Other), decimal thickness, Added / edited by and Approved by. Use clean part geometry at 1:1 scale, one view, without dimensions, labels or borders. Confirm drawing units and the calculated size. View example shows a sample drawing.
 
 DWG/DXF/SVG can supply automatic dimensions. Other supported attachments can be stored without automatic sizing. Each job allows up to 3 files, totaling 5 MB. When completing a job, visitors select stock and that job’s drawing when one exists. No drawing/non-CAD attachments use a confirmed whole stock piece. Only admins may complete without selections.
 

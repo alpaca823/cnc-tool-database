@@ -1,3 +1,7 @@
+# v1.16.5 validation
+
+Passed: 26 shared backend tests, including job revision defaulting, invalid-input atomic rejection, edits, priority preservation, older-client edits, backup/import and report undo. Both editions passed job-form checks for default revision, whole-number validation, creation/edit persistence, Dashboard/queue display and mobile fit, plus ordering/priority and portable-backup regressions. Live API v21 returns revision defaults and rejects invalid revisions without changing public shop data. Build and whitespace checks passed.
+
 # v1.16.4 validation
 
 Documentation/release change only. Passed supported-edition build, What’s new browser checks in both editions, README app-workflow structure, relative-link and credential-omission checks, and whitespace checks. No runtime, ownership, account or database changes.

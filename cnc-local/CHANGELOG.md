@@ -2,6 +2,10 @@
 
 Release tracking begins with v1.14.8. Earlier releases remain available in their immutable numbered archives. Every subsequent release must increment the version and add an accurate entry here.
 
+## 1.16.5
+
+- Added an editable whole-number job revision, starting at 1, to Add/Edit job. The Job Queue and Dashboard display it; search, backups, edits and report undo retain it. Older jobs default to revision 1. Revisions change only when edited explicitly.
+
 ## 1.16.4
 
 - Replaced terminal/clone instructions in the main README with separate Codex app and Claude app Code cloud-session steps, plus a shared request, review and publish workflow. No manual repository download or file upload is required for these workflows.

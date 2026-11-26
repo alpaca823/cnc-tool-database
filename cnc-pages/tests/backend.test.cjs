@@ -292,3 +292,15 @@ test('completion restricts drawings to the job, protects admin bypass and atomic
  let reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports[0]);reports=await f.ok('adminListReports',token);await f.ok('adminUndoReport',token,reports.find(r=>!r.undone&&r.kind==='material'));assert.equal((await f.ok('getRawMaterials'))[0].quantity,2);
  job=(await f.ok('getCuts')).find(j=>j.id===job.id);await f.ok('adminCompleteJob',token,job,null);assert.equal((await f.ok('getRawMaterials'))[0].quantity,2);
 });
+
+test('job revisions default for legacy jobs, validate atomically, and survive edit, backup and undo',async()=>{
+ const f=await fixture(),{token}=await f.ok('adminLogin','admin','Feds201');
+ await f.ok('reportSaveCut',{title:'Legacy job',quantity:1},null,{});let job=(await f.ok('getCuts'))[0];assert.equal(job.revisionNumber,1);
+ for(const revisionNumber of ['',0,-1,1.5,'A',1000001]){const before=structuredClone(f.getState());assert.equal((await f.call('reportSaveCut',{...job,revisionNumber},job,{})).ok,false);assert.deepEqual(f.getState(),before);}
+ await f.ok('reportSaveJob',{...job,material:'Other',thickness:'.5',editedBy:'Operator',approvedBy:'Mentor',revisionNumber:'3'},job,{});job=(await f.ok('getCuts'))[0];assert.equal(job.revisionNumber,3);
+ await f.ok('reportSetCutPriority',job,'urgent');job=(await f.ok('getCuts'))[0];assert.equal(job.revisionNumber,3);
+ await f.ok('reportSaveCut',{...job,revisionNumber:4},job,{});let backup=await f.ok('adminExportBackup',token);assert.equal(backup.cuts[0].revisionNumber,4);await f.ok('adminImportBackup',token,backup);
+ await f.ok('adminUndoReport',token,(await f.ok('adminListReports',token))[0]);job=(await f.ok('getCuts'))[0];assert.equal(job.revisionNumber,3);
+ await f.ok('reportSaveCut',{title:'Older client edit',quantity:1},job,{});assert.equal((await f.ok('getCuts'))[0].revisionNumber,3);
+ backup=await f.ok('adminExportBackup',token);delete backup.cuts[0].revisionNumber;await f.ok('adminImportBackup',token,backup);assert.equal((await f.ok('getCuts'))[0].revisionNumber,1);
+});

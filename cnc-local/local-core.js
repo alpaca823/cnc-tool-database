@@ -310,7 +310,9 @@
       if (record.priority !== undefined && !['low','normal','high','urgent'].includes(record.priority)) throw new Error('Choose Low, Normal, High, or Urgent priority.');
       const quantity = optionalInteger(record.quantity,'Cut quantity',1,1000000);
       if (quantity === undefined) throw new Error('Enter a cut quantity.');
-      const item = {id:record.id,title:record.title.trim(),quantity,priority:record.priority || 'normal',completed:record.completed === true,version:keepVersions ? record.version : uid()};
+      const revisionNumber=record.revisionNumber===undefined?1:optionalInteger(record.revisionNumber,'Revision number',1,1000000);
+      if(revisionNumber===undefined)throw new Error('Enter a revision number.');
+      const item = {id:record.id,title:record.title.trim(),quantity,revisionNumber,priority:record.priority || 'normal',completed:record.completed === true,version:keepVersions ? record.version : uid()};
       const drawingIds=record.drawingIds===undefined?[]:record.drawingIds;
       if(!Array.isArray(drawingIds)||drawingIds.length>3||drawingIds.some(id=>typeof id!=='string'||!id||id.length>100)||new Set(drawingIds).size!==drawingIds.length)throw new Error('A cut can have up to 3 unique drawings.');
       item.drawingIds=drawingIds.slice();
