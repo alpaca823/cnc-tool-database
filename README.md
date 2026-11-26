@@ -45,19 +45,6 @@ Merging into `main` starts **GitHub Actions → Publish CNC website**. Confirm t
 
 If the assistant changed shared server code, an authorized maintainer must also run **Actions → Deploy shared database API** for the existing project. A frontend publish alone does not update Supabase. That workflow uses the repository secrets `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF`. Enter secrets directly in GitHub Settings, never in an AI chat or code. Keep `config.js` limited to the public project URL/key.
 
-## Ownership handoff to the robotics team
-
-**Preparation only: ownership has not been changed.** Prefer a team GitHub organization with individual student/mentor accounts and at least two long-term owners. Keep `alpaca823` as a collaborator with write access (or a team member with that role) so the graduating maintainer can continue helping.
-
-When the team is ready:
-
-1. Export a current shop backup and save the repository/source ZIP. Record the current GitHub and Supabase owners, project reference, recovery contacts and deployment access in the team’s private records.
-2. In GitHub **repository Settings → General → Danger Zone → Transfer**, transfer the existing repository to the team’s organization/account and complete any acceptance steps. Keep its history and backup branches. Verify that the graduating maintainer and incoming students can still push or open PRs.
-3. Check **Settings → Pages → Source: GitHub Actions**, Actions permissions, the `github-pages` environment, repository protections and deployment secrets. Reauthorize both coding apps and select the repository at its new location.
-4. Update the website link above and the environment URLs in `.github/workflows/pages.yml` and the reference copy `cnc-pages/workflows/pages.yml`. The new default site address is `https://TEAM.github.io/cnc-tool-database/` if the repository name stays the same. Confirm the actual URL in Pages settings; do not rely on the old Pages address redirecting.
-5. **Supabase is separate from GitHub.** Give team mentors access to its organization, retaining appropriate access for the graduating maintainer. Arrange team ownership of the existing project/organization; do not create an empty replacement database. A project transfer requires a source-organization Owner and membership in the target organization. Review the [transfer requirements and plan limits](https://supabase.com/docs/guides/platform/project-transfer) first.
-6. Before using the new website, set the Edge Function secret `CNC_ALLOWED_ORIGINS` to the allowed origins, such as `https://alpaca823.github.io,https://TEAM.github.io` during the move. Origins have no repository path. The fallback is in `cnc-pages/supabase/functions/cnc-api/index.ts`. Replace any personal deployment token with an authorized team maintainer’s token and verify the deployment workflow’s access.
-7. Publish, then verify the new link, existing inventory/drawings, admin access and offline download. Use test data or an isolated copy for write tests. Confirm both maintainers can ship a small update before removing old access. Update this README’s owner names and URLs afterward.
 
 GitHub write access, Supabase management access and the app’s admin login are three separate permissions. Transferring the repository alone does not hand over the database. Keep recovery details and tokens with the team, not in this README.
 
